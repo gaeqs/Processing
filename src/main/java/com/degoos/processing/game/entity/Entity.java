@@ -104,26 +104,29 @@ public class Entity extends Shape {
 		this.controller = controller;
 	}
 
-	public void move(Vector2d vector2d) {
-		move(vector2d.getX(), vector2d.getY());
-	}
-
 	public void triggerMove(boolean up, boolean down, boolean left, boolean right, long dif) {
 		double vel = velocity * dif;
 		if (left && right) left = right = false;
 		if (up && down) up = down = false;
+		Vector2d move = new Vector2d();
 		if (left) {
-			move(-vel, 0);
+			move = move.add(-vel, 0);
 		}
 		if (right) {
-			move(vel, 0);
+			move = move.add(vel, 0);
 		}
 		if (up) {
-			move(0, vel);
+			move = move.add(0, vel);
 		}
 		if (down) {
-			move(0, -vel);
+			move = move.add(0, -vel);
 		}
+		if(move.getX() == 0 && move.getY() == 0) return;
+		move(move);
+	}
+
+	public void move(Vector2d vector2d) {
+		move(vector2d.getX(), vector2d.getY());
 	}
 
 	public void move(double x, double y) {

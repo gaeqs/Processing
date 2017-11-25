@@ -6,6 +6,7 @@ import com.degoos.processing.engine.event.Listener;
 import com.degoos.processing.engine.event.keyboard.KeyPressEvent;
 import com.degoos.processing.engine.event.mouse.MousePressEvent;
 import com.degoos.processing.game.Game;
+import com.degoos.processing.game.entity.SavableEntity;
 import com.degoos.processing.game.entity.Teleport;
 import com.degoos.processing.game.object.Area;
 import com.degoos.processing.game.object.Camera;
@@ -84,7 +85,7 @@ public class SetupListener {
 		}
 		if (event.getPressedKey() == EnumMouseKey.TERTIARY) {
 			new ArrayList<>(Game.getMap().getLevelEntities()).stream().filter(entity -> entity instanceof Teleport)
-				.filter(entity -> entity.getCurrentCollisionBox().isInside(pos)).forEach(entity -> Game.getMap().getLevelEntities().remove(entity));
+				.filter(entity -> entity.getCurrentCollisionBox().isInside(pos)).forEach(SavableEntity::delete);
 			Game.getMap().saveCollisionBoxes();
 		}
 	}
