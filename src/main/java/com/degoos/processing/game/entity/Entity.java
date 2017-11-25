@@ -108,21 +108,18 @@ public class Entity extends Shape {
 		double vel = velocity * dif;
 		if (left && right) left = right = false;
 		if (up && down) up = down = false;
-		Vector2d move = new Vector2d();
 		if (left) {
-			move = move.add(-vel, 0);
+			move(-vel, 0);
 		}
 		if (right) {
-			move = move.add(vel, 0);
+			move(vel, 0);
 		}
 		if (up) {
-			move = move.add(0, vel);
+			move(0, vel);
 		}
 		if (down) {
-			move = move.add(0, -vel);
+			move(0, -vel);
 		}
-		if(move.getX() == 0 && move.getY() == 0) return;
-		move(move);
 	}
 
 	public void move(Vector2d vector2d) {
