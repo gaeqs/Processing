@@ -13,7 +13,6 @@ public class SavableEntitiesUtils {
 		DataInputStream stream = new DataInputStream(inputStream);
 		try {
 			int size = stream.readInt();
-			System.out.println(size);
 			for (int i = 0; i < size; i++) {
 				Class<?> clazz = Class.forName(stream.readUTF());
 				clazz.getConstructor(DataInputStream.class, Level.class).newInstance(stream, level);
