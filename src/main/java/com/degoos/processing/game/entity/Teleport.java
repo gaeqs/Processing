@@ -1,16 +1,13 @@
 package com.degoos.processing.game.entity;
 
 import com.degoos.processing.engine.Processing;
-import com.degoos.processing.engine.util.CoordinatesUtils;
 import com.degoos.processing.engine.util.Validate;
+import com.degoos.processing.game.enums.EnumCollideAction;
 import com.degoos.processing.game.listener.SetupListener;
 import com.degoos.processing.game.object.Area;
 import com.degoos.processing.game.object.Level;
-import com.degoos.processing.game.util.GameCoordinatesUtils;
 import com.degoos.processing.game.util.StreamUtils;
 import com.flowpowered.math.vector.Vector2d;
-import com.flowpowered.math.vector.Vector2f;
-import java.awt.Color;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -53,33 +50,16 @@ public class Teleport extends SavableEntity {
 	}
 
 	@Override
-	public boolean collide(Entity entity) {
+	public EnumCollideAction collide(Entity entity) {
 		if (entity instanceof Player && !SetupListener.setup) {
 			entity.setPosition(destiny);
-			return true;
+			return EnumCollideAction.CANCEL;
 		}
-		return !this.isTangible() || !entity.isTangible();
+		return super.collide(entity);
 	}
 
 	@Override
 	public void draw(Processing core) {
 		super.draw(core);
-		if (SetupListener.setup) {
-			Vector2f minMax = CoordinatesUtils.transformIntoProcessingCoordinates(GameCoordinatesUtils
-				.toEngineCoordinates(new Vector2d(getCurrentCollisionBox().getMin().getX(), getCurrentCollisionBox().getMax().getY())));
-			Vector2f maxMin = CoordinatesUtils.transformIntoProcessingCoordinates(GameCoordinatesUtils
-				.toEngineCoordinates(new Vector2d(getCurrentCollisionBox().getMax().getX(), getCurrentCollisionBox().getMin().getY())));
-			Vector2f min = CoordinatesUtils.transformIntoProcessingCoordinates(GameCoordinatesUtils.toEngineCoordinates(getCurrentCollisionBox().getMin()));
-			Vector2f max = CoordinatesUtils.transformIntoProcessingCoordinates(GameCoordinatesUtils.toEngineCoordinates(getCurrentCollisionBox().getMax()));
-			core.stroke(Color.GREEN.getRGB());
-			core.noFill();
-			core.beginShape();
-			core.strokeWeight(5);
-			core.vertex(min.getX(), min.getY());
-			core.vertex(minMax.getX(), minMax.getY());
-			core.vertex(max.getX(), max.getY());
-			core.vertex(maxMin.getX(), maxMin.getY());
-			core.endShape(Processing.CLOSE);
-		}
 	}
 }

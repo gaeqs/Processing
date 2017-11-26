@@ -26,7 +26,7 @@ public class Game {
 		double ref = 1280D / 720D;
 
 		entityManager = new EntityManager();
-		camera = new Camera(new Vector2d(12, 10), ref * 4, 4);
+		camera = new Camera(new Vector2d(12, 8), ref * 4, 4);
 		map = new Level("map");
 
 		player = new Player(new Vector2d(12, 8), new PlayerController());
@@ -36,7 +36,7 @@ public class Game {
 		new Text(true, 0, 0, "", new Vector2d(0, 0.98), Color.BLACK, 20) {
 			@Override
 			public void onTick(long dif) {
-				setText(String.valueOf(dif));
+				setText(String.valueOf(dif)+ (SetupListener.setup ? player.getPosition() : ""));
 			}
 		};
 

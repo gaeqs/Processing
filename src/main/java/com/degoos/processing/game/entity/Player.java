@@ -88,23 +88,24 @@ public class Player extends Entity {
 		boolean wasWalking = walking;
 		walking = down || up || left || right;
 		if (wasWalking && !walking) refreshAnimation();
-
+		Vector2d vector2d = new Vector2d();
 		if (left) {
-			move(-vel, 0);
+			vector2d = vector2d.add(-vel, 0);
 			if (!up && !down) setDirection(EnumFacingDirection.LEFT, wasWalking != walking);
 		}
 		if (right) {
-			move(vel, 0);
+			vector2d = vector2d.add(vel, 0);
 			if (!up && !down) setDirection(EnumFacingDirection.RIGHT, wasWalking != walking);
 		}
 		if (up) {
-			move(0, vel);
+			vector2d = vector2d.add(0, vel);
 			setDirection(EnumFacingDirection.UP, wasWalking != walking);
 		}
 		if (down) {
-			move(0, -vel);
+			vector2d = vector2d.add(0, -vel);
 			setDirection(EnumFacingDirection.DOWN, wasWalking != walking);
 		}
+		move(vector2d);
 	}
 
 	@Override

@@ -6,6 +6,7 @@ import com.degoos.processing.engine.event.Listener;
 import com.degoos.processing.engine.event.keyboard.KeyPressEvent;
 import com.degoos.processing.engine.event.mouse.MousePressEvent;
 import com.degoos.processing.game.Game;
+import com.degoos.processing.game.entity.CollisionBox;
 import com.degoos.processing.game.entity.SavableEntity;
 import com.degoos.processing.game.entity.Teleport;
 import com.degoos.processing.game.object.Area;
@@ -37,7 +38,7 @@ public class SetupListener {
 				if (keys.length <= current) {
 					current = 0;
 					setup = true;
-					Game.getPlayer().setTangible(false);
+					Game.getPlayer().setTangible(true);
 				}
 			} else current = 0;
 		}
@@ -53,15 +54,15 @@ public class SetupListener {
 		if (event.getPressedKey() == EnumMouseKey.PRIMARY) {
 			if (collisionFirstPos == null) collisionFirstPos = pos;
 			else {
-				Game.getMap().addCollisionBox(new Area(collisionFirstPos, pos));
-				Game.getMap().saveCollisionBoxes();
+				Game.getMap().addEntity(new CollisionBox(new Area(collisionFirstPos, pos), Game.getMap()));
+				Game.getMap().saveLevelEntities();
 				collisionFirstPos = null;
 			}
 		}
 		if (event.getPressedKey() == EnumMouseKey.TERTIARY) {
-			new ArrayList<>(Game.getMap().getCollisionBoxes()).stream().filter(area -> area.isInside(pos))
-				.forEach(area -> Game.getMap().getCollisionBoxes().remove(area));
-			Game.getMap().saveCollisionBoxes();
+			new ArrayList<>(Game.getMap().getLevelEntities()).stream().filter(entity -> entity instanceof CollisionBox)
+				.filter(entity -> entity.getCurrentCollisionBox().isInside(pos)).forEach(SavableEntity::delete);
+			Game.getMap().saveLevelEntities();
 		}
 	}
 
@@ -86,7 +87,7 @@ public class SetupListener {
 		if (event.getPressedKey() == EnumMouseKey.TERTIARY) {
 			new ArrayList<>(Game.getMap().getLevelEntities()).stream().filter(entity -> entity instanceof Teleport)
 				.filter(entity -> entity.getCurrentCollisionBox().isInside(pos)).forEach(SavableEntity::delete);
-			Game.getMap().saveCollisionBoxes();
+			Game.getMap().saveLevelEntities();
 		}
 	}
 }

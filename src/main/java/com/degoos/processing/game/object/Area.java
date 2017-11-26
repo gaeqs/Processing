@@ -8,7 +8,7 @@ public class Area {
 
 	private Vector2d min;
 	private Vector2d max;
-	private Double rectangle;
+	protected Double rectangle;
 
 	public Area(Vector2d min, Vector2d max) {
 		this.min = min;
@@ -36,16 +36,25 @@ public class Area {
 		recalculate();
 	}
 
+	public Vector2d getMinMax() {
+		return new Vector2d(min.getX(), max.getY());
+	}
+
+	public Vector2d getMaxMin() {
+		return new Vector2d(max.getX(), min.getY());
+	}
+
+
 	public boolean isInside(Vector2d vector2d) {
 		return isInsideX(vector2d.getX()) && isInsideY(vector2d.getY());
 	}
 
 	public boolean isInsideX(double x) {
-		return x >= min.getX() && x <= max.getX();
+		return x > min.getX() && x < max.getX();
 	}
 
 	public boolean isInsideY(double y) {
-		return y >= min.getY() && y <= max.getY();
+		return y > min.getY() && y < max.getY();
 	}
 
 

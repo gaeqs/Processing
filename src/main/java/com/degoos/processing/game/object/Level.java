@@ -7,7 +7,10 @@ import com.degoos.processing.engine.object.Shape;
 import com.degoos.processing.engine.util.CoordinatesUtils;
 import com.degoos.processing.engine.util.Validate;
 import com.degoos.processing.game.Game;
+import com.degoos.processing.game.entity.CollisionBox;
+import com.degoos.processing.game.entity.Entity;
 import com.degoos.processing.game.entity.SavableEntity;
+import com.degoos.processing.game.entity.Teleport;
 import com.degoos.processing.game.listener.SetupListener;
 import com.degoos.processing.game.util.CollisionUtils;
 import com.degoos.processing.game.util.GameCoordinatesUtils;
@@ -20,15 +23,12 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 public class Level extends Shape {
 
 	private Vector2d size;
-	private List<Area> collisionBoxes;
 	private Set<SavableEntity> levelEntities;
 	private String folder;
 
@@ -43,17 +43,6 @@ public class Level extends Shape {
 
 		onTick(0);
 		setTexture(image);
-
-		InputStream collisionBoxesIS = Engine.getResourceInputStream(folder + "/collision.dat");
-		if (collisionBoxesIS == null) collisionBoxes = new ArrayList<>();
-		else {
-			collisionBoxes = CollisionUtils.loadCollisionBoxes(collisionBoxesIS);
-			try {
-				collisionBoxesIS.close();
-			} catch (Exception ex) {
-				ex.printStackTrace();
-			}
-		}
 
 		levelEntities = new HashSet<>();
 		InputStream entitiesIS = Engine.getResourceInputStream(folder + "/entities.dat");
@@ -73,20 +62,6 @@ public class Level extends Shape {
 		return size;
 	}
 
-	public List<Area> getCollisionBoxes() {
-		return collisionBoxes;
-	}
-
-	public Level setCollisionBoxes(List<Area> collisionBoxes) {
-		this.collisionBoxes = collisionBoxes == null ? new ArrayList<>() : collisionBoxes;
-		return this;
-	}
-
-	public Level addCollisionBox(Area collisionBox) {
-		collisionBoxes.add(collisionBox);
-		return this;
-	}
-
 	public Set<SavableEntity> getLevelEntities() {
 		return levelEntities;
 	}
@@ -97,23 +72,6 @@ public class Level extends Shape {
 
 	public Level addEntity(SavableEntity entity) {
 		levelEntities.add(entity);
-		return this;
-	}
-
-	public Level saveCollisionBoxes() {
-		try {
-			File folder = new File(this.folder);
-			if (!folder.isFile()) folder.delete();
-			if (!folder.exists()) folder.mkdirs();
-			File file = new File(folder, "collision.dat");
-			file.delete();
-			file.createNewFile();
-			OutputStream outputStream = new FileOutputStream(file);
-			CollisionUtils.saveCollisionBoxes(outputStream, collisionBoxes);
-			outputStream.close();
-		} catch (Exception ex) {
-			ex.printStackTrace();
-		}
 		return this;
 	}
 
@@ -149,14 +107,17 @@ public class Level extends Shape {
 	@Override
 	public void draw(Processing core) {
 		super.draw(core);
-		if (SetupListener.setup) for (Area area : collisionBoxes) {
+		if (SetupListener.setup) for (Entity entity : levelEntities) {
+			Area area = entity.getCurrentCollisionBox();
 			Vector2f minMax = CoordinatesUtils
 				.transformIntoProcessingCoordinates(GameCoordinatesUtils.toEngineCoordinates(new Vector2d(area.getMin().getX(), area.getMax().getY())));
 			Vector2f maxMin = CoordinatesUtils
 				.transformIntoProcessingCoordinates(GameCoordinatesUtils.toEngineCoordinates(new Vector2d(area.getMax().getX(), area.getMin().getY())));
 			Vector2f min = CoordinatesUtils.transformIntoProcessingCoordinates(GameCoordinatesUtils.toEngineCoordinates(area.getMin()));
 			Vector2f max = CoordinatesUtils.transformIntoProcessingCoordinates(GameCoordinatesUtils.toEngineCoordinates(area.getMax()));
-			core.stroke(Color.RED.getRGB());
+			if (entity instanceof CollisionBox) core.stroke(Color.RED.getRGB());
+			else if (entity instanceof Teleport) core.stroke(Color.GREEN.getRGB());
+			else core.stroke(Color.GRAY.getRGB());
 			core.noFill();
 			core.beginShape();
 			core.strokeWeight(5);

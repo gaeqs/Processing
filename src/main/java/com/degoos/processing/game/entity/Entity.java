@@ -1,14 +1,28 @@
 package com.degoos.processing.game.entity;
 
+import com.degoos.processing.engine.Processing;
 import com.degoos.processing.engine.object.Shape;
+import com.degoos.processing.engine.util.CoordinatesUtils;
 import com.degoos.processing.engine.util.Validate;
 import com.degoos.processing.game.Game;
 import com.degoos.processing.game.controller.Controller;
+import com.degoos.processing.game.enums.EnumCollideAction;
+import com.degoos.processing.game.enums.EnumCollisionFace;
+import com.degoos.processing.game.listener.SetupListener;
 import com.degoos.processing.game.object.Area;
 import com.degoos.processing.game.object.Camera;
+import com.degoos.processing.game.object.Collision;
+import com.degoos.processing.game.object.LinealArea;
+import com.degoos.processing.game.object.ParallelogramArea;
 import com.degoos.processing.game.util.GameCoordinatesUtils;
 import com.flowpowered.math.vector.Vector2d;
+import com.flowpowered.math.vector.Vector2f;
 import com.flowpowered.math.vector.Vector2i;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class Entity extends Shape {
 
@@ -17,6 +31,7 @@ public class Entity extends Shape {
 	private Controller controller;
 	private boolean tangible;
 	private double velocity;
+	private Vector2d point1, point2, point3, point4;
 
 
 	public Entity(Vector2d position, Area relativeCollisionBox, Area relativeDisplayArea, boolean tangible, double velocity, Controller controller) {
@@ -108,18 +123,20 @@ public class Entity extends Shape {
 		double vel = velocity * dif;
 		if (left && right) left = right = false;
 		if (up && down) up = down = false;
+		Vector2d vector2d = new Vector2d();
 		if (left) {
-			move(-vel, 0);
+			vector2d = vector2d.add(-vel, 0);
 		}
 		if (right) {
-			move(vel, 0);
+			vector2d = vector2d.add(vel, 0);
 		}
 		if (up) {
-			move(0, vel);
+			vector2d = vector2d.add(0, vel);
 		}
 		if (down) {
-			move(0, -vel);
+			vector2d = vector2d.add(0, -vel);
 		}
+		move(vector2d);
 	}
 
 	public void move(Vector2d vector2d) {
@@ -127,22 +144,104 @@ public class Entity extends Shape {
 	}
 
 	public void move(double x, double y) {
+		if (x == 0 && y == 0) return;
 		Vector2d newPosition = position.add(x, y);
+		Area maxArea = new Area(getCurrentCollisionBox().getMin().add(x, y), getCurrentCollisionBox().getMax().add(x, y));
 
-		Area newArea = new Area(getCurrentCollisionBox().getMin().add(x, y), getCurrentCollisionBox().getMax().add(x, y));
-		for (Entity entity : Game.getEntityManager().getEntities()) {
-			if (entity.equals(this)) continue;
-			if (entity.getCurrentCollisionBox().collide(newArea)) {
-				if (!entity.collide(this) && entity.isTangible() && isTangible()) return;
-				if (!collide(entity) && entity.isTangible() && isTangible()) return;
+		boolean finalX = x == 0;
+		boolean finalY = y == 0;
+		point3 = null;
+		calculatePoints(x, y, currentCollisionBox);
+		Vector2d f1 = point1, f2 = point2, f3 = point3, f4 = point4;
+		calculatePoints(x, y, maxArea);
+		LinealArea centerLine = finalX || finalY ? null : new LinealArea(f4, point1);
+		ParallelogramArea verticalArea = finalX ? null : new ParallelogramArea(f1, f2, point1, point2);
+		ParallelogramArea horizontalArea = finalY ? null : new ParallelogramArea(f1, x == 0 ? f2 : f3, point1, x == 0 ? point2 : point3);
+
+		List<Entity> verticalEntities = new ArrayList<>(), horizontalEntities = new ArrayList<>();
+		Map<Entity, Collision> collisions = new HashMap<>();
+
+		Game.getEntityManager().getEntities().forEach(entity -> {
+			if (entity.equals(this)) return;
+			boolean vertical = verticalArea != null && verticalArea.collide(entity.getCurrentCollisionBox());
+			boolean horizontal = horizontalArea != null && horizontalArea.collide(entity.getCurrentCollisionBox());
+			if (vertical && horizontal) {
+				Collision collision = centerLine.getFirstCollisionPoint(entity.getCurrentCollisionBox());
+				if (collision == null) return;
+				if (collision.getCollisionFace() == EnumCollisionFace.LEFT || collision.getCollisionFace() == EnumCollisionFace.RIGHT) verticalEntities.add(entity);
+				else if (collision.getCollisionFace() == EnumCollisionFace.UP || collision.getCollisionFace() == EnumCollisionFace.DOWN) horizontalEntities.add(entity);
+				collisions.put(entity, collision);
+			} else if (vertical) verticalEntities.add(entity);
+			else if (horizontal) horizontalEntities.add(entity);
+		});
+		if (verticalEntities.size() > 1) verticalEntities.sort(Comparator.comparingDouble(o -> Math.abs(o.getPosition().getX() - position.getX())));
+		if (horizontalEntities.size() > 1) horizontalEntities.sort(Comparator.comparingDouble(o -> Math.abs(o.getPosition().getY() - position.getY())));
+		for (Entity entity : verticalEntities) {
+			EnumCollideAction action = entity.collide(this);
+			if (action == EnumCollideAction.CANCEL) return;
+			if (action == EnumCollideAction.COLLIDE) {
+				double newX = collisions.containsKey(entity) ? collisions.get(entity).getPoint().getX()
+				                                             : (x > 0 ? entity.getCurrentCollisionBox().getMin() : entity.getCurrentCollisionBox().getMax()).getX();
+				newX -= x > 0 ? relativeCollisionBox.getMax().getX() : relativeCollisionBox.getMin().getX();
+				newPosition = new Vector2d(newX, newPosition.getY());
+				break;
 			}
 		}
-
-		if (this.isTangible() && Game.getMap() != null) for (Area area : Game.getMap().getCollisionBoxes())
-			if (area.collide(newArea)) return;
-
+		for (Entity entity : horizontalEntities) {
+			EnumCollideAction action = entity.collide(this);
+			if (action == EnumCollideAction.CANCEL) return;
+			if (action == EnumCollideAction.COLLIDE) {
+				double newY = collisions.containsKey(entity) ? collisions.get(entity).getPoint().getY()
+				                                             : (y > 0 ? entity.getCurrentCollisionBox().getMin() : entity.getCurrentCollisionBox().getMax()).getY();
+				newY -= y > 0 ? relativeCollisionBox.getMax().getY() : relativeCollisionBox.getMin().getY();
+				newPosition = new Vector2d(newPosition.getX(), newY);
+				break;
+			}
+		}
 		position = newPosition;
 		recalculateAreas();
+	}
+
+	private void calculatePoints(double x, double y, Area area) {
+		if (x > 0) {
+			if (y > 0) {
+				point1 = area.getMax();
+				point2 = area.getMaxMin();
+				point3 = area.getMinMax();
+				point4 = area.getMin();
+			} else if (y < 0) {
+				point1 = area.getMaxMin();
+				point2 = area.getMax();
+				point3 = area.getMin();
+				point4 = area.getMinMax();
+			} else {
+				point1 = area.getMax();
+				point2 = area.getMaxMin();
+			}
+		} else if (x < 0) {
+			if (y > 0) {
+				point1 = area.getMinMax();
+				point2 = area.getMin();
+				point3 = area.getMax();
+				point4 = area.getMaxMin();
+			} else if (y < 0) {
+				point1 = area.getMin();
+				point2 = area.getMinMax();
+				point3 = area.getMaxMin();
+				point4 = area.getMax();
+			} else {
+				point1 = area.getMinMax();
+				point2 = area.getMin();
+			}
+		} else {
+			if (y > 0) {
+				point1 = area.getMinMax();
+				point2 = area.getMax();
+			} else if (y < 0) {
+				point1 = area.getMin();
+				point2 = area.getMaxMin();
+			}
+		}
 	}
 
 	private void recalculateAreas() {
@@ -150,8 +249,8 @@ public class Entity extends Shape {
 		this.currentDisplayArea = new Area(relativeDisplayArea.getMin().add(position), relativeDisplayArea.getMax().add(position));
 	}
 
-	public boolean collide(Entity entity) {
-		return !this.isTangible() || !entity.isTangible();
+	public EnumCollideAction collide(Entity entity) {
+		return this.isTangible() && entity.isTangible() ? EnumCollideAction.COLLIDE : EnumCollideAction.PASS_THROUGH;
 	}
 
 	@Override
@@ -170,6 +269,30 @@ public class Entity extends Shape {
 		addVertexWithUv(new Vector2d(cameraMax.getX(), cameraMin.getY()), new Vector2i(1, 0));
 		addVertexWithUv(cameraMax, new Vector2i(1, 1));
 		addVertexWithUv(new Vector2d(cameraMin.getX(), cameraMax.getY()), new Vector2i(0, 1));
+	}
+
+	@Override
+	public void draw(Processing core) {
+		if (SetupListener.setup) {
+			core.strokeWeight(10);
+			if (point1 != null) {
+				core.stroke(255, 0, 0);
+				Vector2f n = CoordinatesUtils.transformIntoProcessingCoordinates(GameCoordinatesUtils.toEngineCoordinates(point1));
+				core.point(n.getX(), n.getY());
+			}
+			if (point2 != null) {
+				core.stroke(0, 255, 0);
+				Vector2f n = CoordinatesUtils.transformIntoProcessingCoordinates(GameCoordinatesUtils.toEngineCoordinates(point2));
+				core.point(n.getX(), n.getY());
+			}
+			if (point3 != null) {
+				core.stroke(0, 0, 255);
+				Vector2f n = CoordinatesUtils.transformIntoProcessingCoordinates(GameCoordinatesUtils.toEngineCoordinates(point3));
+				core.point(n.getX(), n.getY());
+			}
+			point1 = point2 = point3 = null;
+		}
+		super.draw(core);
 	}
 
 	@Override
