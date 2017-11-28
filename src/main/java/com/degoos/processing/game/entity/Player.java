@@ -11,7 +11,7 @@ import com.flowpowered.math.vector.Vector2d;
 import java.util.HashMap;
 import java.util.Map;
 
-public class Player extends Entity {
+public class Player extends LivingEntity {
 
 	private EnumFacingDirection direction;
 	private Map<EnumFacingDirection, Image> standAnimations;
@@ -19,9 +19,13 @@ public class Player extends Entity {
 	private boolean walking;
 
 	public Player(Vector2d position, Controller controller) {
-		super(position, new Area(new Vector2d(-0.6, 0), new Vector2d(0.6, 0.5)), new Area(new Vector2d(-0.7, 0), new Vector2d(0.7, 1.3)), true, 0.004D, controller);
+		super(position, new Area(new Vector2d(-0.6, 0), new Vector2d(0.6, 0.5)), new Area(new Vector2d(-0.7, 0), new Vector2d(0.7, 1.3)), true, 0.004D, true,
+			controller, 100, 100);
 		setDrawPriority(2);
 		setTickPriority(0);
+
+		this.walking = false;
+		this.direction = EnumFacingDirection.DOWN;
 
 		standAnimations = new HashMap<>();
 		walkingAnimations = new HashMap<>();
@@ -34,9 +38,6 @@ public class Player extends Entity {
 		walkingAnimations.put(EnumFacingDirection.UP, new Animation("riolu/walk/up", "png"));
 		walkingAnimations.put(EnumFacingDirection.RIGHT, new Animation("riolu/walk/right", "png"));
 		walkingAnimations.put(EnumFacingDirection.LEFT, new Animation("riolu/walk/left", "png"));
-
-		this.walking = false;
-		this.direction = EnumFacingDirection.DOWN;
 		setTexture(getAnimation(EnumFacingDirection.DOWN));
 	}
 
@@ -82,7 +83,15 @@ public class Player extends Entity {
 
 	@Override
 	public void triggerMove(boolean up, boolean down, boolean left, boolean right, long dif) {
+		if (!canMove()) {
+			if (walking) {
+				walking = false;
+				refreshAnimation();
+			}
+			return;
+		}
 		double vel = getVelocity() * dif;
+		setHealth(getHealth() - vel);
 		if (left && right) left = right = false;
 		if (up && down) up = down = false;
 		boolean wasWalking = walking;

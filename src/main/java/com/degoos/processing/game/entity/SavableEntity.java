@@ -14,7 +14,7 @@ public class SavableEntity extends Entity {
 	private Level level;
 
 	public SavableEntity(Vector2d position, Area relativeCollisionBox, Area relativeDisplayArea, boolean tangible, double velocity, Controller controller, Level level) {
-		super(position, relativeCollisionBox, relativeDisplayArea, tangible, velocity, controller);
+		super(position, relativeCollisionBox, relativeDisplayArea, tangible, velocity, false, controller);
 		this.level = level;
 		level.addEntity(this);
 	}
@@ -22,7 +22,7 @@ public class SavableEntity extends Entity {
 	public SavableEntity(DataInputStream inputStream, Level level) throws IOException {
 		super(new Vector2d(inputStream.readDouble(), inputStream.readDouble()), new Area(new Vector2d(inputStream.readDouble(), inputStream
 			.readDouble()), new Vector2d(inputStream.readDouble(), inputStream.readDouble())), new Area(new Vector2d(inputStream.readDouble(), inputStream
-			.readDouble()), new Vector2d(inputStream.readDouble(), inputStream.readDouble())), inputStream.readBoolean(), inputStream.readDouble(), null);
+			.readDouble()), new Vector2d(inputStream.readDouble(), inputStream.readDouble())), inputStream.readBoolean(), inputStream.readDouble(), false, null);
 		this.level = level;
 		level.addEntity(this);
 	}

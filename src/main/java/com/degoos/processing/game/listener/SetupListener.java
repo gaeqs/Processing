@@ -25,12 +25,12 @@ public class SetupListener {
 	@Listener
 	public void onKeyPress(KeyPressEvent event) {
 		if (setup) {
-			if (event.getKeyCode().getId() == 38) {
+			if (event.getKeyCode() == EnumKeyboardKey.L) {
 				setup = false;
 				Game.getPlayer().setTangible(true);
 			}
-			if (event.getKeyCode() == EnumKeyboardKey.LEFT) setupMode--;
-			else if (event.getKeyCode() == EnumKeyboardKey.RIGHT) setupMode++;
+			if (event.getKeyCode() == EnumKeyboardKey.O) setupMode--;
+			else if (event.getKeyCode() == EnumKeyboardKey.P) setupMode++;
 		} else {
 			EnumKeyboardKey key = keys[current];
 			if (event.getKeyCode() == key) {

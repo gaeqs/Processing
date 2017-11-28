@@ -12,6 +12,7 @@ import com.degoos.processing.engine.event.mouse.MouseDragEvent;
 import com.degoos.processing.engine.event.mouse.MouseMoveEvent;
 import com.degoos.processing.engine.event.mouse.MousePressEvent;
 import com.degoos.processing.engine.event.mouse.MouseReleaseEvent;
+import com.degoos.processing.engine.event.screen.ScreenResizeEvent;
 import com.degoos.processing.engine.object.GObject;
 import com.degoos.processing.engine.object.inheritance.Parent;
 import com.degoos.processing.engine.util.Validate;
@@ -54,6 +55,14 @@ public class Processing extends PApplet {
 		this.background = background;
 	}
 
+	public void rezise(int x, int y) {
+		resize(new Vector2i(x, y));
+	}
+
+	public void resize(Vector2i vector) {
+		size(vector.getX(), vector.getY());
+	}
+
 	@Override
 	public void settings() {
 		size(size.getX(), size.getY(), P2D);
@@ -61,11 +70,22 @@ public class Processing extends PApplet {
 
 	@Override
 	public void setup() {
+		surface.setResizable(true);
+		ellipseMode(CORNERS);
 	}
 
 	@Override
 	public void draw() {
 		System.gc();
+
+		Vector2i currentSize = new Vector2i(width, height);
+		if (!size.equals(currentSize)) {
+			ScreenResizeEvent event = new ScreenResizeEvent(size, currentSize);
+			Engine.getEventManager().callEvent(event);
+			size = event.getNewSize();
+			if (!currentSize.equals(event.getNewSize())) resize(event.getNewSize());
+		}
+
 		long dif = System.currentTimeMillis() - lastTick;
 		lastTick = System.currentTimeMillis();
 		Engine.getEventManager().callEvent(new BeforeDrawEvent(dif));

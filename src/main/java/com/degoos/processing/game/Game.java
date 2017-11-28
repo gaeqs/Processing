@@ -5,6 +5,7 @@ import com.degoos.processing.engine.enums.EnumTextureSampling;
 import com.degoos.processing.engine.object.Text;
 import com.degoos.processing.game.controller.PlayerController;
 import com.degoos.processing.game.entity.Player;
+import com.degoos.processing.game.listener.ScreenListener;
 import com.degoos.processing.game.listener.SetupListener;
 import com.degoos.processing.game.manager.EntityManager;
 import com.degoos.processing.game.object.Camera;
@@ -23,7 +24,7 @@ public class Game {
 	public static void main(String[] args) {
 		Engine.startEngine(new Vector2i(1280, 720));
 		Engine.setTextureSampling(EnumTextureSampling.NEAREST);
-		double ref = 1280D / 720D;
+		double ref = (double) Engine.getCore().width / (double) Engine.getCore().height;
 
 		entityManager = new EntityManager();
 		camera = new Camera(new Vector2d(12, 8), ref * 4, 4);
@@ -32,11 +33,12 @@ public class Game {
 		player = new Player(new Vector2d(12, 8), new PlayerController());
 
 		Engine.getEventManager().registerListener(new SetupListener());
+		Engine.getEventManager().registerListener(new ScreenListener());
 
 		new Text(true, 0, 0, "", new Vector2d(0, 0.98), Color.BLACK, 20) {
 			@Override
 			public void onTick(long dif) {
-				setText(String.valueOf(dif)+ (SetupListener.setup ? player.getPosition() : ""));
+				setText(String.valueOf(dif) + (SetupListener.setup ? player.getPosition() : ""));
 			}
 		};
 
@@ -65,5 +67,10 @@ public class Game {
 
 	public static EntityManager getEntityManager() {
 		return entityManager;
+	}
+
+	public static void refreshCameraRadius(Vector2i size) {
+		double ref = Math.max(Math.min((double) size.getX() / (double) size.getY(), 2), 0.8);
+		camera = new Camera(new Vector2d(12, 8), ref * 4, 4);
 	}
 }

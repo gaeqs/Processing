@@ -32,9 +32,10 @@ public class Entity extends Shape {
 	private boolean tangible;
 	private double velocity;
 	private Vector2d point1, point2, point3, point4;
+	private boolean canMove;
 
 
-	public Entity(Vector2d position, Area relativeCollisionBox, Area relativeDisplayArea, boolean tangible, double velocity, Controller controller) {
+	public Entity(Vector2d position, Area relativeCollisionBox, Area relativeDisplayArea, boolean tangible, double velocity, boolean canMove, Controller controller) {
 		super(true, 1, 2, new Vector2d(0, 0));
 		Validate.notNull(position, "Position cannot be null!");
 		Validate.notNull(relativeCollisionBox, "Relative collision box cannot be null!");
@@ -45,6 +46,7 @@ public class Entity extends Shape {
 		this.tangible = tangible;
 		this.velocity = velocity;
 		this.controller = controller;
+		this.canMove = canMove;
 		recalculateAreas();
 		Game.getEntityManager().addEntity(this);
 	}
@@ -111,6 +113,14 @@ public class Entity extends Shape {
 		this.velocity = velocity;
 	}
 
+	public boolean canMove() {
+		return canMove;
+	}
+
+	public void setCanMove(boolean canMove) {
+		this.canMove = canMove;
+	}
+
 	public Controller getController() {
 		return controller;
 	}
@@ -120,6 +130,7 @@ public class Entity extends Shape {
 	}
 
 	public void triggerMove(boolean up, boolean down, boolean left, boolean right, long dif) {
+		if(!canMove) return;
 		double vel = velocity * dif;
 		if (left && right) left = right = false;
 		if (up && down) up = down = false;
@@ -144,7 +155,7 @@ public class Entity extends Shape {
 	}
 
 	public void move(double x, double y) {
-		if (x == 0 && y == 0) return;
+		if (!canMove || (x == 0 && y == 0)) return;
 		Vector2d newPosition = position.add(x, y);
 		Area maxArea = new Area(getCurrentCollisionBox().getMin().add(x, y), getCurrentCollisionBox().getMax().add(x, y));
 
@@ -167,7 +178,11 @@ public class Entity extends Shape {
 			boolean horizontal = horizontalArea != null && horizontalArea.collide(entity.getCurrentCollisionBox());
 			if (vertical && horizontal) {
 				Collision collision = centerLine.getFirstCollisionPoint(entity.getCurrentCollisionBox());
-				if (collision == null) return;
+				if (collision == null) {
+					System.out.println("ERROR NULL?????");
+					centerLine.getFirstCollisionPoint(entity.getCurrentCollisionBox(), true);
+					return;
+				}
 				if (collision.getCollisionFace() == EnumCollisionFace.LEFT || collision.getCollisionFace() == EnumCollisionFace.RIGHT) verticalEntities.add(entity);
 				else if (collision.getCollisionFace() == EnumCollisionFace.UP || collision.getCollisionFace() == EnumCollisionFace.DOWN) horizontalEntities.add(entity);
 				collisions.put(entity, collision);
