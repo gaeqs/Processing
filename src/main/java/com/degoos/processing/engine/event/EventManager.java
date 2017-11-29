@@ -42,7 +42,7 @@ public class EventManager {
 	public void unregisterListener(Object listener) {
 		try {
 			Validate.notNull(listener, "GameTestListener cannot be null!");
-			listeners.stream().filter(entry -> entry.getListener().getClass().equals(listener.getClass())).forEach(listeners::remove);
+			new HashSet<>(listeners).stream().filter(entry -> entry.getListener().getClass().equals(listener.getClass())).forEach(listeners::remove);
 		} catch (Throwable ex) {
 			ex.printStackTrace();
 		}

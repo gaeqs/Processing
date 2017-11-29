@@ -273,7 +273,7 @@ public enum EnumKeyboardKey {
 	DEAD_VOICED_SOUND(0x8e),
 	DEAD_SEMIVOICED_SOUND(0x8f);
 
-	public int id;
+	private int id;
 
 	EnumKeyboardKey(int id) {
 		this.id = id;

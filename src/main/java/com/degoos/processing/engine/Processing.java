@@ -65,7 +65,7 @@ public class Processing extends PApplet {
 
 	@Override
 	public void settings() {
-		size(size.getX(), size.getY(), P2D);
+		size(size.getX(), size.getY(), P3D);
 	}
 
 	@Override
@@ -150,13 +150,14 @@ public class Processing extends PApplet {
 
 	@Override
 	public void keyPressed(KeyEvent event) {
-		KeyPressEvent keyEvent = new KeyPressEvent(EnumKeyboardKey.getById(event.getKeyCode()).orElse(EnumKeyboardKey.UNDEFINED), event.getKey());
+		KeyPressEvent keyEvent = new KeyPressEvent(EnumKeyboardKey.getById(event.getKeyCode()).orElse(EnumKeyboardKey.UNDEFINED), event.getKey(), event.getKeyCode());
 		Engine.getEventManager().callEvent(keyEvent);
 	}
 
 	@Override
 	public void keyReleased(KeyEvent event) {
-		KeyReleaseEvent keyEvent = new KeyReleaseEvent(EnumKeyboardKey.getById(event.getKeyCode()).orElse(EnumKeyboardKey.UNDEFINED), event.getKey());
+		KeyReleaseEvent keyEvent = new KeyReleaseEvent(EnumKeyboardKey.getById(event.getKeyCode()).orElse(EnumKeyboardKey.UNDEFINED), event.getKey(), event.getKeyCode
+			());
 		Engine.getEventManager().callEvent(keyEvent);
 	}
 
