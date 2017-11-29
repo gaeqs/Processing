@@ -8,6 +8,7 @@ import com.degoos.processing.engine.object.Shape;
 import com.degoos.processing.game.entity.Player;
 import com.degoos.processing.game.manager.EntityManager;
 import com.degoos.processing.game.network.GameServer;
+import com.degoos.processing.game.network.ServerConnection;
 import com.degoos.processing.game.object.Camera;
 import com.degoos.processing.game.object.Level;
 import com.degoos.processing.game.object.MenuText;
@@ -48,9 +49,8 @@ public class Game {
 		if (ip.equalsIgnoreCase("local")) {
 			gameServer = new GameServer();
 			MapLoader.load();
-		}
-		else {
-
+		} else {
+			new ServerConnection(nick, ip);
 		}
 	}
 

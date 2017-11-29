@@ -32,6 +32,7 @@ public class GameServer {
 						try {
 							DataInputStream dataInputStream = new DataInputStream(socket.getInputStream());
 							String nick = dataInputStream.readUTF();
+							System.out.println(nick);
 							if (serverClients.stream().anyMatch(c -> c.getNick().equalsIgnoreCase(nick))) {
 								socket.close();
 								return;
