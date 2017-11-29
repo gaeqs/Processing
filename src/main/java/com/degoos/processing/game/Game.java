@@ -40,7 +40,18 @@ public class Game {
 		shape.addVertexWithUv(new Vector2d(1, 0), new Vector2i(1, 0));
 		shape.setVisible(true);
 
-		new MenuText(shape);
+		MenuText menuText = new MenuText(shape, false, null);
+		menuText.setOther(new MenuText(shape, true, menuText));
+	}
+
+	public static void load(String nick, String ip) {
+		if (ip.equalsIgnoreCase("local")) {
+			gameServer = new GameServer();
+			MapLoader.load();
+		}
+		else {
+
+		}
 	}
 
 	public static Camera getCamera() {

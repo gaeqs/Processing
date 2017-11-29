@@ -10,6 +10,10 @@ public class PacketInReleaseKey extends Packet {
 
 	private EnumKeyboardKey keyboardKey;
 
+	public PacketInReleaseKey(EnumKeyboardKey keyboardKey) {
+		this.keyboardKey = keyboardKey;
+	}
+
 	public PacketInReleaseKey(DataInputStream stream) {
 		try {
 			keyboardKey = EnumKeyboardKey.getById(stream.readInt()).orElse(EnumKeyboardKey.UNDEFINED);
