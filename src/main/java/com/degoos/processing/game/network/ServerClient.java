@@ -8,6 +8,7 @@ import com.degoos.processing.game.event.packet.PacketSendEvent;
 import com.degoos.processing.game.network.packet.Packet;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
+import java.io.IOException;
 import java.net.Socket;
 
 public class ServerClient {
@@ -25,19 +26,26 @@ public class ServerClient {
 		this.outputStream = outputStream;
 		this.controller = controller;
 		this.nick = nick;
+		while (socket.isConnected()) {
+			try {
+				if (inputStream.available() == 0) continue;
 
-		try {
-			while (!socket.isClosed()) {
-				Class<?> clazz = Class.forName(inputStream.readUTF());
+				String string = inputStream.readUTF();
+				Class<?> clazz = Class.forName(string);
 				if (!clazz.isAssignableFrom(Packet.class)) {
 					socket.close();
 					return;
 				}
 				Packet packet = (Packet) clazz.getConstructor(DataInputStream.class).newInstance(inputStream);
 				Engine.getEventManager().callEvent(new PacketReceiveEvent(packet, this));
+
+			} catch (Exception ex) {
+				ex.printStackTrace();
 			}
-		} catch (Exception ex) {
-			ex.printStackTrace();
+		}
+		try {
+			socket.close();
+		} catch (IOException e) {
 		}
 	}
 
