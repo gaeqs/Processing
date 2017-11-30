@@ -2,8 +2,6 @@ package com.degoos.processing.game;
 
 import com.degoos.processing.engine.Engine;
 import com.degoos.processing.engine.object.Text;
-import com.degoos.processing.game.controller.PlayerController;
-import com.degoos.processing.game.entity.Player;
 import com.degoos.processing.game.listener.ScreenListener;
 import com.degoos.processing.game.listener.SetupListener;
 import com.degoos.processing.game.object.Camera;
