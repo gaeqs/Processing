@@ -18,6 +18,7 @@ public class GameServer {
 		serverClients = new HashSet<>();
 		try {
 			serverSocket = new ServerSocket(22222);
+			startAcceptThread();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
