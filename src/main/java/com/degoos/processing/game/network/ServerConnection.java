@@ -29,16 +29,22 @@ public class ServerConnection {
 			}
 			MapLoader.load();
 
-			while (socket.isConnected()) {
-				if (inputStream.available() == 0) continue;
-				Class<?> clazz = Class.forName(inputStream.readUTF());
-				if (!clazz.isAssignableFrom(Packet.class)) {
-					socket.close();
-					return;
+			new Thread(() -> {
+				try {
+					while (socket.isConnected()) {
+						if (inputStream.available() == 0) continue;
+						Class<?> clazz = Class.forName(inputStream.readUTF());
+						if (!clazz.isAssignableFrom(Packet.class)) {
+							socket.close();
+							return;
+						}
+						Packet packet = (Packet) clazz.getConstructor(DataInputStream.class).newInstance(inputStream);
+						Engine.getEventManager().callEvent(new ClientPacketReceiveEvent(packet));
+					}
+				} catch (Exception ex) {
+					ex.printStackTrace();
 				}
-				Packet packet = (Packet) clazz.getConstructor(DataInputStream.class).newInstance(inputStream);
-				Engine.getEventManager().callEvent(new ClientPacketReceiveEvent(packet));
-			}
+			}).start();
 
 			loaded = true;
 		} catch (Exception ex) {
