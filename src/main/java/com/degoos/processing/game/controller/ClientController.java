@@ -6,6 +6,7 @@ import com.degoos.processing.game.entity.Entity;
 import com.degoos.processing.game.event.packet.PacketReceiveEvent;
 import com.degoos.processing.game.network.ServerClient;
 import com.degoos.processing.game.network.packet.in.PacketInPressKey;
+import com.degoos.processing.game.network.packet.in.PacketInReleaseKey;
 
 public class ClientController implements Controller {
 
@@ -43,8 +44,8 @@ public class ClientController implements Controller {
 	@Listener
 	public void onKeyReleased(PacketReceiveEvent event) {
 		if (!client.equals(event.getServerClient())) return;
-		if (!(event.getPacket() instanceof PacketInPressKey)) return;
-		switch (((PacketInPressKey) event.getPacket()).getKeyboardKey()) {
+		if (!(event.getPacket() instanceof PacketInReleaseKey)) return;
+		switch (((PacketInReleaseKey) event.getPacket()).getKeyboardKey()) {
 			case UP:
 				up = false;
 				break;

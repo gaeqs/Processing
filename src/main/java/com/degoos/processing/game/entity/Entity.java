@@ -228,6 +228,7 @@ public class Entity extends Shape {
 		position = newPosition;
 		if (Game.isServer()) {
 			Packet packet = new PacketOutMoveEntity(getEntityId(), position);
+			System.out.println("Sending...");
 			Game.getGameServer().getServerClients().forEach(client -> client.sendPacket(packet));
 		}
 		recalculateAreas();

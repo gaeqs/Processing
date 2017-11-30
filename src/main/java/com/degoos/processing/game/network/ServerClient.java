@@ -34,18 +34,20 @@ public class ServerClient {
 
 		sendPacket(new PacketOutOwnClientData(player.getEntityId(), player.getPosition()));
 
-		try {
-			while (socket.isConnected()) {
-				if (inputStream.available() == 0) continue;
-				Class<?> clazz = Class.forName(inputStream.readUTF());
-				Packet packet = (Packet) clazz.getConstructor(DataInputStream.class).newInstance(inputStream);
-				Engine.getEventManager().callEvent(new PacketReceiveEvent(packet, this));
+		new Thread(() -> {
+			try {
+				while (socket.isConnected()) {
+					if (inputStream.available() == 0) continue;
+					Class<?> clazz = Class.forName(inputStream.readUTF());
+					Packet packet = (Packet) clazz.getConstructor(DataInputStream.class).newInstance(inputStream);
+					Engine.getEventManager().callEvent(new PacketReceiveEvent(packet, this));
+				}
+			} catch (Exception ex) {
+				ex.printStackTrace();
+			} finally {
+				player.delete();
 			}
-		} catch (Exception ex) {
-			ex.printStackTrace();
-		} finally {
-			player.delete();
-		}
+		}).start();
 	}
 
 	public Socket getSocket() {
