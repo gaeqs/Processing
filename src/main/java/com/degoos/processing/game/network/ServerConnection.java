@@ -22,6 +22,7 @@ public class ServerConnection {
 			socket = new Socket(sl[0], sl.length == 1 || !isInteger(sl[1]) ? 22222 : Integer.parseInt(sl[1]));
 			DataOutputStream outputStream = new DataOutputStream(socket.getOutputStream());
 			DataInputStream inputStream = new DataInputStream(socket.getInputStream());
+			outputStream.writeUTF(nick);
 			if (!socket.isConnected()) {
 				System.exit(0);
 				return;
