@@ -50,13 +50,12 @@ public class MenuText extends Text {
 		if (event.getKeyCode() == EnumKeyboardKey.MODIFIER_BUTTON_PRIMARY) return;
 		if (event.getKeyCode() == EnumKeyboardKey.ENTER) {
 			if (getText().isEmpty() || other.getText().isEmpty()) return;
+			String nick = ipText ? other.getText() : getText();
+			String ip = ipText ? getText() : other.getText();
+			if(!Game.load(nick.replace("\uFFFF", ""), ip.replace("\uFFFF", ""))) return;
 			delete();
 			background.delete();
 			other.delete();
-
-			String nick = ipText ? other.getText() : getText();
-			String ip = ipText ? getText() : other.getText();
-			Game.load(nick.replace("\uFFFF", ""), ip.replace("\uFFFF", ""));
 			return;
 		}
 		if (event.getKeyId() == 8) {

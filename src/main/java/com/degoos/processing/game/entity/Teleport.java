@@ -22,8 +22,20 @@ public class Teleport extends SavableEntity {
 		this.destiny = destiny;
 	}
 
+	public Teleport(int id, Vector2d position, Area relativeCollisionBox, Vector2d destiny, Level level) {
+		super(id, position, relativeCollisionBox, new Area(new Vector2d(), new Vector2d()), true, 0, null, level);
+		this.destiny = destiny;
+	}
+
 	public Teleport(Area box, Vector2d destiny, Level level) {
 		super(box.getMax()
+			.sub(box.getMax().sub(box.getMin()).div(2)), new Area(new Vector2d(), new Vector2d()), new Area(new Vector2d(), new Vector2d()), true, 0, null, level);
+		setRelativeCollisionBox(new Area(box.getMin().sub(getPosition()), box.getMax().sub(getPosition())));
+		this.destiny = destiny;
+	}
+
+	public Teleport(int id, Area box, Vector2d destiny, Level level) {
+		super(id, box.getMax()
 			.sub(box.getMax().sub(box.getMin()).div(2)), new Area(new Vector2d(), new Vector2d()), new Area(new Vector2d(), new Vector2d()), true, 0, null, level);
 		setRelativeCollisionBox(new Area(box.getMin().sub(getPosition()), box.getMax().sub(getPosition())));
 		this.destiny = destiny;

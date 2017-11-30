@@ -1,5 +1,6 @@
 package com.degoos.processing.game.network;
 
+import com.flowpowered.math.vector.Vector2d;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -32,12 +33,15 @@ public class GameServer {
 						try {
 							DataInputStream dataInputStream = new DataInputStream(socket.getInputStream());
 							String nick = dataInputStream.readUTF();
-							System.out.println(nick);
 							if (serverClients.stream().anyMatch(c -> c.getNick().equalsIgnoreCase(nick))) {
 								socket.close();
 								return;
 							}
-							serverClients.add(new ServerClient(socket, dataInputStream, new DataOutputStream(socket.getOutputStream()), null, nick));
+							DataOutputStream outputStream = new DataOutputStream(socket.getOutputStream());
+							outputStream.writeDouble(12);
+							outputStream.writeDouble(8);
+
+							serverClients.add(new ServerClient(new Vector2d(12, 8), socket, dataInputStream, outputStream, null, nick));
 						} catch (Exception ex) {
 							ex.printStackTrace();
 						}

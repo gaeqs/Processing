@@ -12,7 +12,6 @@ import com.degoos.processing.game.entity.Entity;
 import com.degoos.processing.game.entity.SavableEntity;
 import com.degoos.processing.game.entity.Teleport;
 import com.degoos.processing.game.listener.SetupListener;
-import com.degoos.processing.game.util.CollisionUtils;
 import com.degoos.processing.game.util.GameCoordinatesUtils;
 import com.degoos.processing.game.util.SavableEntitiesUtils;
 import com.flowpowered.math.vector.Vector2d;
@@ -45,13 +44,15 @@ public class Level extends Shape {
 		setTexture(image);
 
 		levelEntities = new HashSet<>();
-		InputStream entitiesIS = Engine.getResourceInputStream(folder + "/entities.dat");
-		if (entitiesIS != null) {
-			SavableEntitiesUtils.loadEntities(this, entitiesIS);
-			try {
-				entitiesIS.close();
-			} catch (Exception ex) {
-				ex.printStackTrace();
+		if (Game.isServer()) {
+			InputStream entitiesIS = Engine.getResourceInputStream(folder + "/entities.dat");
+			if (entitiesIS != null) {
+				SavableEntitiesUtils.loadEntities(this, entitiesIS);
+				try {
+					entitiesIS.close();
+				} catch (Exception ex) {
+					ex.printStackTrace();
+				}
 			}
 		}
 

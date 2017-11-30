@@ -22,6 +22,7 @@ public class Game {
 	protected static Player player;
 	protected static EntityManager entityManager;
 	private static GameServer gameServer;
+	private static ServerConnection serverConnection;
 	private static Font font;
 	private static boolean onMenu;
 
@@ -45,12 +46,13 @@ public class Game {
 		menuText.setOther(new MenuText(shape, true, menuText));
 	}
 
-	public static void load(String nick, String ip) {
+	public static boolean load(String nick, String ip) {
 		if (ip.equalsIgnoreCase("local")) {
 			gameServer = new GameServer();
-			MapLoader.load();
+			MapLoader.load(new Vector2d(12, 8));
+			return true;
 		} else {
-			new ServerConnection(nick, ip);
+			return (serverConnection = new ServerConnection(nick, ip)).isLoaded();
 		}
 	}
 
@@ -68,6 +70,19 @@ public class Game {
 
 	public static EntityManager getEntityManager() {
 		return entityManager;
+	}
+
+	public static boolean isServer() {
+		return gameServer != null;
+	}
+
+
+	public static GameServer getGameServer() {
+		return gameServer;
+	}
+
+	public static ServerConnection getServerConnection() {
+		return serverConnection;
 	}
 
 	public static void refreshCameraRadius(Vector2i size) {

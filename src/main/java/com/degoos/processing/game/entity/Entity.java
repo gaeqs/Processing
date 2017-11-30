@@ -33,10 +33,17 @@ public class Entity extends Shape {
 	private double velocity;
 	private Vector2d point1, point2, point3, point4;
 	private boolean canMove;
+	private int entityId;
+
 
 
 	public Entity(Vector2d position, Area relativeCollisionBox, Area relativeDisplayArea, boolean tangible, double velocity, boolean canMove, Controller controller) {
+			this(Game.getEntityManager().getFirstAvailableId(), position, relativeCollisionBox, relativeDisplayArea, tangible, velocity, canMove, controller);
+	}
+
+	public Entity(int entityId, Vector2d position, Area relativeCollisionBox, Area relativeDisplayArea, boolean tangible, double velocity, boolean canMove, Controller controller) {
 		super(true, 1, 2, new Vector2d(0, 0));
+		Game.getEntityManager().addEntity(entityId, this);
 		Validate.notNull(position, "Position cannot be null!");
 		Validate.notNull(relativeCollisionBox, "Relative collision box cannot be null!");
 		Validate.notNull(relativeDisplayArea, "Relative display area cannot be null!");
@@ -48,7 +55,10 @@ public class Entity extends Shape {
 		this.controller = controller;
 		this.canMove = canMove;
 		recalculateAreas();
-		Game.getEntityManager().addEntity(this);
+	}
+
+	public int getEntityId() {
+		return entityId;
 	}
 
 	public void setCurrentCollisionBox(Area currentCollisionBox) {

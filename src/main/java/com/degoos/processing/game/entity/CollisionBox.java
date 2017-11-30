@@ -12,8 +12,17 @@ public class CollisionBox extends SavableEntity {
 		super(position, relativeCollisionBox, new Area(new Vector2d(), new Vector2d()), true, 0, null, level);
 	}
 
+	public CollisionBox(int id, Vector2d position, Area relativeCollisionBox, Level level) {
+		super(id, position, relativeCollisionBox, new Area(new Vector2d(), new Vector2d()), true, 0, null, level);
+	}
+
+
 	public CollisionBox(Area box, Level level) {
 		super(box.getMin(), new Area(new Vector2d(), box.getMax().sub(box.getMin())), new Area(new Vector2d(), new Vector2d()), true, 0, null, level);
+	}
+
+	public CollisionBox(int id, Area box, Level level) {
+		super(id, box.getMin(), new Area(new Vector2d(), box.getMax().sub(box.getMin())), new Area(new Vector2d(), new Vector2d()), true, 0, null, level);
 	}
 
 

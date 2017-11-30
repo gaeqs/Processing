@@ -19,8 +19,15 @@ public class SavableEntity extends Entity {
 		level.addEntity(this);
 	}
 
+	public SavableEntity(int id, Vector2d position, Area relativeCollisionBox, Area relativeDisplayArea, boolean tangible, double velocity, Controller controller,
+		Level level) {
+		super(id, position, relativeCollisionBox, relativeDisplayArea, tangible, velocity, false, controller);
+		this.level = level;
+		level.addEntity(this);
+	}
+
 	public SavableEntity(DataInputStream inputStream, Level level) throws IOException {
-		super(new Vector2d(inputStream.readDouble(), inputStream.readDouble()), new Area(new Vector2d(inputStream.readDouble(), inputStream
+		super(inputStream.readInt(), new Vector2d(inputStream.readDouble(), inputStream.readDouble()), new Area(new Vector2d(inputStream.readDouble(), inputStream
 			.readDouble()), new Vector2d(inputStream.readDouble(), inputStream.readDouble())), new Area(new Vector2d(inputStream.readDouble(), inputStream
 			.readDouble()), new Vector2d(inputStream.readDouble(), inputStream.readDouble())), inputStream.readBoolean(), inputStream.readDouble(), false, null);
 		this.level = level;
@@ -32,6 +39,7 @@ public class SavableEntity extends Entity {
 	}
 
 	public void save(DataOutputStream stream) throws IOException {
+		stream.writeInt(getEntityId());
 		StreamUtils.writeVector(stream, getPosition());
 		StreamUtils.writeArea(stream, getRelativeCollisionBox());
 		StreamUtils.writeArea(stream, getRelativeDisplayArea());
