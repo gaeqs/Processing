@@ -26,7 +26,7 @@ public class ServerConnection {
 			if (!socket.isConnected()) {
 				System.exit(0);
 				return;
-			}l
+			}
 			MapLoader.load();
 
 			while (socket.isConnected()) {
