@@ -49,7 +49,7 @@ public class Game {
 	public static boolean load(String nick, String ip) {
 		if (ip.equalsIgnoreCase("local")) {
 			gameServer = new GameServer();
-			MapLoader.load(new Vector2d(12, 8));
+			MapLoader.load();
 			return true;
 		} else {
 			return (serverConnection = new ServerConnection(nick, ip)).isLoaded();
