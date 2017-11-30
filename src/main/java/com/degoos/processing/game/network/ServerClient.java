@@ -23,12 +23,11 @@ public class ServerClient {
 	private Player player;
 	private String nick;
 
-	public ServerClient(Vector2d position, Socket socket, DataInputStream inputStream, DataOutputStream outputStream, Controller controller, String nick) {
+	public ServerClient(Vector2d position, Socket socket, DataInputStream inputStream, DataOutputStream outputStream, String nick) {
 		Validate.notNull(nick, "Nick cannot be null!");
 		this.socket = socket;
 		this.inputStream = inputStream;
 		this.outputStream = outputStream;
-		this.controller = controller;
 		this.nick = nick;
 		this.controller = new ClientController(this);
 		this.player = new Player(position, controller);

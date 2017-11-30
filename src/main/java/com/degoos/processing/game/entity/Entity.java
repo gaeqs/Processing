@@ -142,7 +142,7 @@ public class Entity extends Shape {
 	}
 
 	public void triggerMove(boolean up, boolean down, boolean left, boolean right, long dif) {
-		if (!canMove) return;
+		if (!canMove || !Game.isServer()) return;
 		double vel = velocity * dif;
 		if (left && right) left = right = false;
 		if (up && down) up = down = false;

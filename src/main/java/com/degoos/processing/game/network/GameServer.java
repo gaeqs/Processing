@@ -1,5 +1,6 @@
 package com.degoos.processing.game.network;
 
+import com.degoos.processing.game.controller.ClientController;
 import com.flowpowered.math.vector.Vector2d;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -41,7 +42,7 @@ public class GameServer {
 							}
 							DataOutputStream outputStream = new DataOutputStream(socket.getOutputStream());
 
-							serverClients.add(new ServerClient(new Vector2d(12, 8), socket, dataInputStream, outputStream, null, nick));
+							serverClients.add(new ServerClient(new Vector2d(12, 8), socket, dataInputStream, outputStream, nick));
 						} catch (Exception ex) {
 							ex.printStackTrace();
 						}
