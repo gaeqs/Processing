@@ -9,6 +9,8 @@ import com.degoos.processing.game.controller.Controller;
 import com.degoos.processing.game.enums.EnumCollideAction;
 import com.degoos.processing.game.enums.EnumCollisionFace;
 import com.degoos.processing.game.listener.SetupListener;
+import com.degoos.processing.game.network.packet.Packet;
+import com.degoos.processing.game.network.packet.out.PacketOutMoveEntity;
 import com.degoos.processing.game.object.Area;
 import com.degoos.processing.game.object.Camera;
 import com.degoos.processing.game.object.Collision;
@@ -36,12 +38,12 @@ public class Entity extends Shape {
 	private int entityId;
 
 
-
 	public Entity(Vector2d position, Area relativeCollisionBox, Area relativeDisplayArea, boolean tangible, double velocity, boolean canMove, Controller controller) {
-			this(Game.getEntityManager().getFirstAvailableId(), position, relativeCollisionBox, relativeDisplayArea, tangible, velocity, canMove, controller);
+		this(Game.getEntityManager().getFirstAvailableId(), position, relativeCollisionBox, relativeDisplayArea, tangible, velocity, canMove, controller);
 	}
 
-	public Entity(int entityId, Vector2d position, Area relativeCollisionBox, Area relativeDisplayArea, boolean tangible, double velocity, boolean canMove, Controller controller) {
+	public Entity(int entityId, Vector2d position, Area relativeCollisionBox, Area relativeDisplayArea, boolean tangible, double velocity, boolean canMove,
+		Controller controller) {
 		super(true, 1, 2, new Vector2d(0, 0));
 		Game.getEntityManager().addEntity(entityId, this);
 		Validate.notNull(position, "Position cannot be null!");
@@ -140,7 +142,7 @@ public class Entity extends Shape {
 	}
 
 	public void triggerMove(boolean up, boolean down, boolean left, boolean right, long dif) {
-		if(!canMove) return;
+		if (!canMove) return;
 		double vel = velocity * dif;
 		if (left && right) left = right = false;
 		if (up && down) up = down = false;
@@ -224,6 +226,10 @@ public class Entity extends Shape {
 			}
 		}
 		position = newPosition;
+		if (Game.isServer()) {
+			Packet packet = new PacketOutMoveEntity(getEntityId(), position);
+			Game.getGameServer().getServerClients().forEach(client -> client.sendPacket(packet));
+		}
 		recalculateAreas();
 	}
 

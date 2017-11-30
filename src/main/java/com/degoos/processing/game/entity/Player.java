@@ -119,7 +119,7 @@ public class Player extends LivingEntity {
 			vector2d = vector2d.add(0, -vel);
 			setDirection(EnumFacingDirection.DOWN, wasWalking != walking);
 		}
-		move(vector2d);
+		if (Game.isServer()) move(vector2d);
 	}
 
 	@Override

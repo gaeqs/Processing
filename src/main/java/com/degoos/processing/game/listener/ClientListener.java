@@ -8,16 +8,19 @@ import com.degoos.processing.game.entity.Player;
 import com.degoos.processing.game.event.packet.ClientPacketReceiveEvent;
 import com.degoos.processing.game.network.packet.in.PacketInPressKey;
 import com.degoos.processing.game.network.packet.in.PacketInReleaseKey;
+import com.degoos.processing.game.network.packet.out.PacketOutMoveEntity;
 import com.degoos.processing.game.network.packet.out.PacketOutOwnClientData;
 
 public class ClientListener {
 
 	@Listener
 	public void onPacketReceive(ClientPacketReceiveEvent event) {
-		System.out.println(event.getPacket());
 		if (event.getPacket() instanceof PacketOutOwnClientData) {
-			System.out.println("AAAAA");
 			Game.setPlayer(new Player(((PacketOutOwnClientData) event.getPacket()).getEntityId(), ((PacketOutOwnClientData) event.getPacket()).getPosition(), null));
+		}
+		if (event.getPacket() instanceof PacketOutMoveEntity) {
+			Game.getEntityManager().getEntity(((PacketOutMoveEntity) event.getPacket()).getEntityId())
+				.ifPresent(entity -> entity.setPosition(((PacketOutMoveEntity) event.getPacket()).getPosition()));
 		}
 	}
 
