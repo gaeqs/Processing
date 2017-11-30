@@ -1,7 +1,9 @@
 package com.degoos.processing.game.network;
 
+import com.degoos.processing.engine.Engine;
 import com.degoos.processing.game.MapLoader;
-import com.flowpowered.math.vector.Vector2d;
+import com.degoos.processing.game.event.packet.ClientPacketReceiveEvent;
+import com.degoos.processing.game.network.packet.Packet;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.net.Socket;
@@ -27,9 +29,15 @@ public class ServerConnection {
 			}
 			MapLoader.load();
 
-			while (socket.isConnected()){
-				if(inputStream.available() == 0) continue;
-
+			while (socket.isConnected()) {
+				if (inputStream.available() == 0) continue;
+				Class<?> clazz = Class.forName(inputStream.readUTF());
+				if (!clazz.isAssignableFrom(Packet.class)) {
+					socket.close();
+					return;
+				}
+				Packet packet = (Packet) clazz.getConstructor(DataInputStream.class).newInstance(inputStream);
+				Engine.getEventManager().callEvent(new ClientPacketReceiveEvent(packet));
 			}
 
 			loaded = true;

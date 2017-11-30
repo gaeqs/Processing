@@ -34,6 +34,7 @@ public class ServerClient {
 
 		try {
 			while (socket.isConnected()) {
+				if(inputStream.available() == 0) continue;
 				Class<?> clazz = Class.forName(inputStream.readUTF());
 				if (!clazz.isAssignableFrom(Packet.class)) {
 					socket.close();
