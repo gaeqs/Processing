@@ -26,6 +26,14 @@ public class PacketOutOwnClientData extends Packet {
 		}
 	}
 
+	public int getEntityId() {
+		return entityId;
+	}
+
+	public Vector2d getPosition() {
+		return position;
+	}
+
 	@Override
 	public void write(DataOutputStream outputStream) {
 		try {

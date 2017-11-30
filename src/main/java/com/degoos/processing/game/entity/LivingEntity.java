@@ -2,6 +2,7 @@ package com.degoos.processing.game.entity;
 
 import com.degoos.processing.engine.Processing;
 import com.degoos.processing.engine.object.Arc;
+import com.degoos.processing.game.Game;
 import com.degoos.processing.game.controller.Controller;
 import com.degoos.processing.game.object.Area;
 import com.degoos.processing.game.util.GameCoordinatesUtils;
@@ -13,11 +14,16 @@ public class LivingEntity extends Entity {
 	private double health, maxHealth;
 	private Arc healthBar, steticArc;
 
-
 	public LivingEntity(Vector2d position, Area relativeCollisionBox, Area relativeDisplayArea, boolean tangible, double velocity, boolean canMove, Controller
 		controller,
 		double health, double maxHealth) {
-		super(position, relativeCollisionBox, relativeDisplayArea, tangible, velocity, canMove, controller);
+		this(Game.getEntityManager()
+			.getFirstAvailableId(), position, relativeCollisionBox, relativeDisplayArea, tangible, velocity, canMove, controller, health, maxHealth);
+	}
+
+	public LivingEntity(int id, Vector2d position, Area relativeCollisionBox, Area relativeDisplayArea, boolean tangible, double velocity, boolean canMove,
+		Controller controller, double health, double maxHealth) {
+		super(id, position, relativeCollisionBox, relativeDisplayArea, tangible, velocity, canMove, controller);
 		this.health = health;
 		this.maxHealth = maxHealth;
 		healthBar = new Arc(new Vector2d(), new Vector2d(), 0, 0).setLineColor(Color.BLACK).setLineSize(1.5F);

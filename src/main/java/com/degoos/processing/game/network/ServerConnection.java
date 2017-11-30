@@ -3,6 +3,7 @@ package com.degoos.processing.game.network;
 import com.degoos.processing.engine.Engine;
 import com.degoos.processing.game.MapLoader;
 import com.degoos.processing.game.event.packet.ClientPacketReceiveEvent;
+import com.degoos.processing.game.listener.ClientListener;
 import com.degoos.processing.game.network.packet.Packet;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -18,6 +19,7 @@ public class ServerConnection {
 		this.nick = nick;
 		this.loaded = false;
 		try {
+			Engine.getEventManager().registerListener(new ClientListener());
 			String[] sl = ip.split(":");
 			socket = new Socket(sl[0], sl.length == 1 || !isInteger(sl[1]) ? 22222 : Integer.parseInt(sl[1]));
 			DataOutputStream outputStream = new DataOutputStream(socket.getOutputStream());

@@ -68,6 +68,10 @@ public class Game {
 		return player;
 	}
 
+	public static void setPlayer(Player player) {
+		Game.player = player;
+	}
+
 	public static EntityManager getEntityManager() {
 		return entityManager;
 	}
@@ -75,7 +79,6 @@ public class Game {
 	public static boolean isServer() {
 		return gameServer != null;
 	}
-
 
 	public static GameServer getGameServer() {
 		return gameServer;

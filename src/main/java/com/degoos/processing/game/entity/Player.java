@@ -4,6 +4,7 @@ import com.degoos.processing.engine.Processing;
 import com.degoos.processing.engine.object.Animation;
 import com.degoos.processing.engine.object.Image;
 import com.degoos.processing.engine.util.Validate;
+import com.degoos.processing.game.Game;
 import com.degoos.processing.game.controller.Controller;
 import com.degoos.processing.game.enums.EnumFacingDirection;
 import com.degoos.processing.game.object.Area;
@@ -19,7 +20,12 @@ public class Player extends LivingEntity {
 	private boolean walking;
 
 	public Player(Vector2d position, Controller controller) {
-		super(position, new Area(new Vector2d(-0.6, 0), new Vector2d(0.6, 0.5)), new Area(new Vector2d(-0.7, 0), new Vector2d(0.7, 1.3)), true, 0.004D, true,
+		this(Game.getEntityManager().getFirstAvailableId(), position, controller);
+	}
+
+
+	public Player(int id, Vector2d position, Controller controller) {
+		super(id, position, new Area(new Vector2d(-0.6, 0), new Vector2d(0.6, 0.5)), new Area(new Vector2d(-0.7, 0), new Vector2d(0.7, 1.3)), true, 0.004D, true,
 			controller, 100, 100);
 		setDrawPriority(2);
 		setTickPriority(0);
