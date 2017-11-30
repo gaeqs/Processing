@@ -1,3 +1,48 @@
 package com.degoos.processing.game.network.packet.out;
 
-public class PacketOutMoveEntity {}
+import com.degoos.processing.game.network.packet.Packet;
+import com.degoos.processing.game.util.StreamUtils;
+import com.flowpowered.math.vector.Vector2d;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+
+public class PacketOutMoveEntity extends Packet {
+
+	private int entityId;
+	private Vector2d position;
+
+	public PacketOutMoveEntity(int entityId, Vector2d position) {
+		this.entityId = entityId;
+		this.position = position;
+	}
+
+	public PacketOutMoveEntity(DataInputStream stream) {
+		try {
+			entityId = stream.readInt();
+			position = new Vector2d(stream.readDouble(), stream.readDouble());
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+	public int getEntityId() {
+		return entityId;
+	}
+
+	public Vector2d getPosition() {
+		return position;
+	}
+
+	@Override
+	public void write(DataOutputStream outputStream) {
+		try {
+			outputStream.writeInt(entityId);
+			StreamUtils.writeVector(outputStream, position);
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		}
+	}
+
+
+}

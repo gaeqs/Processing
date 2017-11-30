@@ -2,7 +2,6 @@ package com.degoos.processing.game.controller;
 
 import com.degoos.processing.engine.Engine;
 import com.degoos.processing.engine.event.Listener;
-import com.degoos.processing.game.Game;
 import com.degoos.processing.game.entity.Entity;
 import com.degoos.processing.game.event.packet.PacketReceiveEvent;
 import com.degoos.processing.game.network.ServerClient;
@@ -69,6 +68,5 @@ public class ClientController implements Controller {
 		entity.triggerMove(up, down, left, right, dif);
 		if (control) entity.setVelocity(0.007D);
 		else entity.setVelocity(0.004D);
-		Game.getCamera().setPosition(entity.getPosition());
 	}
 }

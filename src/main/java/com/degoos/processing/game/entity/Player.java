@@ -97,7 +97,6 @@ public class Player extends LivingEntity {
 			return;
 		}
 		double vel = getVelocity() * dif;
-		setHealth(getHealth() - vel);
 		if (left && right) left = right = false;
 		if (up && down) up = down = false;
 		boolean wasWalking = walking;
