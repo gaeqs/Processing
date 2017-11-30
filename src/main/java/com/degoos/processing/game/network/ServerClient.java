@@ -8,6 +8,7 @@ import com.degoos.processing.game.entity.Player;
 import com.degoos.processing.game.event.packet.PacketReceiveEvent;
 import com.degoos.processing.game.event.packet.PacketSendEvent;
 import com.degoos.processing.game.network.packet.Packet;
+import com.degoos.processing.game.network.packet.out.PacketOutOwnClientData;
 import com.flowpowered.math.vector.Vector2d;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -32,9 +33,11 @@ public class ServerClient {
 		this.controller = new ClientController(this);
 		this.player = new Player(position, controller);
 
+		sendPacket(new PacketOutOwnClientData(player.getEntityId(), player.getPosition()));
+
 		try {
 			while (socket.isConnected()) {
-				if(inputStream.available() == 0) continue;
+				if (inputStream.available() == 0) continue;
 				Class<?> clazz = Class.forName(inputStream.readUTF());
 				if (!clazz.isAssignableFrom(Packet.class)) {
 					socket.close();
