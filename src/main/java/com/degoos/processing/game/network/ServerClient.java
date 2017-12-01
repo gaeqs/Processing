@@ -57,7 +57,8 @@ public class ServerClient {
 					Packet packet = (Packet) clazz.getConstructor(DataInputStream.class).newInstance(inputStream);
 					Engine.getEventManager().callEvent(new PacketReceiveEvent(packet, this));
 				}
-			} catch (Exception ignore) {
+			} catch (Exception ex) {
+				ex.printStackTrace();
 			} finally {
 				disconnect();
 			}

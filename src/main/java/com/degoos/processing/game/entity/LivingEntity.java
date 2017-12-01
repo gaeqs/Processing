@@ -38,12 +38,18 @@ public class LivingEntity extends Entity {
 		super(inputStream);
 		this.health = inputStream.readDouble();
 		this.maxHealth = inputStream.readDouble();
+		healthBar = new Arc(new Vector2d(), new Vector2d(), 0, 0).setLineColor(Color.BLACK).setLineSize(1.5F);
+		steticArc = new Arc(false, 2, 0, new Vector2d(), new Vector2d(), 0, Processing.TAU).setFullColor(Color.BLACK);
+		recalculateHealthBar();
 	}
 
 	public LivingEntity(DataInputStream inputStream, Controller controller) throws IOException {
 		super(inputStream, controller);
 		this.health = inputStream.readDouble();
 		this.maxHealth = inputStream.readDouble();
+		healthBar = new Arc(new Vector2d(), new Vector2d(), 0, 0).setLineColor(Color.BLACK).setLineSize(1.5F);
+		steticArc = new Arc(false, 2, 0, new Vector2d(), new Vector2d(), 0, Processing.TAU).setFullColor(Color.BLACK);
+		recalculateHealthBar();
 	}
 
 	public double getHealth() {
@@ -52,6 +58,11 @@ public class LivingEntity extends Entity {
 
 	public void setHealth(double health) {
 		this.health = Math.max(Math.min(health, maxHealth), 0);
+		recalculateHealthBar();
+	}
+
+	public void addHealth(double health) {
+		this.health = Math.max(Math.min(this.health + health, maxHealth), 0);
 		recalculateHealthBar();
 	}
 

@@ -4,9 +4,12 @@ import com.degoos.processing.engine.Processing;
 import com.degoos.processing.engine.object.Animation;
 import com.degoos.processing.engine.object.Image;
 import com.degoos.processing.engine.util.Validate;
+import com.degoos.processing.game.Game;
 import com.degoos.processing.game.controller.Controller;
 import com.degoos.processing.game.enums.EnumCollideAction;
 import com.degoos.processing.game.enums.EnumFacingDirection;
+import com.degoos.processing.game.network.packet.Packet;
+import com.degoos.processing.game.network.packet.out.PacketOutPlayerChangeAnimation;
 import com.degoos.processing.game.object.Area;
 import com.flowpowered.math.vector.Vector2d;
 import java.io.DataInputStream;
@@ -55,11 +58,19 @@ public class Player extends LivingEntity {
 		standAnimations.put(EnumFacingDirection.UP, new Animation("riolu/stand/up", "png"));
 		standAnimations.put(EnumFacingDirection.RIGHT, new Animation("riolu/stand/right", "png"));
 		standAnimations.put(EnumFacingDirection.LEFT, new Animation("riolu/stand/left", "png"));
+		standAnimations.put(EnumFacingDirection.DOWN_LEFT, standAnimations.get(EnumFacingDirection.DOWN));
+		standAnimations.put(EnumFacingDirection.DOWN_RIGHT, standAnimations.get(EnumFacingDirection.DOWN));
+		standAnimations.put(EnumFacingDirection.UP_LEFT, standAnimations.get(EnumFacingDirection.UP));
+		standAnimations.put(EnumFacingDirection.UP_RIGHT, standAnimations.get(EnumFacingDirection.UP));
 
 		walkingAnimations.put(EnumFacingDirection.DOWN, new Animation("riolu/walk/down", "png"));
 		walkingAnimations.put(EnumFacingDirection.UP, new Animation("riolu/walk/up", "png"));
 		walkingAnimations.put(EnumFacingDirection.RIGHT, new Animation("riolu/walk/right", "png"));
 		walkingAnimations.put(EnumFacingDirection.LEFT, new Animation("riolu/walk/left", "png"));
+		walkingAnimations.put(EnumFacingDirection.DOWN_LEFT, walkingAnimations.get(EnumFacingDirection.DOWN));
+		walkingAnimations.put(EnumFacingDirection.DOWN_RIGHT, walkingAnimations.get(EnumFacingDirection.DOWN));
+		walkingAnimations.put(EnumFacingDirection.UP_LEFT, walkingAnimations.get(EnumFacingDirection.UP));
+		walkingAnimations.put(EnumFacingDirection.UP_RIGHT, walkingAnimations.get(EnumFacingDirection.UP));
 		setTexture(getAnimation(EnumFacingDirection.DOWN));
 	}
 
@@ -71,15 +82,18 @@ public class Player extends LivingEntity {
 		Validate.notNull(direction, "Direction cannot be null!");
 		this.direction = direction;
 		refreshAnimation();
+
+		if (Game.isServer()) {
+			Packet packet = new PacketOutPlayerChangeAnimation(getEntityId(), direction, walking);
+			Game.getGameServer().getServerClients().stream().filter(client -> !client.getPlayer().equals(this)).forEach(client -> client.sendPacket(packet));
+		}
 		return this;
 	}
 
 	public Player setDirection(EnumFacingDirection direction, boolean toggleWalking) {
 		Validate.notNull(direction, "Direction cannot be null!");
 		if (this.direction == direction && !toggleWalking) return this;
-		this.direction = direction;
-		refreshAnimation();
-		return this;
+		return setDirection(direction);
 	}
 
 	public Map<EnumFacingDirection, Image> getStandAnimations() {
@@ -103,6 +117,32 @@ public class Player extends LivingEntity {
 		return getTexture();
 	}
 
+	public boolean isWalking() {
+		return walking;
+	}
+
+	public void setWalking(boolean walking) {
+		this.walking = walking;
+	}
+
+	public void shootAuraSphere() {
+
+		Vector2d position = getPosition().add(0, 0.3);
+
+		if (direction == EnumFacingDirection.UP) position = new Vector2d(position.getX(), getCurrentCollisionBox().getMax().getY());
+		if (direction == EnumFacingDirection.DOWN) position = new Vector2d(position.getX(), getCurrentCollisionBox().getMin().getY());
+		if (direction == EnumFacingDirection.LEFT) position = new Vector2d(getCurrentCollisionBox().getMin().getX(), position.getY());
+		if (direction == EnumFacingDirection.RIGHT) position = new Vector2d(getCurrentCollisionBox().getMax().getX(), position.getY());
+		if (direction == EnumFacingDirection.UP_LEFT) position = getCurrentCollisionBox().getMinMax();
+		if (direction == EnumFacingDirection.UP_RIGHT) position = getCurrentCollisionBox().getMax();
+		if (direction == EnumFacingDirection.DOWN_LEFT) position = getCurrentCollisionBox().getMin();
+		if (direction == EnumFacingDirection.DOWN_RIGHT) position = getCurrentCollisionBox().getMaxMin();
+
+		Vector2d direction = this.direction.getNormalVector().mul(this.direction.isDiagonal() ? Math.cos(45) : 1);
+		AuraSphere auraSphere = new AuraSphere(position.add(!this.direction.isDiagonal()? direction.mul(0.5) : direction), null, 10, direction);
+		auraSphere.sendSpawnPacket();
+	}
+
 	@Override
 	public void triggerMove(boolean up, boolean down, boolean left, boolean right, long dif) {
 		if (!canMove()) {
@@ -117,25 +157,13 @@ public class Player extends LivingEntity {
 		if (up && down) up = down = false;
 		boolean wasWalking = walking;
 		walking = down || up || left || right;
-		if (wasWalking && !walking) refreshAnimation();
-		Vector2d vector2d = new Vector2d();
-		if (left) {
-			vector2d = vector2d.add(-vel, 0);
-			if (!up && !down) setDirection(EnumFacingDirection.LEFT, wasWalking != walking);
-		}
-		if (right) {
-			vector2d = vector2d.add(vel, 0);
-			if (!up && !down) setDirection(EnumFacingDirection.RIGHT, wasWalking != walking);
-		}
-		if (up) {
-			vector2d = vector2d.add(0, vel);
-			setDirection(EnumFacingDirection.UP, wasWalking != walking);
-		}
-		if (down) {
-			vector2d = vector2d.add(0, -vel);
-			setDirection(EnumFacingDirection.DOWN, wasWalking != walking);
-		}
-		move(vector2d);
+		if (wasWalking && !walking) setDirection(getDirection());
+		if (!(up || down || left || right)) return;
+
+		EnumFacingDirection facingDirection = EnumFacingDirection.getFacingDirection(up, down, left, right);
+		Vector2d velocity = facingDirection.getNormalVector().mul(vel);
+		move(velocity);
+		setDirection(facingDirection, wasWalking != walking);
 	}
 
 	@Override

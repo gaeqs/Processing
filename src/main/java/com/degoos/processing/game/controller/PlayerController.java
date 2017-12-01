@@ -6,10 +6,12 @@ import com.degoos.processing.engine.event.keyboard.KeyPressEvent;
 import com.degoos.processing.engine.event.keyboard.KeyReleaseEvent;
 import com.degoos.processing.game.Game;
 import com.degoos.processing.game.entity.Entity;
+import com.degoos.processing.game.entity.Player;
 
 public class PlayerController implements Controller {
 
-	public static boolean up, down, left, right, control;
+	private boolean up, down, left, right, control, x;
+	private boolean shot;
 
 	public PlayerController() {
 		Engine.getEventManager().registerListener(this);
@@ -33,6 +35,9 @@ public class PlayerController implements Controller {
 			case CONTROL:
 				control = true;
 				break;
+			case X:
+				x = true;
+				break;
 		}
 	}
 
@@ -54,14 +59,23 @@ public class PlayerController implements Controller {
 			case CONTROL:
 				control = false;
 				break;
+			case X:
+				x = false;
+				shot = false;
+				break;
 		}
 	}
 
 	@Override
 	public void onTick(long dif, Entity entity) {
-		entity.triggerMove(up, down, left, right, dif);
 		if (control) entity.setVelocity(0.007D);
 		else entity.setVelocity(0.004D);
+		entity.triggerMove(up, down, left, right, dif);
 		Game.getCamera().setPosition(entity.getPosition());
+
+		if (Game.isServer() && x && !shot && entity instanceof Player) {
+			((Player) entity).shootAuraSphere();
+			shot = true;
+		}
 	}
 }

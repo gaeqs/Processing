@@ -11,6 +11,7 @@ import com.degoos.processing.game.network.packet.in.PacketInPressKey;
 import com.degoos.processing.game.network.packet.in.PacketInReleaseKey;
 import com.degoos.processing.game.network.packet.out.PacketOutEntityMove;
 import com.degoos.processing.game.network.packet.out.PacketOutOwnClientData;
+import com.degoos.processing.game.network.packet.out.PacketOutPlayerChangeAnimation;
 
 public class ClientListener {
 
@@ -21,6 +22,7 @@ public class ClientListener {
 				.getPosition(), new PlayerController()));
 			Game.setLoading(false);
 		}
+
 		if (event.getPacket() instanceof PacketOutEntityMove) {
 			if (((PacketOutEntityMove) event.getPacket()).getEntityId() == Game.getPlayer().getEntityId()) {
 				if (Game.getPlayer().getPosition().distance(((PacketOutEntityMove) event.getPacket()).getPosition()) > 1)
@@ -29,6 +31,14 @@ public class ClientListener {
 			}
 			Game.getEntityManager().getEntity(((PacketOutEntityMove) event.getPacket()).getEntityId())
 				.ifPresent(entity -> entity.setPosition(((PacketOutEntityMove) event.getPacket()).getPosition()));
+		}
+
+		if (event.getPacket() instanceof PacketOutPlayerChangeAnimation) {
+			Game.getEntityManager().getEntity(((PacketOutPlayerChangeAnimation) event.getPacket()).getEntityId()).ifPresent(entity -> {
+				if (!(entity instanceof Player)) return;
+				((Player) entity).setWalking(((PacketOutPlayerChangeAnimation) event.getPacket()).isWalking());
+				((Player) entity).setDirection(((PacketOutPlayerChangeAnimation) event.getPacket()).getFacingDirection());
+			});
 		}
 	}
 

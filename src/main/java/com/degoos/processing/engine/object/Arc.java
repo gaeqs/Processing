@@ -128,8 +128,8 @@ public class Arc extends GObject {
 		else core.stroke(lineColor.getRGB());
 		if (fillColor == null) core.noFill();
 		else core.fill(fillColor.getRGB());
-		Vector2f pMin = CoordinatesUtils.transformIntoProcessingCoordinates(min);
-		Vector2f pMax = CoordinatesUtils.transformIntoProcessingCoordinates(max);
+		Vector2f pMin = CoordinatesUtils.toProcessingCoordinates(min);
+		Vector2f pMax = CoordinatesUtils.toProcessingCoordinates(max);
 		core.arc(pMin.getX(), pMin.getY(), pMax.getX(), pMax.getY(), startAngle, stopAngle, arcMode.getId());
 	}
 

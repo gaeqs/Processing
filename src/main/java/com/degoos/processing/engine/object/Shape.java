@@ -26,6 +26,7 @@ public class Shape extends GObject implements Parent {
 	private Image texture;
 	private List<ShapeChild> children;
 	private float transparency;
+	private float rotation;
 
 	public Shape(Vector2d origin) {
 		this(origin, new ArrayList<>());
@@ -149,11 +150,19 @@ public class Shape extends GObject implements Parent {
 		return this;
 	}
 
+	public float getRotation() {
+		return rotation;
+	}
+
+	public void setRotation(float rotation) {
+		this.rotation = rotation;
+	}
+
 	@Override
 	public void draw(Processing core) {
-		Vector2f pOrigin = CoordinatesUtils.transformIntoProcessingCoordinates(origin);
+		Vector2f pOrigin = CoordinatesUtils.toProcessingCoordinates(origin);
 		core.tint(255, transparency);
-		core.shape(refreshShape(), pOrigin.getX(), pOrigin.getY() - core.height);
+		core.shape(refreshShape(), pOrigin.getX(), pOrigin.getY());
 		core.tint(255, 255);
 	}
 
@@ -179,7 +188,7 @@ public class Shape extends GObject implements Parent {
 				handled.texture(texture.getHandled());
 			} else handled.noTexture();
 			vertexes.forEach(vector2d -> {
-				Vector2f pVector = CoordinatesUtils.transformIntoProcessingCoordinates(vector2d);
+				Vector2f pVector = CoordinatesUtils.toProcessingCoordinates(vector2d, false);
 				Vector2i uv = uvMaps.get(vector2d);
 				if (uv != null) handled.vertex(pVector.getX(), pVector.getY(), (float) getDrawPriority() / 1000F, uv.getX(), uv.getY() == 0 ? 1 : 0);
 				else handled.vertex(pVector.getX(), pVector.getY());
@@ -188,6 +197,7 @@ public class Shape extends GObject implements Parent {
 				if (parent != null) parent.addChild(child.refreshShape());
 			});
 			handled.endShape(PConstants.CLOSE);
+			handled.rotate(rotation);
 			if (parent != null) {
 				parent.addChild(handled);
 				return parent;

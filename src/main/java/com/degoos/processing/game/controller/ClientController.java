@@ -3,6 +3,7 @@ package com.degoos.processing.game.controller;
 import com.degoos.processing.engine.Engine;
 import com.degoos.processing.engine.event.Listener;
 import com.degoos.processing.game.entity.Entity;
+import com.degoos.processing.game.entity.Player;
 import com.degoos.processing.game.event.packet.PacketReceiveEvent;
 import com.degoos.processing.game.network.ServerClient;
 import com.degoos.processing.game.network.packet.in.PacketInPressKey;
@@ -10,7 +11,8 @@ import com.degoos.processing.game.network.packet.in.PacketInReleaseKey;
 
 public class ClientController implements Controller {
 
-	private boolean up, down, left, right, control;
+	private boolean up, down, left, right, control, x;
+	private boolean shot;
 	private ServerClient client;
 
 	public ClientController(ServerClient client) {
@@ -20,10 +22,7 @@ public class ClientController implements Controller {
 
 	@Listener
 	public void onKeyPressed(PacketReceiveEvent event) {
-		if (!client.equals(event.getServerClient())) {
-			System.out.println("RETURN");
-			return;
-		}
+		if (!client.equals(event.getServerClient())) return;
 		if (!(event.getPacket() instanceof PacketInPressKey)) return;
 		switch (((PacketInPressKey) event.getPacket()).getKeyboardKey()) {
 			case UP:
@@ -40,6 +39,9 @@ public class ClientController implements Controller {
 				break;
 			case CONTROL:
 				control = true;
+				break;
+			case X:
+				x = true;
 				break;
 		}
 	}
@@ -64,6 +66,10 @@ public class ClientController implements Controller {
 			case CONTROL:
 				control = false;
 				break;
+			case X:
+				x = false;
+				shot = false;
+				break;
 		}
 	}
 
@@ -72,5 +78,10 @@ public class ClientController implements Controller {
 		entity.triggerMove(up, down, left, right, dif);
 		if (control) entity.setVelocity(0.007D);
 		else entity.setVelocity(0.004D);
+
+		if (x && !shot && entity instanceof Player) {
+			((Player) entity).shootAuraSphere();
+			shot = true;
+		}
 	}
 }

@@ -103,7 +103,7 @@ public class Text extends GObject {
 	public void draw(Processing core) {
 		if (color == null) core.noFill();
 		else core.fill(color.getRGB());
-		Vector2f pStart = CoordinatesUtils.transformIntoProcessingCoordinates(position);
+		Vector2f pStart = CoordinatesUtils.toProcessingCoordinates(position);
 		if (font != null) core.textFont(font.getHandled());
 		core.textSize(size);
 		core.text(text, pStart.getX(), pStart.getY(), (float) getDrawPriority() / 1000F);

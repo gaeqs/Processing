@@ -73,7 +73,7 @@ public class Point extends GObject {
 		if (color == null) core.noStroke();
 		else core.stroke(color.getRGB());
 		core.strokeWeight(size);
-		Vector2f pPosition = CoordinatesUtils.transformIntoProcessingCoordinates(position);
+		Vector2f pPosition = CoordinatesUtils.toProcessingCoordinates(position);
 		core.point(pPosition.getX(), pPosition.getY(), (float) getDrawPriority() / 1000F);
 	}
 

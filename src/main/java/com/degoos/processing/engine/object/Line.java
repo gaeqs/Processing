@@ -84,8 +84,8 @@ public class Line extends GObject {
 		if (color == null) core.noStroke();
 		else core.stroke(color.getRGB());
 		core.strokeWeight(size);
-		Vector2f pStart = CoordinatesUtils.transformIntoProcessingCoordinates(start);
-		Vector2f pEnd = CoordinatesUtils.transformIntoProcessingCoordinates(end);
+		Vector2f pStart = CoordinatesUtils.toProcessingCoordinates(start);
+		Vector2f pEnd = CoordinatesUtils.toProcessingCoordinates(end);
 		core.line(pStart.getX(), pStart.getY(), (float) getDrawPriority(), pEnd.getX(), pEnd.getY(), (float) getDrawPriority());
 	}
 

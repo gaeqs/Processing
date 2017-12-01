@@ -111,11 +111,11 @@ public class Level extends Shape {
 		if (SetupListener.setup) for (Entity entity : levelEntities) {
 			Area area = entity.getCurrentCollisionBox();
 			Vector2f minMax = CoordinatesUtils
-				.transformIntoProcessingCoordinates(GameCoordinatesUtils.toEngineCoordinates(new Vector2d(area.getMin().getX(), area.getMax().getY())));
+				.toProcessingCoordinates(GameCoordinatesUtils.toEngineCoordinates(new Vector2d(area.getMin().getX(), area.getMax().getY())));
 			Vector2f maxMin = CoordinatesUtils
-				.transformIntoProcessingCoordinates(GameCoordinatesUtils.toEngineCoordinates(new Vector2d(area.getMax().getX(), area.getMin().getY())));
-			Vector2f min = CoordinatesUtils.transformIntoProcessingCoordinates(GameCoordinatesUtils.toEngineCoordinates(area.getMin()));
-			Vector2f max = CoordinatesUtils.transformIntoProcessingCoordinates(GameCoordinatesUtils.toEngineCoordinates(area.getMax()));
+				.toProcessingCoordinates(GameCoordinatesUtils.toEngineCoordinates(new Vector2d(area.getMax().getX(), area.getMin().getY())));
+			Vector2f min = CoordinatesUtils.toProcessingCoordinates(GameCoordinatesUtils.toEngineCoordinates(area.getMin()));
+			Vector2f max = CoordinatesUtils.toProcessingCoordinates(GameCoordinatesUtils.toEngineCoordinates(area.getMax()));
 			if (entity instanceof CollisionBox) core.stroke(Color.RED.getRGB());
 			else if (entity instanceof Teleport) core.stroke(Color.GREEN.getRGB());
 			else core.stroke(Color.GRAY.getRGB());

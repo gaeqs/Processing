@@ -17,7 +17,13 @@ public class Test {
 		Engine.startEngine(new Vector2i(1280, 720));
 		Engine.getCore().setBackground(Color.CYAN);
 		Engine.setTextureSampling(EnumTextureSampling.NEAREST);
-		Shape shape = new Shape(true, 0, 0, new Vector2d(0.5, 0.8));
+		Shape shape = new Shape(true, 0, 0, new Vector2d(0.5, 0.8)) {
+			@Override
+			public void onTick(long dif) {
+				setRotation(getRotation() + 0.1F);
+				super.onTick(dif);
+			}
+		};
 		shape.addVertexWithUv(new Vector2d(40.1 / Engine.getCore().width, 40.1 / Engine.getCore().height), new Vector2i(1, 1));
 		shape.addVertexWithUv(new Vector2d(40.1 / Engine.getCore().width, -40.1 / Engine.getCore().height), new Vector2i(1, 0));
 		shape.addVertexWithUv(new Vector2d(-40.1 / Engine.getCore().width, -40.1 / Engine.getCore().height), new Vector2i(0, 0));
