@@ -2,6 +2,7 @@ package com.degoos.processing.game.network;
 
 import com.degoos.processing.engine.Engine;
 import com.degoos.processing.engine.util.Validate;
+import com.degoos.processing.game.Game;
 import com.degoos.processing.game.controller.ClientController;
 import com.degoos.processing.game.controller.Controller;
 import com.degoos.processing.game.entity.Player;
@@ -9,6 +10,7 @@ import com.degoos.processing.game.event.packet.PacketReceiveEvent;
 import com.degoos.processing.game.event.packet.PacketSendEvent;
 import com.degoos.processing.game.network.packet.Packet;
 import com.degoos.processing.game.network.packet.out.PacketOutOwnClientData;
+import com.degoos.processing.game.network.packet.out.PacketOutSpawnEntity;
 import com.flowpowered.math.vector.Vector2d;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -30,8 +32,10 @@ public class ServerClient {
 		this.outputStream = outputStream;
 		this.nick = nick;
 		this.controller = new ClientController(this);
-		this.player = new Player(position, controller);
 
+		Game.getEntityManager().getEntities().forEach(entity -> sendPacket(new PacketOutSpawnEntity(entity)));
+
+		this.player = new Player(position, controller);
 		sendPacket(new PacketOutOwnClientData(player.getEntityId(), player.getPosition()));
 
 		new Thread(() -> {

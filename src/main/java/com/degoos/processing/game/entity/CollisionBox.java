@@ -30,4 +30,10 @@ public class CollisionBox extends SavableEntity {
 		super(inputStream, level);
 	}
 
+
+	public CollisionBox(DataInputStream inputStream) throws IOException {
+		super(inputStream);
+	}
+
+
 }

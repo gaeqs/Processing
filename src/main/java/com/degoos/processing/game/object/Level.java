@@ -13,7 +13,7 @@ import com.degoos.processing.game.entity.SavableEntity;
 import com.degoos.processing.game.entity.Teleport;
 import com.degoos.processing.game.listener.SetupListener;
 import com.degoos.processing.game.util.GameCoordinatesUtils;
-import com.degoos.processing.game.util.SavableEntitiesUtils;
+import com.degoos.processing.game.util.EntitiesUtils;
 import com.flowpowered.math.vector.Vector2d;
 import com.flowpowered.math.vector.Vector2f;
 import com.flowpowered.math.vector.Vector2i;
@@ -47,7 +47,7 @@ public class Level extends Shape {
 		if (Game.isServer()) {
 			InputStream entitiesIS = Engine.getResourceInputStream(folder + "/entities.dat");
 			if (entitiesIS != null) {
-				SavableEntitiesUtils.loadEntities(this, entitiesIS);
+				EntitiesUtils.loadSavableEntities(this, entitiesIS);
 				try {
 					entitiesIS.close();
 				} catch (Exception ex) {
@@ -85,7 +85,7 @@ public class Level extends Shape {
 			file.delete();
 			file.createNewFile();
 			OutputStream outputStream = new FileOutputStream(file);
-			SavableEntitiesUtils.saveEntities(this, outputStream);
+			EntitiesUtils.saveEntities(this, outputStream);
 			outputStream.close();
 		} catch (Exception ex) {
 			ex.printStackTrace();

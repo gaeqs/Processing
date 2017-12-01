@@ -54,15 +54,15 @@ public class SetupListener {
 		if (event.getPressedKey() == EnumMouseKey.PRIMARY) {
 			if (collisionFirstPos == null) collisionFirstPos = pos;
 			else {
-				Game.getMap().addEntity(new CollisionBox(new Area(collisionFirstPos, pos), Game.getMap()));
-				Game.getMap().saveLevelEntities();
+				Game.getLevel().addEntity(new CollisionBox(new Area(collisionFirstPos, pos), Game.getLevel()));
+				Game.getLevel().saveLevelEntities();
 				collisionFirstPos = null;
 			}
 		}
 		if (event.getPressedKey() == EnumMouseKey.TERTIARY) {
-			new ArrayList<>(Game.getMap().getLevelEntities()).stream().filter(entity -> entity instanceof CollisionBox)
+			new ArrayList<>(Game.getLevel().getLevelEntities()).stream().filter(entity -> entity instanceof CollisionBox)
 				.filter(entity -> entity.getCurrentCollisionBox().isInside(pos)).forEach(SavableEntity::delete);
-			Game.getMap().saveLevelEntities();
+			Game.getLevel().saveLevelEntities();
 		}
 	}
 
@@ -78,16 +78,16 @@ public class SetupListener {
 			if (tpFirstPos == null) tpFirstPos = pos;
 			else if (tpSecondPos == null) tpSecondPos = pos;
 			else {
-				new Teleport(new Area(tpFirstPos, tpSecondPos), pos, Game.getMap());
-				Game.getMap().saveLevelEntities();
+				new Teleport(new Area(tpFirstPos, tpSecondPos), pos, Game.getLevel());
+				Game.getLevel().saveLevelEntities();
 				tpFirstPos = null;
 				tpSecondPos = null;
 			}
 		}
 		if (event.getPressedKey() == EnumMouseKey.TERTIARY) {
-			new ArrayList<>(Game.getMap().getLevelEntities()).stream().filter(entity -> entity instanceof Teleport)
+			new ArrayList<>(Game.getLevel().getLevelEntities()).stream().filter(entity -> entity instanceof Teleport)
 				.filter(entity -> entity.getCurrentCollisionBox().isInside(pos)).forEach(SavableEntity::delete);
-			Game.getMap().saveLevelEntities();
+			Game.getLevel().saveLevelEntities();
 		}
 	}
 }

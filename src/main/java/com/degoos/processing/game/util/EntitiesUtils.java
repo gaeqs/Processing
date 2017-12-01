@@ -1,5 +1,6 @@
 package com.degoos.processing.game.util;
 
+import com.degoos.processing.game.entity.Entity;
 import com.degoos.processing.game.entity.SavableEntity;
 import com.degoos.processing.game.object.Level;
 import java.io.DataInputStream;
@@ -7,15 +8,14 @@ import java.io.DataOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-public class SavableEntitiesUtils {
+public class EntitiesUtils {
 
-	public static void loadEntities(Level level, InputStream inputStream) {
+	public static void loadSavableEntities(Level level, InputStream inputStream) {
 		DataInputStream stream = new DataInputStream(inputStream);
 		try {
 			int size = stream.readInt();
 			for (int i = 0; i < size; i++) {
-				Class<?> clazz = Class.forName(stream.readUTF());
-				clazz.getConstructor(DataInputStream.class, Level.class).newInstance(stream, level);
+				loadEntity(stream, level);
 			}
 		} catch (Exception ex) {
 			ex.printStackTrace();
@@ -28,13 +28,23 @@ public class SavableEntitiesUtils {
 		}
 	}
 
+	public static Entity loadEntity(DataInputStream stream, Level level) {
+		try {
+			Class<?> clazz = Class.forName(stream.readUTF());
+			if (level == null) return (Entity) clazz.getConstructor(DataInputStream.class).newInstance(stream);
+			else return (Entity) clazz.getConstructor(DataInputStream.class, Level.class).newInstance(stream, level);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
+
 	public static void saveEntities(Level level, OutputStream outputStream) {
 		DataOutputStream stream = new DataOutputStream(outputStream);
 		try {
 			stream.writeInt(level.getLevelEntities().size());
 			for (SavableEntity entity : level.getLevelEntities()) {
-				stream.writeUTF(entity.getClass().getName());
-				entity.save(stream);
+				saveEntity(stream, entity);
 			}
 		} catch (Exception ex) {
 			ex.printStackTrace();
@@ -44,6 +54,15 @@ public class SavableEntitiesUtils {
 			} catch (Exception ex) {
 				ex.printStackTrace();
 			}
+		}
+	}
+
+	public static void saveEntity(DataOutputStream stream, Entity entity) {
+		try {
+			stream.writeUTF(entity.getClass().getName());
+			entity.save(stream);
+		} catch (Exception ex) {
+			ex.printStackTrace();
 		}
 	}
 }

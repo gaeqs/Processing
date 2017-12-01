@@ -17,9 +17,13 @@ import com.degoos.processing.game.object.Collision;
 import com.degoos.processing.game.object.LinealArea;
 import com.degoos.processing.game.object.ParallelogramArea;
 import com.degoos.processing.game.util.GameCoordinatesUtils;
+import com.degoos.processing.game.util.StreamUtils;
 import com.flowpowered.math.vector.Vector2d;
 import com.flowpowered.math.vector.Vector2f;
 import com.flowpowered.math.vector.Vector2i;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -57,6 +61,18 @@ public class Entity extends Shape {
 		this.controller = controller;
 		this.canMove = canMove;
 		recalculateAreas();
+	}
+
+	public Entity(DataInputStream inputStream) throws IOException {
+		this(inputStream.readInt(), new Vector2d(inputStream.readDouble(), inputStream.readDouble()), new Area(new Vector2d(inputStream.readDouble(), inputStream
+			.readDouble()), new Vector2d(inputStream.readDouble(), inputStream.readDouble())), new Area(new Vector2d(inputStream.readDouble(), inputStream
+			.readDouble()), new Vector2d(inputStream.readDouble(), inputStream.readDouble())), inputStream.readBoolean(), inputStream.readDouble(), false, null);
+	}
+
+	public Entity(DataInputStream inputStream, Controller controller) throws IOException {
+		this(inputStream.readInt(), new Vector2d(inputStream.readDouble(), inputStream.readDouble()), new Area(new Vector2d(inputStream.readDouble(), inputStream
+			.readDouble()), new Vector2d(inputStream.readDouble(), inputStream.readDouble())), new Area(new Vector2d(inputStream.readDouble(), inputStream
+			.readDouble()), new Vector2d(inputStream.readDouble(), inputStream.readDouble())), inputStream.readBoolean(), inputStream.readDouble(), false, controller);
 	}
 
 	public int getEntityId() {
@@ -142,7 +158,7 @@ public class Entity extends Shape {
 	}
 
 	public void triggerMove(boolean up, boolean down, boolean left, boolean right, long dif) {
-		if (!canMove || !Game.isServer()) return;
+		if (!canMove) return;
 		double vel = velocity * dif;
 		if (left && right) left = right = false;
 		if (up && down) up = down = false;
@@ -282,6 +298,15 @@ public class Entity extends Shape {
 
 	public EnumCollideAction collide(Entity entity) {
 		return this.isTangible() && entity.isTangible() ? EnumCollideAction.COLLIDE : EnumCollideAction.PASS_THROUGH;
+	}
+
+	public void save(DataOutputStream stream) throws IOException {
+		stream.writeInt(getEntityId());
+		StreamUtils.writeVector(stream, getPosition());
+		StreamUtils.writeArea(stream, getRelativeCollisionBox());
+		StreamUtils.writeArea(stream, getRelativeDisplayArea());
+		stream.writeBoolean(isTangible());
+		stream.writeDouble(getVelocity());
 	}
 
 	@Override

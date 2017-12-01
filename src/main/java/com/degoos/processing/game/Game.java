@@ -19,13 +19,13 @@ import com.flowpowered.math.vector.Vector2i;
 public class Game {
 
 	protected static Camera camera;
-	protected static Level map;
+	protected static Level level;
 	protected static Player player;
 	protected static EntityManager entityManager;
 	private static GameServer gameServer;
 	private static ServerConnection serverConnection;
 	private static Font font;
-	private static boolean onMenu;
+	private static boolean onMenu, isServer;
 
 	public static void main(String[] args) {
 		Game.entityManager = new EntityManager();
@@ -49,11 +49,13 @@ public class Game {
 
 	public static boolean load(String nick, String ip) {
 		if (ip.equalsIgnoreCase("local")) {
+			isServer = true;
 			gameServer = new GameServer();
 			MapLoader.load();
 			setPlayer(new Player(new Vector2d(12, 8), new PlayerController()));
 			return true;
 		} else {
+			isServer = false;
 			return (serverConnection = new ServerConnection(nick, ip)).isLoaded();
 		}
 	}
@@ -62,8 +64,8 @@ public class Game {
 		return camera;
 	}
 
-	public static Level getMap() {
-		return map;
+	public static Level getLevel() {
+		return level;
 	}
 
 	public static Player getPlayer() {
@@ -80,7 +82,7 @@ public class Game {
 	}
 
 	public static boolean isServer() {
-		return gameServer != null;
+		return isServer;
 	}
 
 	public static GameServer getGameServer() {

@@ -9,6 +9,8 @@ import com.degoos.processing.game.controller.Controller;
 import com.degoos.processing.game.enums.EnumFacingDirection;
 import com.degoos.processing.game.object.Area;
 import com.flowpowered.math.vector.Vector2d;
+import java.io.DataInputStream;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -27,6 +29,20 @@ public class Player extends LivingEntity {
 	public Player(int id, Vector2d position, Controller controller) {
 		super(id, position, new Area(new Vector2d(-0.6, 0), new Vector2d(0.6, 0.5)), new Area(new Vector2d(-0.7, 0), new Vector2d(0.7, 1.3)), true, 0.004D, true,
 			controller, 100, 100);
+		loadInstance();
+	}
+
+	public Player(DataInputStream inputStream) throws IOException {
+		super(inputStream);
+		loadInstance();
+	}
+
+	public Player(DataInputStream inputStream, Controller controller) throws IOException {
+		super(inputStream, controller);
+		loadInstance();
+	}
+
+	private void loadInstance() {
 		setDrawPriority(2);
 		setTickPriority(0);
 
@@ -119,7 +135,7 @@ public class Player extends LivingEntity {
 			vector2d = vector2d.add(0, -vel);
 			setDirection(EnumFacingDirection.DOWN, wasWalking != walking);
 		}
-		if (Game.isServer()) move(vector2d);
+		move(vector2d);
 	}
 
 	@Override

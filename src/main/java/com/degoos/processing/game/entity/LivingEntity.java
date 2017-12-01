@@ -8,6 +8,9 @@ import com.degoos.processing.game.object.Area;
 import com.degoos.processing.game.util.GameCoordinatesUtils;
 import com.flowpowered.math.vector.Vector2d;
 import java.awt.Color;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
 
 public class LivingEntity extends Entity {
 
@@ -29,6 +32,18 @@ public class LivingEntity extends Entity {
 		healthBar = new Arc(new Vector2d(), new Vector2d(), 0, 0).setLineColor(Color.BLACK).setLineSize(1.5F);
 		steticArc = new Arc(false, 2, 0, new Vector2d(), new Vector2d(), 0, Processing.TAU).setFullColor(Color.BLACK);
 		recalculateHealthBar();
+	}
+
+	public LivingEntity(DataInputStream inputStream) throws IOException {
+		super(inputStream);
+		this.health = inputStream.readDouble();
+		this.maxHealth = inputStream.readDouble();
+	}
+
+	public LivingEntity(DataInputStream inputStream, Controller controller) throws IOException {
+		super(inputStream, controller);
+		this.health = inputStream.readDouble();
+		this.maxHealth = inputStream.readDouble();
 	}
 
 	public double getHealth() {
@@ -65,6 +80,13 @@ public class LivingEntity extends Entity {
 			healthBar.setStopAngle(healthScale * Processing.TAU);
 			healthBar.setFillColor(new Color(1 - healthScale, healthScale, 0));
 		}
+	}
+
+	@Override
+	public void save(DataOutputStream stream) throws IOException {
+		super.save(stream);
+		stream.writeDouble(health);
+		stream.writeDouble(maxHealth);
 	}
 
 	@Override

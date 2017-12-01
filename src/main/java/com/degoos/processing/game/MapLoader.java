@@ -15,7 +15,7 @@ public class MapLoader {
 		double ref = (double) Engine.getCore().width / (double) Engine.getCore().height;
 
 		Game.camera = new Camera(new Vector2d(), ref * 4, 4);
-		Game.map = new Level("map");
+		Game.level = new Level("map");
 
 		Engine.getEventManager().registerListener(new SetupListener());
 		Engine.getEventManager().registerListener(new ScreenListener());

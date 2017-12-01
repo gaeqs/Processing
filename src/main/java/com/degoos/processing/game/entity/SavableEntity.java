@@ -1,12 +1,11 @@
 package com.degoos.processing.game.entity;
 
+import com.degoos.processing.game.Game;
 import com.degoos.processing.game.controller.Controller;
 import com.degoos.processing.game.object.Area;
 import com.degoos.processing.game.object.Level;
-import com.degoos.processing.game.util.StreamUtils;
 import com.flowpowered.math.vector.Vector2d;
 import java.io.DataInputStream;
-import java.io.DataOutputStream;
 import java.io.IOException;
 
 public class SavableEntity extends Entity {
@@ -27,24 +26,20 @@ public class SavableEntity extends Entity {
 	}
 
 	public SavableEntity(DataInputStream inputStream, Level level) throws IOException {
-		super(inputStream.readInt(), new Vector2d(inputStream.readDouble(), inputStream.readDouble()), new Area(new Vector2d(inputStream.readDouble(), inputStream
-			.readDouble()), new Vector2d(inputStream.readDouble(), inputStream.readDouble())), new Area(new Vector2d(inputStream.readDouble(), inputStream
-			.readDouble()), new Vector2d(inputStream.readDouble(), inputStream.readDouble())), inputStream.readBoolean(), inputStream.readDouble(), false, null);
+		super(inputStream);
 		this.level = level;
 		level.addEntity(this);
 	}
 
-	public Level getLevel() {
-		return level;
+	public SavableEntity(DataInputStream inputStream) throws IOException {
+		super(inputStream);
+		this.level = Game.getLevel();
+		level.addEntity(this);
 	}
 
-	public void save(DataOutputStream stream) throws IOException {
-		stream.writeInt(getEntityId());
-		StreamUtils.writeVector(stream, getPosition());
-		StreamUtils.writeArea(stream, getRelativeCollisionBox());
-		StreamUtils.writeArea(stream, getRelativeDisplayArea());
-		stream.writeBoolean(isTangible());
-		stream.writeDouble(getVelocity());
+
+	public Level getLevel() {
+		return level;
 	}
 
 	@Override
