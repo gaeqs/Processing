@@ -7,13 +7,13 @@ public abstract class GObject {
 
 	private int id;
 	private boolean visible;
-	private int drawPriority, tickPriority;
+	private double drawPriority, tickPriority;
 
 	public GObject() {
 		this(false, 0, 0);
 	}
 
-	public GObject(boolean visible, int drawPriority, int tickPriority) {
+	public GObject(boolean visible, double drawPriority, double tickPriority) {
 		this.id = Engine.getObjectManager().addGObject(this);
 		this.visible = visible;
 		this.drawPriority = drawPriority;
@@ -32,19 +32,19 @@ public abstract class GObject {
 		this.visible = visible;
 	}
 
-	public int getDrawPriority() {
+	public double getDrawPriority() {
 		return drawPriority;
 	}
 
-	public void setDrawPriority(int drawPriority) {
+	public void setDrawPriority(double drawPriority) {
 		this.drawPriority = drawPriority;
 	}
 
-	public int getTickPriority() {
+	public double getTickPriority() {
 		return tickPriority;
 	}
 
-	public void setTickPriority(int tickPriority) {
+	public void setTickPriority(double tickPriority) {
 		this.tickPriority = tickPriority;
 	}
 

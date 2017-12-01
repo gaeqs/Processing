@@ -29,11 +29,11 @@ public class Line extends GObject {
 		this(false, 0, 0, start, end, color, size);
 	}
 
-	public Line(boolean visible, int drawPriority, int tickPriority, Vector2d start, Vector2d end, Color color) {
+	public Line(boolean visible, double drawPriority, double tickPriority, Vector2d start, Vector2d end, Color color) {
 		this(visible, drawPriority, tickPriority, start, end, color, 1);
 	}
 
-	public Line(boolean visible, int drawPriority, int tickPriority, Vector2d start, Vector2d end, Color color, float size) {
+	public Line(boolean visible, double drawPriority, double tickPriority, Vector2d start, Vector2d end, Color color, float size) {
 		super(visible, drawPriority, tickPriority);
 		setStart(start);
 		setEnd(end);
@@ -86,7 +86,7 @@ public class Line extends GObject {
 		core.strokeWeight(size);
 		Vector2f pStart = CoordinatesUtils.transformIntoProcessingCoordinates(start);
 		Vector2f pEnd = CoordinatesUtils.transformIntoProcessingCoordinates(end);
-		core.line(pStart.getX(), pStart.getY(), getDrawPriority(), pEnd.getX(), pEnd.getY(), getDrawPriority());
+		core.line(pStart.getX(), pStart.getY(), (float) getDrawPriority(), pEnd.getX(), pEnd.getY(), (float) getDrawPriority());
 	}
 
 	@Override

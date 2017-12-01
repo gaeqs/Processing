@@ -29,11 +29,11 @@ public class Point extends GObject {
 		this(false, 0, 0, position, color, size);
 	}
 
-	public Point(boolean visible, int drawPriority, int tickPriority, Vector2d position, Color color) {
+	public Point(boolean visible, double drawPriority, double tickPriority, Vector2d position, Color color) {
 		this(visible, drawPriority, tickPriority, position, color, 1);
 	}
 
-	public Point(boolean visible, int drawPriority, int tickPriority, Vector2d position, Color color, float size) {
+	public Point(boolean visible, double drawPriority, double tickPriority, Vector2d position, Color color, float size) {
 		super(visible, drawPriority, tickPriority);
 		setPosition(position);
 		setColor(color);
@@ -74,7 +74,7 @@ public class Point extends GObject {
 		else core.stroke(color.getRGB());
 		core.strokeWeight(size);
 		Vector2f pPosition = CoordinatesUtils.transformIntoProcessingCoordinates(position);
-		core.point(pPosition.getX(), pPosition.getY(), getDrawPriority() / 1000F);
+		core.point(pPosition.getX(), pPosition.getY(), (float) getDrawPriority() / 1000F);
 	}
 
 	@Override

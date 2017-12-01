@@ -19,35 +19,35 @@ public class Text extends GObject {
 		this(false, 0, 0, text, position);
 	}
 
-	public Text(boolean visible, int drawPriority, int tickPriority, String text, Vector2d position) {
+	public Text(boolean visible, double drawPriority, double tickPriority, String text, Vector2d position) {
 		this(visible, drawPriority, tickPriority, text, position, null, 10, null);
 	}
 
-	public Text(boolean visible, int drawPriority, int tickPriority, String text, Vector2d position, Color color) {
+	public Text(boolean visible, double drawPriority, double tickPriority, String text, Vector2d position, Color color) {
 		this(visible, drawPriority, tickPriority, text, position, color, 10, null);
 	}
 
-	public Text(boolean visible, int drawPriority, int tickPriority, String text, Vector2d position, float size) {
+	public Text(boolean visible, double drawPriority, double tickPriority, String text, Vector2d position, float size) {
 		this(visible, drawPriority, tickPriority, text, position, null, size, null);
 	}
 
-	public Text(boolean visible, int drawPriority, int tickPriority, String text, Vector2d position, Font font) {
+	public Text(boolean visible, double drawPriority, double tickPriority, String text, Vector2d position, Font font) {
 		this(visible, drawPriority, tickPriority, text, position, null, 10, font);
 	}
 
-	public Text(boolean visible, int drawPriority, int tickPriority, String text, Vector2d position, Color color, Font font) {
+	public Text(boolean visible, double drawPriority, double tickPriority, String text, Vector2d position, Color color, Font font) {
 		this(visible, drawPriority, tickPriority, text, position, color, 10, font);
 	}
 
-	public Text(boolean visible, int drawPriority, int tickPriority, String text, Vector2d start, float size, Font font) {
+	public Text(boolean visible, double drawPriority, double tickPriority, String text, Vector2d start, float size, Font font) {
 		this(visible, drawPriority, tickPriority, text, start, null, size, font);
 	}
 
-	public Text(boolean visible, int drawPriority, int tickPriority, String text, Vector2d position, Color color, float size) {
+	public Text(boolean visible, double drawPriority, double tickPriority, String text, Vector2d position, Color color, float size) {
 		this(visible, drawPriority, tickPriority, text, position, color, size, null);
 	}
 
-	public Text(boolean visible, int drawPriority, int tickPriority, String text, Vector2d position, Color color, float size, Font font) {
+	public Text(boolean visible, double drawPriority, double tickPriority, String text, Vector2d position, Color color, float size, Font font) {
 		super(visible, drawPriority, tickPriority);
 		this.text = text;
 		this.position = position;
@@ -106,7 +106,7 @@ public class Text extends GObject {
 		Vector2f pStart = CoordinatesUtils.transformIntoProcessingCoordinates(position);
 		if (font != null) core.textFont(font.getHandled());
 		core.textSize(size);
-		core.text(text, pStart.getX(), pStart.getY(), getDrawPriority() / 1000F);
+		core.text(text, pStart.getX(), pStart.getY(), (float) getDrawPriority() / 1000F);
 	}
 
 	@Override

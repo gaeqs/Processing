@@ -23,11 +23,11 @@ public class Arc extends GObject {
 		this(false, 0, 0, max, min, null, null, startAngle, stopAngle, 1, arcMode);
 	}
 
-	public Arc(boolean visible, int drawPriority, int tickPriority, Vector2d max, Vector2d min, float startAngle, float stopAngle) {
+	public Arc(boolean visible, double drawPriority, double tickPriority, Vector2d max, Vector2d min, float startAngle, float stopAngle) {
 		this(visible, drawPriority, tickPriority, max, min, null, null, startAngle, stopAngle, 1, EnumArcMode.PIE);
 	}
 
-	public Arc(boolean visible, int drawPriority, int tickPriority, Vector2d max, Vector2d min, Color fillColor, Color lineColor, float startAngle, float stopAngle,
+	public Arc(boolean visible, double drawPriority, double tickPriority, Vector2d max, Vector2d min, Color fillColor, Color lineColor, float startAngle, float stopAngle,
 		float lineSize, EnumArcMode arcMode) {
 		super(visible, drawPriority, tickPriority);
 		Validate.notNull(max, "Max cannot be null!");

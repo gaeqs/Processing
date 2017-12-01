@@ -6,15 +6,15 @@ import com.degoos.processing.game.util.EntitiesUtils;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 
-public class PacketOutSpawnEntity extends Packet {
+public class PacketOutEntitySpawn extends Packet {
 
 	private Entity entity;
 
-	public PacketOutSpawnEntity(Entity entity) {
+	public PacketOutEntitySpawn(Entity entity) {
 		this.entity = entity;
 	}
 
-	public PacketOutSpawnEntity(DataInputStream stream) {
+	public PacketOutEntitySpawn(DataInputStream stream) {
 		try {
 			entity = EntitiesUtils.loadEntity(stream, null);
 		} catch (Exception e) {

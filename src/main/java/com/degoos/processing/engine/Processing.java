@@ -76,33 +76,38 @@ public class Processing extends PApplet {
 
 	@Override
 	public void draw() {
-		System.gc();
+		try {
+			System.gc();
 
-		Vector2i currentSize = new Vector2i(width, height);
-		if (!size.equals(currentSize)) {
-			ScreenResizeEvent event = new ScreenResizeEvent(size, currentSize);
-			Engine.getEventManager().callEvent(event);
-			size = event.getNewSize();
-			if (!currentSize.equals(event.getNewSize())) resize(event.getNewSize());
+			Vector2i currentSize = new Vector2i(width, height);
+			if (!size.equals(currentSize)) {
+				ScreenResizeEvent event = new ScreenResizeEvent(size, currentSize);
+				Engine.getEventManager().callEvent(event);
+				size = event.getNewSize();
+				if (!currentSize.equals(event.getNewSize())) resize(event.getNewSize());
+			}
+
+			long dif = System.currentTimeMillis() - lastTick;
+			lastTick = System.currentTimeMillis();
+			Engine.getEventManager().callEvent(new BeforeDrawEvent(dif));
+			background(background.getRGB());
+			Engine.getObjectManager().getObjects().stream().sorted(Comparator.comparingDouble(GObject::getTickPriority)).forEach(object -> {
+				object.onTick(dif);
+				if (object instanceof Parent) onChildrenTick((Parent) object, dif);
+			});
+			Engine.getObjectManager().getObjects().stream().sorted(Comparator.comparingDouble(GObject::getDrawPriority)).forEach(object -> {
+				if (object.isVisible()) object.draw(this);
+			});
+
+			Engine.getEventManager().callEvent(new AfterDrawEvent(dif));
+		} catch (Exception ex) {
+			System.err.println("An error has occurred while Processing was drawing!");
+			ex.printStackTrace();
 		}
-
-		long dif = System.currentTimeMillis() - lastTick;
-		lastTick = System.currentTimeMillis();
-		Engine.getEventManager().callEvent(new BeforeDrawEvent(dif));
-		background(background.getRGB());
-		Engine.getObjectManager().getObjects().stream().sorted(Comparator.comparingInt(GObject::getTickPriority)).forEach(object -> {
-			object.onTick(dif);
-			if (object instanceof Parent) onChildrenTick((Parent) object, dif);
-		});
-		Engine.getObjectManager().getObjects().stream().sorted(Comparator.comparingInt(GObject::getDrawPriority)).forEach(object -> {
-			if (object.isVisible()) object.draw(this);
-		});
-
-		Engine.getEventManager().callEvent(new AfterDrawEvent(dif));
 	}
 
 	private void onChildrenTick(Parent parent, long dif) {
-		parent.getChildren().stream().sorted(Comparator.comparingInt(GObject::getDrawPriority)).forEach(child -> {
+		parent.getChildren().stream().sorted(Comparator.comparingDouble(GObject::getDrawPriority)).forEach(child -> {
 			child.onTick(dif);
 			if (child instanceof Parent) onChildrenTick((Parent) child, dif);
 		});

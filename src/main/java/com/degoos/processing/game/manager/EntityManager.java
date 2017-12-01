@@ -19,7 +19,7 @@ public class EntityManager {
 		return entities.values();
 	}
 
-	public Optional<Entity> getEntity (int id) {
+	public Optional<Entity> getEntity(int id) {
 		return entities.values().stream().filter(entity -> entity.getEntityId() == id).findAny();
 	}
 
@@ -35,7 +35,11 @@ public class EntityManager {
 	}
 
 	public void removeEntity(Entity entity) {
-		entities.remove(entity);
+		entities.remove(entity.getEntityId());
+	}
+
+	public void removeEntity(int id) {
+		entities.remove(id);
 	}
 
 	public void destroyAllEntities() {

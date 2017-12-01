@@ -9,7 +9,7 @@ import com.degoos.processing.game.entity.Player;
 import com.degoos.processing.game.event.packet.ClientPacketReceiveEvent;
 import com.degoos.processing.game.network.packet.in.PacketInPressKey;
 import com.degoos.processing.game.network.packet.in.PacketInReleaseKey;
-import com.degoos.processing.game.network.packet.out.PacketOutMoveEntity;
+import com.degoos.processing.game.network.packet.out.PacketOutEntityMove;
 import com.degoos.processing.game.network.packet.out.PacketOutOwnClientData;
 
 public class ClientListener {
@@ -19,10 +19,16 @@ public class ClientListener {
 		if (event.getPacket() instanceof PacketOutOwnClientData) {
 			Game.setPlayer(new Player(((PacketOutOwnClientData) event.getPacket()).getEntityId(), ((PacketOutOwnClientData) event.getPacket())
 				.getPosition(), new PlayerController()));
+			Game.setLoading(false);
 		}
-		if (event.getPacket() instanceof PacketOutMoveEntity) {
-			Game.getEntityManager().getEntity(((PacketOutMoveEntity) event.getPacket()).getEntityId())
-				.ifPresent(entity -> entity.setPosition(((PacketOutMoveEntity) event.getPacket()).getPosition()));
+		if (event.getPacket() instanceof PacketOutEntityMove) {
+			if (((PacketOutEntityMove) event.getPacket()).getEntityId() == Game.getPlayer().getEntityId()) {
+				if (Game.getPlayer().getPosition().distance(((PacketOutEntityMove) event.getPacket()).getPosition()) > 1)
+					Game.getPlayer().setPosition(((PacketOutEntityMove) event.getPacket()).getPosition());
+				return;
+			}
+			Game.getEntityManager().getEntity(((PacketOutEntityMove) event.getPacket()).getEntityId())
+				.ifPresent(entity -> entity.setPosition(((PacketOutEntityMove) event.getPacket()).getPosition()));
 		}
 	}
 

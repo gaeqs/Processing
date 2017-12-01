@@ -35,11 +35,11 @@ public class Shape extends GObject implements Parent {
 		this(false, 0, 0, origin, vertexes);
 	}
 
-	public Shape(boolean visible, int drawPriority, int tickPriority, Vector2d origin) {
+	public Shape(boolean visible, double drawPriority, double tickPriority, Vector2d origin) {
 		this(visible, drawPriority, tickPriority, origin, null);
 	}
 
-	public Shape(boolean visible, int drawPriority, int tickPriority, Vector2d origin, List<Vector2d> vertexes) {
+	public Shape(boolean visible, double drawPriority, double tickPriority, Vector2d origin, List<Vector2d> vertexes) {
 		super(visible, drawPriority, tickPriority);
 		setOrigin(origin);
 		setVertexes(vertexes);
@@ -102,6 +102,10 @@ public class Shape extends GObject implements Parent {
 		this.children = children == null ? new ArrayList<>() : children;
 	}
 
+	public void addChild(ShapeChild child) {
+		children.add(child);
+	}
+
 	public Color getLineColor() {
 		return lineColor;
 	}
@@ -161,6 +165,7 @@ public class Shape extends GObject implements Parent {
 	protected PShape refreshShape() {
 		try {
 			Processing core = Engine.getCore();
+			PShape parent = children.isEmpty() ? null : core.createShape(Processing.GROUP);
 			PShape handled = core.createShape();
 			handled.beginShape();
 			handled.noFill();
@@ -176,12 +181,17 @@ public class Shape extends GObject implements Parent {
 			vertexes.forEach(vector2d -> {
 				Vector2f pVector = CoordinatesUtils.transformIntoProcessingCoordinates(vector2d);
 				Vector2i uv = uvMaps.get(vector2d);
-				if (uv != null) handled.vertex(pVector.getX(), pVector.getY(), getDrawPriority() / 1000F, uv.getX(), uv.getY() == 0 ? 1 : 0);
+				if (uv != null) handled.vertex(pVector.getX(), pVector.getY(), (float) getDrawPriority() / 1000F, uv.getX(), uv.getY() == 0 ? 1 : 0);
 				else handled.vertex(pVector.getX(), pVector.getY());
 			});
-			children.stream().filter(GObject::isVisible).sorted(Comparator.comparingInt(GObject::getDrawPriority))
-				.forEach(child -> handled.addChild(child.refreshShape()));
+			children.stream().filter(GObject::isVisible).sorted(Comparator.comparingDouble(GObject::getDrawPriority)).forEach(child -> {
+				if (parent != null) parent.addChild(child.refreshShape());
+			});
 			handled.endShape(PConstants.CLOSE);
+			if (parent != null) {
+				parent.addChild(handled);
+				return parent;
+			}
 			return handled;
 		} catch (Exception ex) {
 			ex.printStackTrace();

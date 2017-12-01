@@ -13,9 +13,11 @@ public class GameServer {
 
 	private ServerSocket serverSocket;
 	private Set<ServerClient> serverClients;
+	private boolean shuttingDown;
 
 	public GameServer() {
 		serverClients = new HashSet<>();
+		shuttingDown = false;
 		try {
 			serverSocket = new ServerSocket(22222);
 			startAcceptThread();
@@ -45,7 +47,7 @@ public class GameServer {
 						}
 					}).start();
 				} catch (Exception ex) {
-					ex.printStackTrace();
+					if (!shuttingDown) ex.printStackTrace();
 				}
 			}
 		}).start();
@@ -57,5 +59,18 @@ public class GameServer {
 
 	public Set<ServerClient> getServerClients() {
 		return new HashSet<>(serverClients);
+	}
+
+	public void deleteServerClient(ServerClient client) {
+		serverClients.remove(client);
+	}
+
+	public void disconnect() {
+		try {
+			shuttingDown = true;
+			if (!serverSocket.isClosed()) serverSocket.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 }

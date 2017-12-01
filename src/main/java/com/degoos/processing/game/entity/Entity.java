@@ -10,7 +10,7 @@ import com.degoos.processing.game.enums.EnumCollideAction;
 import com.degoos.processing.game.enums.EnumCollisionFace;
 import com.degoos.processing.game.listener.SetupListener;
 import com.degoos.processing.game.network.packet.Packet;
-import com.degoos.processing.game.network.packet.out.PacketOutMoveEntity;
+import com.degoos.processing.game.network.packet.out.PacketOutEntityMove;
 import com.degoos.processing.game.object.Area;
 import com.degoos.processing.game.object.Camera;
 import com.degoos.processing.game.object.Collision;
@@ -43,13 +43,13 @@ public class Entity extends Shape {
 
 
 	public Entity(Vector2d position, Area relativeCollisionBox, Area relativeDisplayArea, boolean tangible, double velocity, boolean canMove, Controller controller) {
-		this(Game.getEntityManager().getFirstAvailableId(), position, relativeCollisionBox, relativeDisplayArea, tangible, velocity, canMove, controller);
+		this(-1, position, relativeCollisionBox, relativeDisplayArea, tangible, velocity, canMove, controller);
 	}
 
 	public Entity(int entityId, Vector2d position, Area relativeCollisionBox, Area relativeDisplayArea, boolean tangible, double velocity, boolean canMove,
 		Controller controller) {
-		super(true, 1, 2, new Vector2d(0, 0));
-		Game.getEntityManager().addEntity(entityId, this);
+		super(true, Game.getLevel() == null ? 1 : Game.getLevel().getSize().getY() - position.getY(), 2, new Vector2d(0, 0));
+		this.entityId = entityId < 0 ? Game.getEntityManager().addEntity(this) : Game.getEntityManager().addEntity(entityId, this);
 		Validate.notNull(position, "Position cannot be null!");
 		Validate.notNull(relativeCollisionBox, "Relative collision box cannot be null!");
 		Validate.notNull(relativeDisplayArea, "Relative display area cannot be null!");
@@ -67,12 +67,14 @@ public class Entity extends Shape {
 		this(inputStream.readInt(), new Vector2d(inputStream.readDouble(), inputStream.readDouble()), new Area(new Vector2d(inputStream.readDouble(), inputStream
 			.readDouble()), new Vector2d(inputStream.readDouble(), inputStream.readDouble())), new Area(new Vector2d(inputStream.readDouble(), inputStream
 			.readDouble()), new Vector2d(inputStream.readDouble(), inputStream.readDouble())), inputStream.readBoolean(), inputStream.readDouble(), false, null);
+		setPosition(getPosition());
 	}
 
 	public Entity(DataInputStream inputStream, Controller controller) throws IOException {
 		this(inputStream.readInt(), new Vector2d(inputStream.readDouble(), inputStream.readDouble()), new Area(new Vector2d(inputStream.readDouble(), inputStream
 			.readDouble()), new Vector2d(inputStream.readDouble(), inputStream.readDouble())), new Area(new Vector2d(inputStream.readDouble(), inputStream
 			.readDouble()), new Vector2d(inputStream.readDouble(), inputStream.readDouble())), inputStream.readBoolean(), inputStream.readDouble(), false, controller);
+		setPosition(getPosition());
 	}
 
 	public int getEntityId() {
@@ -90,6 +92,11 @@ public class Entity extends Shape {
 	public void setPosition(Vector2d position) {
 		Validate.notNull(position, "Position cannot be null!");
 		this.position = position;
+		setDrawPriority(Game.getLevel() == null ? 1 : Game.getLevel().getSize().getY() - position.getY());
+		if (Game.isServer()) {
+			Packet packet = new PacketOutEntityMove(getEntityId(), position);
+			Game.getGameServer().getServerClients().forEach(client -> client.sendPacket(packet));
+		}
 		recalculateAreas();
 	}
 
@@ -241,12 +248,7 @@ public class Entity extends Shape {
 				break;
 			}
 		}
-		position = newPosition;
-		if (Game.isServer()) {
-			Packet packet = new PacketOutMoveEntity(getEntityId(), position);
-			Game.getGameServer().getServerClients().stream().filter(client -> !equals(client.getPlayer())).forEach(client -> client.sendPacket(packet));
-		}
-		recalculateAreas();
+		setPosition(newPosition);
 	}
 
 	private void calculatePoints(double x, double y, Area area) {

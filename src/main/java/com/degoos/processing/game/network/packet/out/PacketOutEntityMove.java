@@ -7,17 +7,17 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 
-public class PacketOutMoveEntity extends Packet {
+public class PacketOutEntityMove extends Packet {
 
 	private int entityId;
 	private Vector2d position;
 
-	public PacketOutMoveEntity(int entityId, Vector2d position) {
+	public PacketOutEntityMove(int entityId, Vector2d position) {
 		this.entityId = entityId;
 		this.position = position;
 	}
 
-	public PacketOutMoveEntity(DataInputStream stream) {
+	public PacketOutEntityMove(DataInputStream stream) {
 		try {
 			entityId = stream.readInt();
 			position = new Vector2d(stream.readDouble(), stream.readDouble());

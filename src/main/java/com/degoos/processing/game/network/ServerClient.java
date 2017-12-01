@@ -9,11 +9,13 @@ import com.degoos.processing.game.entity.Player;
 import com.degoos.processing.game.event.packet.PacketReceiveEvent;
 import com.degoos.processing.game.event.packet.PacketSendEvent;
 import com.degoos.processing.game.network.packet.Packet;
+import com.degoos.processing.game.network.packet.out.PacketOutEntityDelete;
+import com.degoos.processing.game.network.packet.out.PacketOutEntitySpawn;
 import com.degoos.processing.game.network.packet.out.PacketOutOwnClientData;
-import com.degoos.processing.game.network.packet.out.PacketOutSpawnEntity;
 import com.flowpowered.math.vector.Vector2d;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
+import java.io.IOException;
 import java.net.Socket;
 
 public class ServerClient {
@@ -24,6 +26,7 @@ public class ServerClient {
 	private Controller controller;
 	private Player player;
 	private String nick;
+	private long lastPing;
 
 	public ServerClient(Vector2d position, Socket socket, DataInputStream inputStream, DataOutputStream outputStream, String nick) {
 		Validate.notNull(nick, "Nick cannot be null!");
@@ -33,23 +36,30 @@ public class ServerClient {
 		this.nick = nick;
 		this.controller = new ClientController(this);
 
-		Game.getEntityManager().getEntities().forEach(entity -> sendPacket(new PacketOutSpawnEntity(entity)));
+		Game.getEntityManager().getEntities().forEach(entity -> sendPacket(new PacketOutEntitySpawn(entity)));
 
 		this.player = new Player(position, controller);
+		System.out.println("New player with id " + player.getEntityId());
 		sendPacket(new PacketOutOwnClientData(player.getEntityId(), player.getPosition()));
 
 		new Thread(() -> {
 			try {
-				while (socket.isConnected()) {
+				lastPing = System.currentTimeMillis();
+				while (!socket.isClosed()) {
+					if (System.currentTimeMillis() - lastPing > 1000) {
+						outputStream.writeUTF("c");
+						lastPing = System.currentTimeMillis();
+					}
 					if (inputStream.available() == 0) continue;
-					Class<?> clazz = Class.forName(inputStream.readUTF());
+					String s = inputStream.readUTF();
+					if (s.equals("c")) continue;
+					Class<?> clazz = Class.forName(s);
 					Packet packet = (Packet) clazz.getConstructor(DataInputStream.class).newInstance(inputStream);
 					Engine.getEventManager().callEvent(new PacketReceiveEvent(packet, this));
 				}
-			} catch (Exception ex) {
-				ex.printStackTrace();
+			} catch (Exception ignore) {
 			} finally {
-				player.delete();
+				disconnect();
 			}
 		}).start();
 	}
@@ -84,8 +94,20 @@ public class ServerClient {
 			outputStream.writeUTF(packet.getClass().getName());
 			packet.write(outputStream);
 		} catch (Exception ex) {
-			ex.printStackTrace();
+			disconnect();
 		}
+	}
+
+	public void disconnect() {
+		if (!socket.isClosed()) try {
+			socket.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		Game.getGameServer().deleteServerClient(this);
+		Packet packet = new PacketOutEntityDelete(player.getEntityId());
+		Game.getGameServer().getServerClients().forEach(client -> client.sendPacket(packet));
+		player.delete();
 	}
 
 	@Override

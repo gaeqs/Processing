@@ -4,8 +4,8 @@ import com.degoos.processing.engine.Processing;
 import com.degoos.processing.engine.object.Animation;
 import com.degoos.processing.engine.object.Image;
 import com.degoos.processing.engine.util.Validate;
-import com.degoos.processing.game.Game;
 import com.degoos.processing.game.controller.Controller;
+import com.degoos.processing.game.enums.EnumCollideAction;
 import com.degoos.processing.game.enums.EnumFacingDirection;
 import com.degoos.processing.game.object.Area;
 import com.flowpowered.math.vector.Vector2d;
@@ -22,7 +22,7 @@ public class Player extends LivingEntity {
 	private boolean walking;
 
 	public Player(Vector2d position, Controller controller) {
-		this(Game.getEntityManager().getFirstAvailableId(), position, controller);
+		this(-1, position, controller);
 	}
 
 
@@ -136,6 +136,12 @@ public class Player extends LivingEntity {
 			setDirection(EnumFacingDirection.DOWN, wasWalking != walking);
 		}
 		move(vector2d);
+	}
+
+	@Override
+	public EnumCollideAction collide(Entity entity) {
+		if (entity instanceof Player) return EnumCollideAction.PASS_THROUGH;
+		return super.collide(entity);
 	}
 
 	@Override

@@ -10,7 +10,7 @@ import com.degoos.processing.game.network.packet.in.PacketInReleaseKey;
 
 public class ClientController implements Controller {
 
-	public static boolean up, down, left, right, control;
+	private boolean up, down, left, right, control;
 	private ServerClient client;
 
 	public ClientController(ServerClient client) {
@@ -20,7 +20,10 @@ public class ClientController implements Controller {
 
 	@Listener
 	public void onKeyPressed(PacketReceiveEvent event) {
-		if (!client.equals(event.getServerClient())) return;
+		if (!client.equals(event.getServerClient())) {
+			System.out.println("RETURN");
+			return;
+		}
 		if (!(event.getPacket() instanceof PacketInPressKey)) return;
 		switch (((PacketInPressKey) event.getPacket()).getKeyboardKey()) {
 			case UP:

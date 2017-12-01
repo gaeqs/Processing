@@ -39,7 +39,7 @@ public class MenuText extends Text {
 
 	@Listener
 	public void onKeyPress(KeyPressEvent event) {
-		if (!selected) return;
+		if (!selected || Game.isLoading()) return;
 		if ((ipText && event.getKeyCode() == EnumKeyboardKey.UP) || (!ipText && event.getKeyCode() == EnumKeyboardKey.DOWN)) {
 			selected = false;
 			other.setSelected(true);
@@ -52,10 +52,8 @@ public class MenuText extends Text {
 			if (getText().isEmpty() || other.getText().isEmpty()) return;
 			String nick = ipText ? other.getText() : getText();
 			String ip = ipText ? getText() : other.getText();
-			if(!Game.load(nick.replace("\uFFFF", ""), ip.replace("\uFFFF", ""))) return;
-			delete();
-			background.delete();
-			other.delete();
+			setAllVisible(false);
+			Game.load(nick.replace("\uFFFF", ""), ip.replace("\uFFFF", ""));
 			return;
 		}
 		if (event.getKeyId() == 8) {
@@ -63,6 +61,18 @@ public class MenuText extends Text {
 		} else {
 			if (getText().length() < (ipText ? 22 : 16)) setText(getText() + event.getKey());
 		}
+	}
+
+	public void setAllVisible(boolean visible) {
+		setVisible(visible);
+		other.setVisible(visible);
+		background.setVisible(visible);
+	}
+
+	public void deleteAll() {
+		delete();
+		other.delete();
+		background.delete();
 	}
 
 	@Override
