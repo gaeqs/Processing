@@ -5,6 +5,7 @@ import com.degoos.processing.engine.enums.EnumTextureSampling;
 import com.degoos.processing.engine.object.Font;
 import com.degoos.processing.engine.object.Image;
 import com.degoos.processing.engine.object.Shape;
+import com.degoos.processing.game.controller.PlayerController;
 import com.degoos.processing.game.entity.Player;
 import com.degoos.processing.game.manager.EntityManager;
 import com.degoos.processing.game.network.GameServer;
@@ -50,6 +51,7 @@ public class Game {
 		if (ip.equalsIgnoreCase("local")) {
 			gameServer = new GameServer();
 			MapLoader.load();
+			setPlayer(new Player(new Vector2d(12, 8), new PlayerController()));
 			return true;
 		} else {
 			return (serverConnection = new ServerConnection(nick, ip)).isLoaded();
