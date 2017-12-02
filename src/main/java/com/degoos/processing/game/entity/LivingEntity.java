@@ -83,10 +83,6 @@ public class LivingEntity extends Entity {
 		} else {
 			healthBar.setVisible(true);
 			steticArc.setVisible(true);
-			healthBar.setMin(GameCoordinatesUtils.toEngineCoordinates(getCurrentDisplayArea().getMax().add(0, 0)));
-			healthBar.setMax(GameCoordinatesUtils.toEngineCoordinates(getCurrentDisplayArea().getMax().add(0.3, 0.3)));
-			steticArc.setMin(GameCoordinatesUtils.toEngineCoordinates(getCurrentDisplayArea().getMax().add(0.1, 0.1)));
-			steticArc.setMax(GameCoordinatesUtils.toEngineCoordinates(getCurrentDisplayArea().getMax().add(0.2, 0.2)));
 			float healthScale = (float) getHealth() / (float) getMaxHealth();
 			healthBar.setStopAngle(healthScale * Processing.TAU);
 			healthBar.setFillColor(new Color(1 - healthScale, healthScale, 0));
@@ -104,4 +100,13 @@ public class LivingEntity extends Entity {
 	public void draw(Processing core) {
 		super.draw(core);
 	}
+
+	@Override
+	public void onTick(long dif) {
+		healthBar.setMin(GameCoordinatesUtils.toEngineCoordinates(getCurrentDisplayArea().getMax().add(0, 0)));
+		healthBar.setMax(GameCoordinatesUtils.toEngineCoordinates(getCurrentDisplayArea().getMax().add(0.3, 0.3)));
+		steticArc.setMin(GameCoordinatesUtils.toEngineCoordinates(getCurrentDisplayArea().getMax().add(0.1, 0.1)));
+		steticArc.setMax(GameCoordinatesUtils.toEngineCoordinates(getCurrentDisplayArea().getMax().add(0.2, 0.2)));
+	}
+
 }
