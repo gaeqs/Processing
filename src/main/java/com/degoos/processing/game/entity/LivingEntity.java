@@ -103,6 +103,7 @@ public class LivingEntity extends Entity {
 
 	@Override
 	public void onTick(long dif) {
+		super.onTick(dif);
 		healthBar.setMin(GameCoordinatesUtils.toEngineCoordinates(getCurrentDisplayArea().getMax().add(0, 0)));
 		healthBar.setMax(GameCoordinatesUtils.toEngineCoordinates(getCurrentDisplayArea().getMax().add(0.3, 0.3)));
 		steticArc.setMin(GameCoordinatesUtils.toEngineCoordinates(getCurrentDisplayArea().getMax().add(0.1, 0.1)));

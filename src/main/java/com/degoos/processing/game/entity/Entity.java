@@ -10,6 +10,7 @@ import com.degoos.processing.game.enums.EnumCollideAction;
 import com.degoos.processing.game.enums.EnumCollisionFace;
 import com.degoos.processing.game.listener.SetupListener;
 import com.degoos.processing.game.network.packet.Packet;
+import com.degoos.processing.game.network.packet.out.PacketOutEntityDelete;
 import com.degoos.processing.game.network.packet.out.PacketOutEntityMove;
 import com.degoos.processing.game.network.packet.out.PacketOutEntitySpawn;
 import com.degoos.processing.game.object.Area;
@@ -366,5 +367,9 @@ public class Entity extends Shape {
 	public void delete() {
 		Game.getEntityManager().removeEntity(this);
 		super.delete();
+		if (Game.isServer()) {
+			Packet packet = new PacketOutEntityDelete(getEntityId());
+			Game.getGameServer().getServerClients().forEach(client -> client.sendPacket(packet));
+		}
 	}
 }

@@ -5,10 +5,12 @@ import com.degoos.processing.engine.event.keyboard.KeyPressEvent;
 import com.degoos.processing.engine.event.keyboard.KeyReleaseEvent;
 import com.degoos.processing.game.Game;
 import com.degoos.processing.game.controller.PlayerController;
+import com.degoos.processing.game.entity.Entity;
 import com.degoos.processing.game.entity.Player;
 import com.degoos.processing.game.event.packet.ClientPacketReceiveEvent;
 import com.degoos.processing.game.network.packet.in.PacketInPressKey;
 import com.degoos.processing.game.network.packet.in.PacketInReleaseKey;
+import com.degoos.processing.game.network.packet.out.PacketOutEntityDelete;
 import com.degoos.processing.game.network.packet.out.PacketOutEntityMove;
 import com.degoos.processing.game.network.packet.out.PacketOutOwnClientData;
 import com.degoos.processing.game.network.packet.out.PacketOutPlayerChangeAnimation;
@@ -40,6 +42,9 @@ public class ClientListener {
 				((Player) entity).setDirection(((PacketOutPlayerChangeAnimation) event.getPacket()).getFacingDirection());
 			});
 		}
+		if (event.getPacket() instanceof PacketOutEntityDelete)
+			Game.getEntityManager().getEntity(((PacketOutEntityDelete) event.getPacket()).getEntityId()).ifPresent(Entity::delete);
+
 	}
 
 	@Listener
