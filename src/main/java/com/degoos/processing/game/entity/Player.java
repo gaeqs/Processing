@@ -139,7 +139,7 @@ public class Player extends LivingEntity {
 		if (direction == EnumFacingDirection.DOWN_RIGHT) position = getCurrentCollisionBox().getMaxMin();
 
 		Vector2d direction = this.direction.getNormalVector().mul(this.direction.isDiagonal() ? Math.cos(45) : 1);
-		AuraSphere auraSphere = new AuraSphere(position.add(!this.direction.isDiagonal()? direction.mul(0.5) : direction), null, 10, direction);
+		AuraSphere auraSphere = new AuraSphere(position.add(!this.direction.isDiagonal() ? direction.mul(0.5) : direction), null, 10, direction, this);
 		auraSphere.sendSpawnPacket();
 	}
 
