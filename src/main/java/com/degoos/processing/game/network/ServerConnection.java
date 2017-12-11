@@ -20,7 +20,6 @@ public class ServerConnection {
 	private DataOutputStream outputStream;
 	private DataInputStream inputStream;
 	private boolean shuttingDown;
-	private long lastPing;
 
 	public ServerConnection(String nick, String ip) {
 		this.nick = nick;
@@ -43,15 +42,9 @@ public class ServerConnection {
 				Game.getMenu().deleteAll();
 				new Thread(() -> {
 					try {
-						lastPing = System.currentTimeMillis();
 						while (!socket.isClosed()) {
-							if (System.currentTimeMillis() - lastPing > 1000) {
-								outputStream.writeUTF("c");
-								lastPing = System.currentTimeMillis();
-							}
 							if (inputStream.available() == 0) continue;
 							String s = inputStream.readUTF();
-							if (s.equals("c")) continue;
 							Class<?> clazz = Class.forName(s);
 							Packet packet = (Packet) clazz.getConstructor(DataInputStream.class).newInstance(inputStream);
 							Engine.getEventManager().callEvent(new ClientPacketReceiveEvent(packet));

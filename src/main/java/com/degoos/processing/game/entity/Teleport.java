@@ -68,7 +68,7 @@ public class Teleport extends SavableEntity {
 
 	@Override
 	public EnumCollideAction collide(Entity entity) {
-		if (entity instanceof Player && !SetupListener.setup) {
+		if (!(entity instanceof Player) || !SetupListener.setup) {
 			entity.setPosition(destiny);
 			return EnumCollideAction.CANCEL;
 		}

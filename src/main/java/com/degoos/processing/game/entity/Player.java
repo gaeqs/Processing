@@ -106,6 +106,7 @@ public class Player extends LivingEntity {
 
 	public void refreshAnimation() {
 		Image image = getAnimation(direction);
+		if (image.equals(getTexture())) return;
 		if (image instanceof Animation) ((Animation) image).reset();
 		setTexture(image);
 	}
@@ -125,21 +126,14 @@ public class Player extends LivingEntity {
 		this.walking = walking;
 	}
 
-	public void shootAuraSphere() {
-
+	public void shootAuraSphere(boolean up, boolean down, boolean left, boolean right) {
+		if (left && right) left = right = false;
+		if (up && down) up = down = false;
+		if (!(up || down || left || right)) return;
 		Vector2d position = getPosition().add(0, 0.3);
-
-		if (direction == EnumFacingDirection.UP) position = new Vector2d(position.getX(), getCurrentCollisionBox().getMax().getY());
-		if (direction == EnumFacingDirection.DOWN) position = new Vector2d(position.getX(), getCurrentCollisionBox().getMin().getY());
-		if (direction == EnumFacingDirection.LEFT) position = new Vector2d(getCurrentCollisionBox().getMin().getX(), position.getY());
-		if (direction == EnumFacingDirection.RIGHT) position = new Vector2d(getCurrentCollisionBox().getMax().getX(), position.getY());
-		if (direction == EnumFacingDirection.UP_LEFT) position = getCurrentCollisionBox().getMinMax();
-		if (direction == EnumFacingDirection.UP_RIGHT) position = getCurrentCollisionBox().getMax();
-		if (direction == EnumFacingDirection.DOWN_LEFT) position = getCurrentCollisionBox().getMin();
-		if (direction == EnumFacingDirection.DOWN_RIGHT) position = getCurrentCollisionBox().getMaxMin();
-
-		Vector2d direction = this.direction.getNormalVector().mul(this.direction.isDiagonal() ? Math.cos(45) : 1);
-		AuraSphere auraSphere = new AuraSphere(position.add(!this.direction.isDiagonal() ? direction.mul(0.5) : direction), null, 10, direction, this);
+		EnumFacingDirection shootDirection = EnumFacingDirection.getFacingDirection(up, down, left, right);
+		Vector2d direction = shootDirection.getNormalVector().mul(shootDirection.isDiagonal() ? Math.cos(45) : 1);
+		AuraSphere auraSphere = new AuraSphere(position.add(!shootDirection.isDiagonal() ? direction.mul(0.5) : direction), null, 1, direction, getEntityId());
 		auraSphere.sendSpawnPacket();
 	}
 

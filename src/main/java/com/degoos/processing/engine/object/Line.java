@@ -86,7 +86,7 @@ public class Line extends GObject {
 		core.strokeWeight(size);
 		Vector2f pStart = CoordinatesUtils.toProcessingCoordinates(start);
 		Vector2f pEnd = CoordinatesUtils.toProcessingCoordinates(end);
-		core.line(pStart.getX(), pStart.getY(), (float) getDrawPriority(), pEnd.getX(), pEnd.getY(), (float) getDrawPriority());
+		core.line(pStart.getX(), pStart.getY(), pEnd.getX(), pEnd.getY());
 	}
 
 	@Override

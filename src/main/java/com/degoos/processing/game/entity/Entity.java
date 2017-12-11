@@ -29,7 +29,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -210,7 +209,7 @@ public class Entity extends Shape {
 		List<Entity> verticalEntities = new ArrayList<>(), horizontalEntities = new ArrayList<>();
 		Map<Entity, Collision> collisions = new HashMap<>();
 
-		new HashSet<>(Game.getEntityManager().getEntities()).forEach(entity -> {
+		Game.getEntityManager().forEachEntities(entity -> {
 			if (entity.equals(this)) return;
 			boolean vertical = verticalArea != null && verticalArea.collide(entity.getCurrentCollisionBox());
 			boolean horizontal = horizontalArea != null && horizontalArea.collide(entity.getCurrentCollisionBox());

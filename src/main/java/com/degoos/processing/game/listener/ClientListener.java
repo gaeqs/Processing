@@ -6,12 +6,14 @@ import com.degoos.processing.engine.event.keyboard.KeyReleaseEvent;
 import com.degoos.processing.game.Game;
 import com.degoos.processing.game.controller.PlayerController;
 import com.degoos.processing.game.entity.Entity;
+import com.degoos.processing.game.entity.LivingEntity;
 import com.degoos.processing.game.entity.Player;
 import com.degoos.processing.game.event.packet.ClientPacketReceiveEvent;
 import com.degoos.processing.game.network.packet.in.PacketInPressKey;
 import com.degoos.processing.game.network.packet.in.PacketInReleaseKey;
 import com.degoos.processing.game.network.packet.out.PacketOutEntityDelete;
 import com.degoos.processing.game.network.packet.out.PacketOutEntityMove;
+import com.degoos.processing.game.network.packet.out.PacketOutLivingEntityHealthChange;
 import com.degoos.processing.game.network.packet.out.PacketOutOwnClientData;
 import com.degoos.processing.game.network.packet.out.PacketOutPlayerChangeAnimation;
 
@@ -45,6 +47,11 @@ public class ClientListener {
 		if (event.getPacket() instanceof PacketOutEntityDelete)
 			Game.getEntityManager().getEntity(((PacketOutEntityDelete) event.getPacket()).getEntityId()).ifPresent(Entity::delete);
 
+		if (event.getPacket() instanceof PacketOutLivingEntityHealthChange) {
+			PacketOutLivingEntityHealthChange packet = (PacketOutLivingEntityHealthChange) event.getPacket();
+			Game.getEntityManager().getEntity(packet.getEntityId()).filter(entity -> entity instanceof LivingEntity)
+				.ifPresent(entity -> ((LivingEntity) entity).setHealth(packet.getNewHealth()));
+		}
 	}
 
 	@Listener

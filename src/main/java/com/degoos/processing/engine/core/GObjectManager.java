@@ -2,15 +2,15 @@ package com.degoos.processing.engine.core;
 
 import com.degoos.processing.engine.object.GObject;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class GObjectManager {
 
 	private Map<Integer, GObject> objects;
 
 	public GObjectManager() {
-		objects = new HashMap<>();
+		objects = new ConcurrentHashMap<>();
 	}
 
 	public Collection<GObject> getObjects() {

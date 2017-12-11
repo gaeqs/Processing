@@ -106,7 +106,7 @@ public class Text extends GObject {
 		Vector2f pStart = CoordinatesUtils.toProcessingCoordinates(position);
 		if (font != null) core.textFont(font.getHandled());
 		core.textSize(size);
-		core.text(text, pStart.getX(), pStart.getY(), (float) getDrawPriority() / 1000F);
+		core.text(text, pStart.getX(), pStart.getY());
 	}
 
 	@Override

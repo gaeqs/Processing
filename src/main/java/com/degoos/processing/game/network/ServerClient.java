@@ -26,7 +26,6 @@ public class ServerClient {
 	private Controller controller;
 	private Player player;
 	private String nick;
-	private long lastPing;
 
 	public ServerClient(Vector2d position, Socket socket, DataInputStream inputStream, DataOutputStream outputStream, String nick) {
 		Validate.notNull(nick, "Nick cannot be null!");
@@ -36,7 +35,7 @@ public class ServerClient {
 		this.nick = nick;
 		this.controller = new ClientController(this);
 
-		Game.getEntityManager().getEntities().forEach(entity -> sendPacket(new PacketOutEntitySpawn(entity)));
+		Game.getEntityManager().forEachEntities(entity -> sendPacket(new PacketOutEntitySpawn(entity)));
 
 		this.player = new Player(position, controller);
 		System.out.println("New player with id " + player.getEntityId());
@@ -44,16 +43,9 @@ public class ServerClient {
 
 		new Thread(() -> {
 			try {
-				lastPing = System.currentTimeMillis();
 				while (!socket.isClosed()) {
-					if (System.currentTimeMillis() - lastPing > 1000) {
-						outputStream.writeUTF("c");
-						lastPing = System.currentTimeMillis();
-					}
 					if (inputStream.available() == 0) continue;
-					String s = inputStream.readUTF();
-					if (s.equals("c")) continue;
-					Class<?> clazz = Class.forName(s);
+					Class<?> clazz = Class.forName(inputStream.readUTF());
 					Packet packet = (Packet) clazz.getConstructor(DataInputStream.class).newInstance(inputStream);
 					Engine.getEventManager().callEvent(new PacketReceiveEvent(packet, this));
 				}

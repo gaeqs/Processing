@@ -109,4 +109,34 @@ public class Animation extends Image {
 			millisToChange = imageMillis.get(currentFrame);
 		}
 	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+		if (!super.equals(o)) return false;
+
+		Animation animation = (Animation) o;
+
+		if (currentFrame != animation.currentFrame) return false;
+		if (currentMillis != animation.currentMillis) return false;
+		if (millisToChange != animation.millisToChange) return false;
+		if (ready != animation.ready) return false;
+		if (!imageList.equals(animation.imageList)) return false;
+		if (!imageSequence.equals(animation.imageSequence)) return false;
+		return imageMillis.equals(animation.imageMillis);
+	}
+
+	@Override
+	public int hashCode() {
+		int result = super.hashCode();
+		result = 31 * result + imageList.hashCode();
+		result = 31 * result + imageSequence.hashCode();
+		result = 31 * result + imageMillis.hashCode();
+		result = 31 * result + currentFrame;
+		result = 31 * result + currentMillis;
+		result = 31 * result + millisToChange;
+		result = 31 * result + (ready ? 1 : 0);
+		return result;
+	}
 }

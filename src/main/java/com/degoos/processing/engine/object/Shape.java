@@ -190,7 +190,7 @@ public class Shape extends GObject implements Parent {
 			vertexes.forEach(vector2d -> {
 				Vector2f pVector = CoordinatesUtils.toProcessingCoordinates(vector2d, false);
 				Vector2i uv = uvMaps.get(vector2d);
-				if (uv != null) handled.vertex(pVector.getX(), pVector.getY(), (float) getDrawPriority() / 1000F, uv.getX(), uv.getY() == 0 ? 1 : 0);
+				if (uv != null) handled.vertex(pVector.getX(), pVector.getY(), uv.getX(), uv.getY() == 0 ? 1 : 0);
 				else handled.vertex(pVector.getX(), pVector.getY());
 			});
 			children.stream().filter(GObject::isVisible).sorted(Comparator.comparingDouble(GObject::getDrawPriority)).forEach(child -> {

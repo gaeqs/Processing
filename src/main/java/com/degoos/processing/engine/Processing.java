@@ -20,6 +20,7 @@ import com.flowpowered.math.vector.Vector2d;
 import com.flowpowered.math.vector.Vector2i;
 import java.awt.Color;
 import java.util.Comparator;
+import java.util.Iterator;
 import processing.core.PApplet;
 import processing.event.KeyEvent;
 import processing.event.MouseEvent;
@@ -65,7 +66,7 @@ public class Processing extends PApplet {
 
 	@Override
 	public void settings() {
-		size(size.getX(), size.getY(), P3D);
+		size(size.getX(), size.getY(), P2D);
 	}
 
 	@Override
@@ -91,14 +92,18 @@ public class Processing extends PApplet {
 			lastTick = System.currentTimeMillis();
 			Engine.getEventManager().callEvent(new BeforeDrawEvent(dif));
 			background(background.getRGB());
-			Engine.getObjectManager().getObjects().stream().sorted(Comparator.comparingDouble(GObject::getTickPriority)).forEach(object -> {
+
+			Iterator<GObject> iterator = Engine.getObjectManager().getObjects().stream().sorted(Comparator.comparingDouble(GObject::getTickPriority)).iterator();
+			while (iterator.hasNext()) {
+				GObject object = iterator.next();
 				object.onTick(dif);
 				if (object instanceof Parent) onChildrenTick((Parent) object, dif);
-			});
-			Engine.getObjectManager().getObjects().stream().sorted(Comparator.comparingDouble(GObject::getDrawPriority)).forEach(object -> {
+			}
+			iterator = Engine.getObjectManager().getObjects().stream().sorted(Comparator.comparingDouble(GObject::getDrawPriority)).iterator();
+			while (iterator.hasNext()) {
+				GObject object = iterator.next();
 				if (object.isVisible()) object.draw(this);
-			});
-
+			}
 			Engine.getEventManager().callEvent(new AfterDrawEvent(dif));
 		} catch (Exception ex) {
 			System.err.println("An error has occurred while Processing was drawing!");

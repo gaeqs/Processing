@@ -6,17 +6,23 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Consumer;
 
 public class EntityManager {
 
 	private Map<Integer, Entity> entities;
 
 	public EntityManager() {
-		entities = new HashMap<>();
+		entities = new ConcurrentHashMap<>();
 	}
 
 	public Collection<Entity> getEntities() {
 		return entities.values();
+	}
+
+	public void forEachEntities(Consumer<Entity> consumer) {
+		new HashMap<>(entities).values().forEach(consumer);
 	}
 
 	public Optional<Entity> getEntity(int id) {

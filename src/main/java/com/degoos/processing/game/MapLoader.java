@@ -36,7 +36,7 @@ public class MapLoader {
 				} else setVisible(false);
 			}
 		};
-		Game.getEntityManager().getEntities().forEach(entity -> entity.setPosition(entity.getPosition()));
+		Game.getEntityManager().forEachEntities(entity -> entity.setPosition(entity.getPosition()));
 	}
 
 }

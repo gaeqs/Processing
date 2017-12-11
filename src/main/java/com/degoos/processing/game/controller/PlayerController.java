@@ -10,8 +10,8 @@ import com.degoos.processing.game.entity.Player;
 
 public class PlayerController implements Controller {
 
-	private boolean up, down, left, right, control, x;
-	private boolean shot;
+	private boolean up, down, left, right, control, w, a, s, d;
+	private long lastShoot = System.currentTimeMillis();
 
 	public PlayerController() {
 		Engine.getEventManager().registerListener(this);
@@ -35,8 +35,17 @@ public class PlayerController implements Controller {
 			case CONTROL:
 				control = true;
 				break;
-			case X:
-				x = true;
+			case W:
+				w = true;
+				break;
+			case A:
+				a = true;
+				break;
+			case S:
+				s = true;
+				break;
+			case D:
+				d = true;
 				break;
 		}
 	}
@@ -59,9 +68,17 @@ public class PlayerController implements Controller {
 			case CONTROL:
 				control = false;
 				break;
-			case X:
-				x = false;
-				shot = false;
+			case W:
+				w = false;
+				break;
+			case A:
+				a = false;
+				break;
+			case S:
+				s = false;
+				break;
+			case D:
+				d = false;
 				break;
 		}
 	}
@@ -73,9 +90,9 @@ public class PlayerController implements Controller {
 		entity.triggerMove(up, down, left, right, dif);
 		Game.getCamera().setPosition(entity.getPosition());
 
-		if (Game.isServer() && x && !shot && entity instanceof Player) {
-			((Player) entity).shootAuraSphere();
-			shot = true;
+		if (Game.isServer() && (w || a || s || d) && entity instanceof Player && lastShoot + 200 < System.currentTimeMillis()) {
+			((Player) entity).shootAuraSphere(w, s, a, d);
+			lastShoot = System.currentTimeMillis();
 		}
 	}
 }

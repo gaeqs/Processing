@@ -1,5 +1,6 @@
 package com.degoos.processing.game.entity;
 
+import com.degoos.processing.game.Game;
 import com.degoos.processing.game.controller.Controller;
 import com.degoos.processing.game.enums.EnumCollideAction;
 import com.degoos.processing.game.object.Area;
@@ -69,6 +70,8 @@ public class Projectile extends Entity {
 
 	@Override
 	public EnumCollideAction collide(Entity entity) {
+		if (!entity.isTangible()) return EnumCollideAction.PASS_THROUGH;
+		if (entity instanceof Teleport) return EnumCollideAction.PASS_THROUGH;
 		if (entity instanceof LivingEntity) ((LivingEntity) entity).addHealth(-damage);
 		delete();
 		return EnumCollideAction.PASS_THROUGH;
@@ -76,6 +79,10 @@ public class Projectile extends Entity {
 
 	@Override
 	public void onTick(long dif) {
+		if (!Game.isServer()) {
+			super.onTick(dif);
+			return;
+		}
 		double velX = direction.getX() * getVelocity() * dif;
 		double velY = direction.getY() * getVelocity() * dif;
 		move(velX, velY);

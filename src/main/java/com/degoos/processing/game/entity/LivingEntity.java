@@ -4,6 +4,8 @@ import com.degoos.processing.engine.Processing;
 import com.degoos.processing.engine.object.Arc;
 import com.degoos.processing.game.Game;
 import com.degoos.processing.game.controller.Controller;
+import com.degoos.processing.game.network.packet.Packet;
+import com.degoos.processing.game.network.packet.out.PacketOutLivingEntityHealthChange;
 import com.degoos.processing.game.object.Area;
 import com.degoos.processing.game.util.GameCoordinatesUtils;
 import com.flowpowered.math.vector.Vector2d;
@@ -29,8 +31,8 @@ public class LivingEntity extends Entity {
 		super(id, position, relativeCollisionBox, relativeDisplayArea, tangible, velocity, canMove, controller);
 		this.health = health;
 		this.maxHealth = maxHealth;
-		healthBar = new Arc(new Vector2d(), new Vector2d(), 0, 0).setLineColor(Color.BLACK).setLineSize(1.5F);
-		steticArc = new Arc(false, 2, 0, new Vector2d(), new Vector2d(), 0, Processing.TAU).setFullColor(Color.BLACK);
+		healthBar = new Arc(false, Integer.MAX_VALUE, 0, new Vector2d(), new Vector2d(), 0, 0).setLineColor(Color.BLACK).setLineSize(1.5F);
+		steticArc = new Arc(false, Integer.MAX_VALUE, 0, new Vector2d(), new Vector2d(), 0, Processing.TAU).setFullColor(Color.BLACK);
 		recalculateHealthBar();
 	}
 
@@ -38,8 +40,8 @@ public class LivingEntity extends Entity {
 		super(inputStream);
 		this.health = inputStream.readDouble();
 		this.maxHealth = inputStream.readDouble();
-		healthBar = new Arc(new Vector2d(), new Vector2d(), 0, 0).setLineColor(Color.BLACK).setLineSize(1.5F);
-		steticArc = new Arc(false, 2, 0, new Vector2d(), new Vector2d(), 0, Processing.TAU).setFullColor(Color.BLACK);
+		healthBar = new Arc(false, Integer.MAX_VALUE, 0, new Vector2d(), new Vector2d(), 0, 0).setLineColor(Color.BLACK).setLineSize(1.5F);
+		steticArc = new Arc(false, Integer.MAX_VALUE, 0, new Vector2d(), new Vector2d(), 0, Processing.TAU).setFullColor(Color.BLACK);
 		recalculateHealthBar();
 	}
 
@@ -47,8 +49,8 @@ public class LivingEntity extends Entity {
 		super(inputStream, controller);
 		this.health = inputStream.readDouble();
 		this.maxHealth = inputStream.readDouble();
-		healthBar = new Arc(new Vector2d(), new Vector2d(), 0, 0).setLineColor(Color.BLACK).setLineSize(1.5F);
-		steticArc = new Arc(false, 2, 0, new Vector2d(), new Vector2d(), 0, Processing.TAU).setFullColor(Color.BLACK);
+		healthBar = new Arc(false, Integer.MAX_VALUE, 0, new Vector2d(), new Vector2d(), 0, 0).setLineColor(Color.BLACK).setLineSize(1.5F);
+		steticArc = new Arc(false, Integer.MAX_VALUE, 0, new Vector2d(), new Vector2d(), 0, Processing.TAU).setFullColor(Color.BLACK);
 		recalculateHealthBar();
 	}
 
@@ -57,13 +59,19 @@ public class LivingEntity extends Entity {
 	}
 
 	public void setHealth(double health) {
+		double oldHealth = this.health;
 		this.health = Math.max(Math.min(health, maxHealth), 0);
+
+		if (Game.isServer()) {
+			Packet packet = new PacketOutLivingEntityHealthChange(getEntityId(), oldHealth, this.health);
+			Game.getGameServer().getServerClients().forEach(client -> client.sendPacket(packet));
+		}
+
 		recalculateHealthBar();
 	}
 
 	public void addHealth(double health) {
-		this.health = Math.max(Math.min(this.health + health, maxHealth), 0);
-		recalculateHealthBar();
+		setHealth(this.health + health);
 	}
 
 	public double getMaxHealth() {
@@ -104,10 +112,20 @@ public class LivingEntity extends Entity {
 	@Override
 	public void onTick(long dif) {
 		super.onTick(dif);
-		healthBar.setMin(GameCoordinatesUtils.toEngineCoordinates(getCurrentDisplayArea().getMax().add(0, 0)));
-		healthBar.setMax(GameCoordinatesUtils.toEngineCoordinates(getCurrentDisplayArea().getMax().add(0.3, 0.3)));
-		steticArc.setMin(GameCoordinatesUtils.toEngineCoordinates(getCurrentDisplayArea().getMax().add(0.1, 0.1)));
-		steticArc.setMax(GameCoordinatesUtils.toEngineCoordinates(getCurrentDisplayArea().getMax().add(0.2, 0.2)));
+		if (healthBar != null) {
+			healthBar.setMin(GameCoordinatesUtils.toEngineCoordinates(getCurrentDisplayArea().getMax().add(0, 0)));
+			healthBar.setMax(GameCoordinatesUtils.toEngineCoordinates(getCurrentDisplayArea().getMax().add(0.3, 0.3)));
+		}
+		if (steticArc != null) {
+			steticArc.setMin(GameCoordinatesUtils.toEngineCoordinates(getCurrentDisplayArea().getMax().add(0.1, 0.1)));
+			steticArc.setMax(GameCoordinatesUtils.toEngineCoordinates(getCurrentDisplayArea().getMax().add(0.2, 0.2)));
+		}
 	}
 
+	@Override
+	public void delete() {
+		super.delete();
+		healthBar.delete();
+		steticArc.delete();
+	}
 }

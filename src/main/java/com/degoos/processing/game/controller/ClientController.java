@@ -11,8 +11,8 @@ import com.degoos.processing.game.network.packet.in.PacketInReleaseKey;
 
 public class ClientController implements Controller {
 
-	private boolean up, down, left, right, control, x;
-	private boolean shot;
+	private boolean up, down, left, right, control, w, a, s, d;
+	private long lastShoot = System.currentTimeMillis();
 	private ServerClient client;
 
 	public ClientController(ServerClient client) {
@@ -40,8 +40,17 @@ public class ClientController implements Controller {
 			case CONTROL:
 				control = true;
 				break;
-			case X:
-				x = true;
+			case W:
+				w = true;
+				break;
+			case A:
+				a = true;
+				break;
+			case S:
+				s = true;
+				break;
+			case D:
+				d = true;
 				break;
 		}
 	}
@@ -66,9 +75,17 @@ public class ClientController implements Controller {
 			case CONTROL:
 				control = false;
 				break;
-			case X:
-				x = false;
-				shot = false;
+			case W:
+				w = false;
+				break;
+			case A:
+				a = false;
+				break;
+			case S:
+				s = false;
+				break;
+			case D:
+				d = false;
 				break;
 		}
 	}
@@ -79,9 +96,9 @@ public class ClientController implements Controller {
 		if (control) entity.setVelocity(0.007D);
 		else entity.setVelocity(0.004D);
 
-		if (x && !shot && entity instanceof Player) {
-			((Player) entity).shootAuraSphere();
-			shot = true;
+		if ((w || a || s || d) && entity instanceof Player && lastShoot + 200 < System.currentTimeMillis()) {
+			((Player) entity).shootAuraSphere(w, s, a, d);
+			lastShoot = System.currentTimeMillis();
 		}
 	}
 }

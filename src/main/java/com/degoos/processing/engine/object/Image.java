@@ -38,4 +38,22 @@ public class Image extends GObject {
 	@Override
 	public void onTick(long dif) {
 	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+		if (!super.equals(o)) return false;
+
+		Image image = (Image) o;
+
+		return handled != null ? handled.equals(image.handled) : image.handled == null;
+	}
+
+	@Override
+	public int hashCode() {
+		int result = super.hashCode();
+		result = 31 * result + (handled != null ? handled.hashCode() : 0);
+		return result;
+	}
 }
