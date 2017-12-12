@@ -11,16 +11,19 @@ public class PacketOutOwnClientData extends Packet {
 
 	private int entityId;
 	private Vector2d position;
+	private String nick;
 
-	public PacketOutOwnClientData(int entityId, Vector2d position) {
+	public PacketOutOwnClientData(int entityId, Vector2d position, String nick) {
 		this.entityId = entityId;
 		this.position = position;
+		this.nick = nick;
 	}
 
 	public PacketOutOwnClientData(DataInputStream stream) {
 		try {
 			entityId = stream.readInt();
 			position = new Vector2d(stream.readDouble(), stream.readDouble());
+			nick = stream.readUTF();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -34,11 +37,16 @@ public class PacketOutOwnClientData extends Packet {
 		return position;
 	}
 
+	public String getNick() {
+		return nick;
+	}
+
 	@Override
 	public void write(DataOutputStream outputStream) {
 		try {
 			outputStream.writeInt(entityId);
 			StreamUtils.writeVector(outputStream, position);
+			outputStream.writeUTF(nick);
 		} catch (Exception ex) {
 			ex.printStackTrace();
 		}

@@ -1,6 +1,8 @@
 package com.degoos.processing.engine.object;
 
 import com.degoos.processing.engine.Processing;
+import com.degoos.processing.engine.enums.EnumTextAlign;
+import com.degoos.processing.engine.enums.EnumTextHeight;
 import com.degoos.processing.engine.util.CoordinatesUtils;
 import com.degoos.processing.engine.util.Validate;
 import com.flowpowered.math.vector.Vector2d;
@@ -14,6 +16,8 @@ public class Text extends GObject {
 	private Color color;
 	private float size;
 	private Font font;
+	private EnumTextAlign textAlign;
+	private EnumTextHeight textHeight;
 
 	public Text(String text, Vector2d position) {
 		this(false, 0, 0, text, position);
@@ -54,6 +58,20 @@ public class Text extends GObject {
 		this.color = color;
 		this.size = size;
 		this.font = font;
+		setTextAlign(null);
+		setTextHeight(null);
+	}
+
+	public Text(boolean visible, double drawPriority, double tickPriority, String text, Vector2d position, Color color, float size, Font font, EnumTextAlign textAlign,
+		EnumTextHeight textHeight) {
+		super(visible, drawPriority, tickPriority);
+		this.text = text;
+		this.position = position;
+		this.color = color;
+		this.size = size;
+		this.font = font;
+		setTextAlign(textAlign);
+		setTextHeight(textHeight);
 	}
 
 
@@ -99,6 +117,22 @@ public class Text extends GObject {
 		this.size = size;
 	}
 
+	public EnumTextAlign getTextAlign() {
+		return textAlign;
+	}
+
+	public void setTextAlign(EnumTextAlign textAlign) {
+		this.textAlign = textAlign == null ? EnumTextAlign.LEFT : textAlign;
+	}
+
+	public EnumTextHeight getTextHeight() {
+		return textHeight;
+	}
+
+	public void setTextHeight(EnumTextHeight textHeight) {
+		this.textHeight = textHeight == null ? EnumTextHeight.BOTTOM : textHeight;
+	}
+
 	@Override
 	public void draw(Processing core) {
 		if (color == null) core.noFill();
@@ -106,6 +140,7 @@ public class Text extends GObject {
 		Vector2f pStart = CoordinatesUtils.toProcessingCoordinates(position);
 		if (font != null) core.textFont(font.getHandled());
 		core.textSize(size);
+		core.textAlign(textAlign.getId(), textHeight.getId());
 		core.text(text, pStart.getX(), pStart.getY());
 	}
 

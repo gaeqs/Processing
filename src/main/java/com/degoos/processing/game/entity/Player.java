@@ -1,8 +1,11 @@
 package com.degoos.processing.game.entity;
 
 import com.degoos.processing.engine.Processing;
+import com.degoos.processing.engine.enums.EnumTextAlign;
+import com.degoos.processing.engine.enums.EnumTextHeight;
 import com.degoos.processing.engine.object.Animation;
 import com.degoos.processing.engine.object.Image;
+import com.degoos.processing.engine.object.Text;
 import com.degoos.processing.engine.util.Validate;
 import com.degoos.processing.game.Game;
 import com.degoos.processing.game.controller.Controller;
@@ -11,8 +14,11 @@ import com.degoos.processing.game.enums.EnumFacingDirection;
 import com.degoos.processing.game.network.packet.Packet;
 import com.degoos.processing.game.network.packet.out.PacketOutPlayerChangeAnimation;
 import com.degoos.processing.game.object.Area;
+import com.degoos.processing.game.util.GameCoordinatesUtils;
 import com.flowpowered.math.vector.Vector2d;
+import java.awt.Color;
 import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
@@ -22,27 +28,33 @@ public class Player extends LivingEntity {
 	private EnumFacingDirection direction;
 	private Map<EnumFacingDirection, Image> standAnimations;
 	private Map<EnumFacingDirection, Image> walkingAnimations;
+	private String nick;
+	private Text nickText;
 	private boolean walking;
 
-	public Player(Vector2d position, Controller controller) {
-		this(-1, position, controller);
+	public Player(Vector2d position, Controller controller, String nick) {
+		this(-1, position, controller, nick);
 	}
 
 
-	public Player(int id, Vector2d position, Controller controller) {
+	public Player(int id, Vector2d position, Controller controller, String nick) {
 		super(id, position, new Area(new Vector2d(-0.6, 0), new Vector2d(0.6, 0.5)), new Area(new Vector2d(-0.7, 0), new Vector2d(0.7, 1.3)), true, 0.004D, true,
 			controller, 100, 100);
+		Validate.notNull(nick, "Nick cannot be null!");
+		this.nick = nick;
 		loadInstance();
 	}
 
 	public Player(DataInputStream inputStream) throws IOException {
 		super(inputStream);
 		loadInstance();
+		nick = inputStream.readUTF();
 	}
 
 	public Player(DataInputStream inputStream, Controller controller) throws IOException {
 		super(inputStream, controller);
 		loadInstance();
+		nick = inputStream.readUTF();
 	}
 
 	private void loadInstance() {
@@ -52,6 +64,8 @@ public class Player extends LivingEntity {
 		this.walking = false;
 		this.direction = EnumFacingDirection.DOWN;
 
+		nickText = new Text(true, Integer.MAX_VALUE, 0, nick, GameCoordinatesUtils.toEngineCoordinates(getPosition().add(0, 1.3)), Color.DARK_GRAY, 30, Game
+			.getFont(), EnumTextAlign.CENTER, EnumTextHeight.CENTER);
 		standAnimations = new HashMap<>();
 		walkingAnimations = new HashMap<>();
 		standAnimations.put(EnumFacingDirection.DOWN, new Animation("riolu/stand/down", "png"));
@@ -72,6 +86,10 @@ public class Player extends LivingEntity {
 		walkingAnimations.put(EnumFacingDirection.UP_LEFT, walkingAnimations.get(EnumFacingDirection.UP));
 		walkingAnimations.put(EnumFacingDirection.UP_RIGHT, walkingAnimations.get(EnumFacingDirection.UP));
 		setTexture(getAnimation(EnumFacingDirection.DOWN));
+	}
+
+	public String getNick() {
+		return nick;
 	}
 
 	public EnumFacingDirection getDirection() {
@@ -169,11 +187,18 @@ public class Player extends LivingEntity {
 	@Override
 	public void onTick(long dif) {
 		super.onTick(dif);
+		nickText.setPosition(GameCoordinatesUtils.toEngineCoordinates(getPosition().add(0, 1.3)));
 	}
 
 
 	@Override
 	public void draw(Processing core) {
 		super.draw(core);
+	}
+
+	@Override
+	public void save(DataOutputStream stream) throws IOException {
+		super.save(stream);
+		stream.writeUTF(nick);
 	}
 }

@@ -70,7 +70,7 @@ public class Game {
 			isServer = true;
 			gameServer = new GameServer();
 			MapLoader.load();
-			setPlayer(new Player(new Vector2d(12, 8), new PlayerController()));
+			setPlayer(new Player(new Vector2d(12, 8), new PlayerController(), nick));
 			setLoading(false);
 			return true;
 		} else {
