@@ -38,6 +38,7 @@ public class ServerClient {
 		Game.getEntityManager().forEachEntities(entity -> sendPacket(new PacketOutEntitySpawn(entity)));
 
 		this.player = new Player(position, controller, nick);
+		player.sendSpawnPacket();
 		System.out.println("New player with id " + player.getEntityId());
 		sendPacket(new PacketOutOwnClientData(player.getEntityId(), player.getPosition(), nick));
 

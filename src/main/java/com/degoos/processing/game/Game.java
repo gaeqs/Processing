@@ -36,7 +36,7 @@ public class Game {
 		Engine.startEngine(new Vector2i(1280, 720));
 		Engine.setTextureSampling(EnumTextureSampling.NEAREST);
 
-		font = new Font(Engine.getResourceInputStream("font/font.vlw"));
+		font = new Font(Engine.getResourceInputStream("font/font.ttf"), "ttf");
 
 		Shape shape = new Shape(new Vector2d()).setTexture(new Image(Engine.getResourceInputStream("background/background.png"), "png"));
 		shape.addVertexWithUv(new Vector2d(), new Vector2i());

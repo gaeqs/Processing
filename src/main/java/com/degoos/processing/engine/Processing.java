@@ -73,6 +73,7 @@ public class Processing extends PApplet {
 	public void setup() {
 		surface.setResizable(true);
 		ellipseMode(CORNERS);
+		textMode(MODEL);
 	}
 
 	@Override

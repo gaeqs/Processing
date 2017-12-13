@@ -25,7 +25,7 @@ public class Shape extends GObject implements Parent {
 	private Color lineColor, fillColor;
 	private Image texture;
 	private List<ShapeChild> children;
-	private float transparency;
+	private float imageTransparency, fillTransparency, lineTransparency;
 	private float rotation;
 
 	public Shape(Vector2d origin) {
@@ -47,7 +47,7 @@ public class Shape extends GObject implements Parent {
 		setUvMaps(null);
 		setChildren(null);
 		setFullColor(null);
-		this.transparency = 255;
+		this.imageTransparency = fillTransparency = lineTransparency = 1;
 	}
 
 	public Vector2d getOrigin() {
@@ -141,12 +141,35 @@ public class Shape extends GObject implements Parent {
 		return this;
 	}
 
-	public float getTransparency() {
-		return transparency;
+	public float getImageTransparency() {
+		return imageTransparency;
 	}
 
-	public Shape setTransparency(float transparency) {
-		this.transparency = transparency;
+	public Shape setImageTransparency(float imageTransparency) {
+		this.imageTransparency = imageTransparency;
+		return this;
+	}
+
+	public float getFillTransparency() {
+		return fillTransparency;
+	}
+
+	public Shape setFillTransparency(float fillTransparency) {
+		this.fillTransparency = fillTransparency;
+		return this;
+	}
+
+	public float getLineTransparency() {
+		return lineTransparency;
+	}
+
+	public Shape setLineTransparency(float lineTransparency) {
+		this.lineTransparency = lineTransparency;
+		return this;
+	}
+
+	public Shape setFullTransparency(float transparency) {
+		this.lineTransparency = fillTransparency = imageTransparency = transparency;
 		return this;
 	}
 
@@ -161,7 +184,7 @@ public class Shape extends GObject implements Parent {
 	@Override
 	public void draw(Processing core) {
 		Vector2f pOrigin = CoordinatesUtils.toProcessingCoordinates(origin);
-		core.tint(255, transparency);
+		core.tint(255, imageTransparency * 255);
 		core.shape(refreshShape(), pOrigin.getX(), pOrigin.getY());
 		core.tint(255, 255);
 	}
@@ -180,9 +203,9 @@ public class Shape extends GObject implements Parent {
 			handled.noFill();
 			handled.noStroke();
 			if (fillColor == null) handled.noFill();
-			else handled.fill(fillColor.getRGB());
+			else handled.fill(fillColor.getRGB(), fillTransparency * 255);
 			if (lineColor == null) handled.noStroke();
-			else handled.stroke(lineColor.getRGB());
+			else handled.stroke(lineColor.getRGB(), lineTransparency * 255);
 			if (texture != null) {
 				handled.textureMode(PConstants.NORMAL);
 				handled.texture(texture.getHandled());

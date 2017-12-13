@@ -12,6 +12,7 @@ public class Point extends GObject {
 	private Vector2d position;
 	private float size;
 	private Color color;
+	private float transparency;
 
 	public Point(Vector2d position) {
 		this(false, 0, 0, position, null);
@@ -38,6 +39,7 @@ public class Point extends GObject {
 		setPosition(position);
 		setColor(color);
 		this.size = size;
+		this.transparency = 1;
 	}
 
 	public Vector2d getPosition() {
@@ -68,10 +70,19 @@ public class Point extends GObject {
 		return this;
 	}
 
+	public float getTransparency() {
+		return transparency;
+	}
+
+	public Point setTransparency(float transparency) {
+		this.transparency = transparency;
+		return this;
+	}
+
 	@Override
 	public void draw(Processing core) {
 		if (color == null) core.noStroke();
-		else core.stroke(color.getRGB());
+		else core.stroke(color.getRGB(), transparency * 255);
 		core.strokeWeight(size);
 		Vector2f pPosition = CoordinatesUtils.toProcessingCoordinates(position);
 		core.point(pPosition.getX(), pPosition.getY());

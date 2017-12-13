@@ -5,6 +5,7 @@ import com.degoos.processing.engine.enums.EnumTextAlign;
 import com.degoos.processing.engine.enums.EnumTextHeight;
 import com.degoos.processing.engine.object.Animation;
 import com.degoos.processing.engine.object.Image;
+import com.degoos.processing.engine.object.Shape;
 import com.degoos.processing.engine.object.Text;
 import com.degoos.processing.engine.util.Validate;
 import com.degoos.processing.game.Game;
@@ -20,6 +21,7 @@ import java.awt.Color;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -29,7 +31,8 @@ public class Player extends LivingEntity {
 	private Map<EnumFacingDirection, Image> standAnimations;
 	private Map<EnumFacingDirection, Image> walkingAnimations;
 	private String nick;
-	private Text nickText;
+	private Text nametag;
+	private Shape nametagBackground;
 	private boolean walking;
 
 	public Player(Vector2d position, Controller controller, String nick) {
@@ -47,25 +50,32 @@ public class Player extends LivingEntity {
 
 	public Player(DataInputStream inputStream) throws IOException {
 		super(inputStream);
-		loadInstance();
 		nick = inputStream.readUTF();
+		loadInstance();
 	}
 
 	public Player(DataInputStream inputStream, Controller controller) throws IOException {
 		super(inputStream, controller);
-		loadInstance();
 		nick = inputStream.readUTF();
+		loadInstance();
 	}
 
 	private void loadInstance() {
-		setDrawPriority(2);
 		setTickPriority(0);
 
 		this.walking = false;
 		this.direction = EnumFacingDirection.DOWN;
 
-		nickText = new Text(true, Integer.MAX_VALUE, 0, nick, GameCoordinatesUtils.toEngineCoordinates(getPosition().add(0, 1.3)), Color.DARK_GRAY, 30, Game
+		nametag = new Text(true, Integer.MAX_VALUE - 1, 0, nick, GameCoordinatesUtils.toEngineCoordinates(getPosition().add(0, 1.3)), Color.WHITE, 30, Game
 			.getFont(), EnumTextAlign.CENTER, EnumTextHeight.CENTER);
+
+		Vector2d size = Game.getFont().getStringSize(nick, 30).div(2);
+
+		nametagBackground = new Shape(true, Integer.MAX_VALUE - 2, 0, GameCoordinatesUtils.toEngineCoordinates(getPosition().add(0, 1.3)), Arrays
+			.asList(new Vector2d(size.getX(), -size.getY() - 0.003), new Vector2d(-size.getX(), -size.getY() - 0.003), new Vector2d(-size.getX(),
+				size.getY() - 0.003), new Vector2d(size.getX(), size.getY() - 0.003)));
+		nametagBackground.setFillColor(Color.GRAY.darker());
+		nametagBackground.setFullTransparency(0.5F);
 		standAnimations = new HashMap<>();
 		walkingAnimations = new HashMap<>();
 		standAnimations.put(EnumFacingDirection.DOWN, new Animation("riolu/stand/down", "png"));
@@ -187,7 +197,10 @@ public class Player extends LivingEntity {
 	@Override
 	public void onTick(long dif) {
 		super.onTick(dif);
-		nickText.setPosition(GameCoordinatesUtils.toEngineCoordinates(getPosition().add(0, 1.3)));
+		if (nametag != null && nametagBackground != null) {
+			nametag.setPosition(GameCoordinatesUtils.toEngineCoordinates(getPosition().add(0, 1.3)));
+			nametagBackground.setOrigin(nametag.getPosition());
+		}
 	}
 
 
@@ -200,5 +213,11 @@ public class Player extends LivingEntity {
 	public void save(DataOutputStream stream) throws IOException {
 		super.save(stream);
 		stream.writeUTF(nick);
+	}
+
+	@Override
+	public void delete() {
+		super.delete();
+		nametag.delete();
 	}
 }
