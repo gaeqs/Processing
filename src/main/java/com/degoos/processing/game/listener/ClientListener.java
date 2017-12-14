@@ -14,6 +14,7 @@ import com.degoos.processing.game.network.packet.in.PacketInReleaseKey;
 import com.degoos.processing.game.network.packet.out.PacketOutEntityDelete;
 import com.degoos.processing.game.network.packet.out.PacketOutEntityMove;
 import com.degoos.processing.game.network.packet.out.PacketOutLivingEntityHealthChange;
+import com.degoos.processing.game.network.packet.out.PacketOutLivingPlayerDeath;
 import com.degoos.processing.game.network.packet.out.PacketOutOwnClientData;
 import com.degoos.processing.game.network.packet.out.PacketOutPlayerChangeAnimation;
 
@@ -23,7 +24,7 @@ public class ClientListener {
 	public void onPacketReceive(ClientPacketReceiveEvent event) {
 		if (event.getPacket() instanceof PacketOutOwnClientData) {
 			Game.setPlayer(new Player(((PacketOutOwnClientData) event.getPacket()).getEntityId(), ((PacketOutOwnClientData) event.getPacket())
-				.getPosition(), new PlayerController(), ((PacketOutOwnClientData) event.getPacket()).getNick(), false));
+				.getPosition(), new PlayerController(), ((PacketOutOwnClientData) event.getPacket()).getNick(), false, true));
 			Game.setLoading(false);
 		}
 
@@ -51,6 +52,14 @@ public class ClientListener {
 			PacketOutLivingEntityHealthChange packet = (PacketOutLivingEntityHealthChange) event.getPacket();
 			Game.getEntityManager().getEntity(packet.getEntityId()).filter(entity -> entity instanceof LivingEntity)
 				.ifPresent(entity -> ((LivingEntity) entity).setHealth(packet.getNewHealth()));
+		}
+
+		if (event.getPacket() instanceof PacketOutLivingPlayerDeath) {
+			PacketOutLivingPlayerDeath packet = (PacketOutLivingPlayerDeath) event.getPacket();
+			Game.getEntityManager().getEntity(packet.getEntityId()).filter(entity -> entity instanceof Player).ifPresent(entity -> {
+				((Player) entity).setDead(packet.isDead());
+				((Player) entity).setLives(packet.getLives());
+			});
 		}
 	}
 

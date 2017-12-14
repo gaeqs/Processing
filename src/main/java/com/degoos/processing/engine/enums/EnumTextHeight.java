@@ -6,7 +6,7 @@ import java.util.Optional;
 
 public enum EnumTextHeight {
 
-	BOTTOM(Processing.BOTTOM), CENTER(Processing.CENTER), TOP(Processing.TOP);
+	BOTTOM(Processing.BOTTOM), CENTER(Processing.CENTER), TOP(Processing.TOP), BASELINE(Processing.BASELINE);
 
 	private int id;
 

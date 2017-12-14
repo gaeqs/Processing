@@ -27,6 +27,7 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -305,6 +306,16 @@ public class Entity extends Shape {
 		if (!Game.isServer()) return;
 		Packet packet = new PacketOutEntitySpawn(this);
 		Game.getGameServer().getServerClients().stream().filter(client -> !client.getPlayer().equals(this)).forEach(client -> client.sendPacket(packet));
+	}
+
+	public void teleportToSpawn() {
+		List<Spawn> list = Game.getEntityManager().getAllOf(Spawn.class);
+		if (list.isEmpty()) {
+			setPosition(new Vector2d(12, 6));
+			return;
+		}
+		Collections.shuffle(list);
+		setPosition(list.get(0).getPosition());
 	}
 
 	public EnumCollideAction collide(Entity entity) {

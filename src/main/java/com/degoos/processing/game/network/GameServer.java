@@ -1,5 +1,6 @@
 package com.degoos.processing.game.network;
 
+import com.degoos.processing.game.network.packet.Packet;
 import com.flowpowered.math.vector.Vector2d;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -63,6 +64,10 @@ public class GameServer {
 
 	public void deleteServerClient(ServerClient client) {
 		serverClients.remove(client);
+	}
+
+	public void sendPacket(Packet packet) {
+		serverClients.forEach(client -> client.sendPacket(packet));
 	}
 
 	public void disconnect() {

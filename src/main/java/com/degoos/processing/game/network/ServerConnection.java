@@ -67,14 +67,23 @@ public class ServerConnection {
 		return loaded;
 	}
 
+	public Socket getSocket() {
+		return socket;
+	}
+
 	public void sendPacket(Packet packet) {
-		if (!loaded) return;
-		Engine.getEventManager().callEvent(new ClientPacketSendEvent(packet));
+		sendPacket(packet, false);
+	}
+
+	private void sendPacket(Packet packet, boolean secondTry) {
+		if (!secondTry) Engine.getEventManager().callEvent(new ClientPacketSendEvent(packet));
 		try {
 			outputStream.writeUTF(packet.getClass().getName());
 			packet.write(outputStream);
 		} catch (Exception ex) {
-			disconnect();
+			ex.printStackTrace();
+			if (secondTry) disconnect();
+			else sendPacket(packet, true);
 		}
 	}
 

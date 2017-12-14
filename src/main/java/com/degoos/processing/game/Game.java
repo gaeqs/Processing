@@ -70,7 +70,9 @@ public class Game {
 			isServer = true;
 			gameServer = new GameServer();
 			MapLoader.load();
-			setPlayer(new Player(new Vector2d(12, 6), new PlayerController(), nick, false));
+			setPlayer(new Player(new Vector2d(12, 6), new PlayerController(), nick, false, true));
+			player.teleportToSpawn();
+			player.sendSpawnPacket();
 			setLoading(false);
 			return true;
 		} else {

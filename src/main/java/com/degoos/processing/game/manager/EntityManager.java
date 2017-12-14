@@ -4,10 +4,12 @@ import com.degoos.processing.engine.object.GObject;
 import com.degoos.processing.game.entity.Entity;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 public class EntityManager {
 
@@ -27,6 +29,11 @@ public class EntityManager {
 
 	public Optional<Entity> getEntity(int id) {
 		return entities.values().stream().filter(entity -> entity.getEntityId() == id).findAny();
+	}
+
+	@SuppressWarnings("unchecked")
+	public <T extends Entity> List<T> getAllOf(Class<T> clazz) {
+		return entities.values().stream().filter(clazz::isInstance).map(entity -> (T) entity).collect(Collectors.toList());
 	}
 
 	public int addEntity(Entity entity) {

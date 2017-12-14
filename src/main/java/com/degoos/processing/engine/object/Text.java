@@ -18,6 +18,7 @@ public class Text extends GObject {
 	private Font font;
 	private EnumTextAlign textAlign;
 	private EnumTextHeight textHeight;
+	private float opacity;
 
 	public Text(String text, Vector2d position) {
 		this(false, 0, 0, text, position);
@@ -58,6 +59,7 @@ public class Text extends GObject {
 		this.color = color;
 		this.size = size;
 		this.font = font;
+		this.opacity = 1;
 		setTextAlign(null);
 		setTextHeight(null);
 		finishLoad();
@@ -71,6 +73,7 @@ public class Text extends GObject {
 		this.color = color;
 		this.size = size;
 		this.font = font;
+		this.opacity = 1;
 		setTextAlign(textAlign);
 		setTextHeight(textHeight);
 		finishLoad();
@@ -135,10 +138,18 @@ public class Text extends GObject {
 		this.textHeight = textHeight == null ? EnumTextHeight.BOTTOM : textHeight;
 	}
 
+	public float getOpacity() {
+		return opacity;
+	}
+
+	public void setOpacity(float opacity) {
+		this.opacity = opacity;
+	}
+
 	@Override
 	public void draw(Processing core) {
 		if (color == null) core.noFill();
-		else core.fill(color.getRGB());
+		else core.fill(color.getRGB(), opacity * 255);
 		Vector2f pStart = CoordinatesUtils.toProcessingCoordinates(position);
 		if (font != null) core.textFont(font.getHandled());
 		core.textSize(size);

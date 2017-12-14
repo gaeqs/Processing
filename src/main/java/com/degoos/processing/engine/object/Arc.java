@@ -12,7 +12,7 @@ public class Arc extends GObject {
 
 	private Vector2d max, min;
 	private Color fillColor, lineColor;
-	private float lineTransparency, fillTransparency;
+	private float lineOpacity, fillOpacity;
 	private float startAngle, stopAngle, lineSize;
 	private EnumArcMode arcMode;
 
@@ -43,7 +43,7 @@ public class Arc extends GObject {
 		this.stopAngle = stopAngle;
 		this.lineSize = lineSize;
 		this.arcMode = arcMode;
-		this.lineTransparency = fillTransparency = 1;
+		this.lineOpacity = fillOpacity = 1;
 		finishLoad();
 	}
 
@@ -125,26 +125,26 @@ public class Arc extends GObject {
 		this.arcMode = arcMode;
 	}
 
-	public float getLineTransparency() {
-		return lineTransparency;
+	public float getLineOpacity() {
+		return lineOpacity;
 	}
 
-	public Arc setLineTransparency(float lineTransparency) {
-		this.lineTransparency = lineTransparency;
+	public Arc setLineOpacity(float lineOpacity) {
+		this.lineOpacity = lineOpacity;
 		return this;
 	}
 
-	public float getFillTransparency() {
-		return fillTransparency;
+	public float getFillOpacity() {
+		return fillOpacity;
 	}
 
-	public Arc setFillTransparency(float fillTransparency) {
-		this.fillTransparency = fillTransparency;
+	public Arc setFillOpacity(float fillOpacity) {
+		this.fillOpacity = fillOpacity;
 		return this;
 	}
 
-	public Arc setFullTransparency(float transparency) {
-		this.fillTransparency = lineTransparency = transparency;
+	public Arc setFullOpacity(float opacity) {
+		this.fillOpacity = lineOpacity = opacity;
 		return this;
 	}
 
@@ -152,9 +152,9 @@ public class Arc extends GObject {
 	public void draw(Processing core) {
 		core.strokeWeight(lineSize);
 		if (lineColor == null) core.noStroke();
-		else core.stroke(lineColor.getRGB(), fillTransparency * 255);
+		else core.stroke(lineColor.getRGB(), fillOpacity * 255);
 		if (fillColor == null) core.noFill();
-		else core.fill(fillColor.getRGB(), fillTransparency * 255);
+		else core.fill(fillColor.getRGB(), fillOpacity * 255);
 		Vector2f pMin = CoordinatesUtils.toProcessingCoordinates(min);
 		Vector2f pMax = CoordinatesUtils.toProcessingCoordinates(max);
 		core.arc(pMin.getX(), pMin.getY(), pMax.getX(), pMax.getY(), startAngle, stopAngle, arcMode.getId());

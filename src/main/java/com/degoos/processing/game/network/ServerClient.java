@@ -37,7 +37,8 @@ public class ServerClient {
 
 		Game.getEntityManager().forEachEntities(entity -> sendPacket(new PacketOutEntitySpawn(entity)));
 
-		this.player = new Player(position, controller, nick, true);
+		this.player = new Player(position, controller, nick, true, false);
+		this.player.teleportToSpawn();
 		player.sendSpawnPacket();
 		System.out.println("New player with id " + player.getEntityId());
 		sendPacket(new PacketOutOwnClientData(player.getEntityId(), player.getPosition(), nick));
@@ -83,14 +84,21 @@ public class ServerClient {
 	}
 
 	public void sendPacket(Packet packet) {
-		Engine.getEventManager().callEvent(new PacketSendEvent(packet, this));
+		sendPacket(packet, false);
+	}
+
+	private void sendPacket(Packet packet, boolean secondTry) {
+		if (!secondTry) Engine.getEventManager().callEvent(new PacketSendEvent(packet, this));
 		try {
 			outputStream.writeUTF(packet.getClass().getName());
 			packet.write(outputStream);
 		} catch (Exception ex) {
-			disconnect();
+			ex.printStackTrace();
+			if (secondTry) disconnect();
+			else sendPacket(packet, true);
 		}
 	}
+
 
 	public void disconnect() {
 		if (!socket.isClosed()) try {

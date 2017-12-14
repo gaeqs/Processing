@@ -13,6 +13,7 @@ import com.degoos.processing.game.controller.Controller;
 import com.degoos.processing.game.enums.EnumCollideAction;
 import com.degoos.processing.game.enums.EnumFacingDirection;
 import com.degoos.processing.game.network.packet.Packet;
+import com.degoos.processing.game.network.packet.out.PacketOutLivingPlayerDeath;
 import com.degoos.processing.game.network.packet.out.PacketOutPlayerChangeAnimation;
 import com.degoos.processing.game.object.Area;
 import com.degoos.processing.game.util.GameCoordinatesUtils;
@@ -32,7 +33,8 @@ public class Player extends LivingEntity {
 	private String nick;
 	private Text nametag;
 	private Shape nametagBackground;
-	private boolean walking, enemy;
+	private boolean walking, enemy, dead, localPlayer;
+	private int lives;
 
 	static {
 		standAnimations = new HashMap<>();
@@ -73,31 +75,43 @@ public class Player extends LivingEntity {
 		enemyWalkingAnimations.put(EnumFacingDirection.UP_RIGHT, enemyWalkingAnimations.get(EnumFacingDirection.UP));
 	}
 
-	public Player(Vector2d position, Controller controller, String nick, boolean enemy) {
-		this(-1, position, controller, nick, enemy);
+	public Player(Vector2d position, Controller controller, String nick, boolean enemy, boolean localPlayer) {
+		this(-1, position, controller, nick, enemy, localPlayer);
 	}
 
+	public Player(int id, Vector2d position, Controller controller, String nick, boolean enemy, boolean localPlayer) {
+		this(id, position, controller, nick, enemy, false, localPlayer);
+	}
 
-	public Player(int id, Vector2d position, Controller controller, String nick, boolean enemy) {
+	public Player(int id, Vector2d position, Controller controller, String nick, boolean enemy, boolean dead, boolean localPlayer) {
 		super(id, position, new Area(new Vector2d(-0.6, 0), new Vector2d(0.6, 0.5)), new Area(new Vector2d(-0.7, 0), new Vector2d(0.7, 1.3)), true, 0.004D, true,
 			controller, 100, 100);
 		Validate.notNull(nick, "Nick cannot be null!");
 		this.nick = nick;
 		this.enemy = enemy;
+		this.dead = dead;
+		this.localPlayer = localPlayer;
+		this.lives = 4;
 		loadInstance();
 	}
 
 	public Player(DataInputStream inputStream) throws IOException {
 		super(inputStream);
 		nick = inputStream.readUTF();
+		dead = inputStream.readBoolean();
+		lives = inputStream.readInt();
 		enemy = true;
+		localPlayer = false;
 		loadInstance();
 	}
 
 	public Player(DataInputStream inputStream, Controller controller) throws IOException {
 		super(inputStream, controller);
 		nick = inputStream.readUTF();
+		dead = inputStream.readBoolean();
+		lives = inputStream.readInt();
 		enemy = true;
+		localPlayer = false;
 		loadInstance();
 	}
 
@@ -105,6 +119,7 @@ public class Player extends LivingEntity {
 		setTickPriority(0);
 
 		this.walking = false;
+		setDead(dead);
 		this.direction = EnumFacingDirection.DOWN;
 
 		nametag = new Text(true, Integer.MAX_VALUE - 1, 0, nick, GameCoordinatesUtils.toEngineCoordinates(getPosition().add(0, 1.3)), Color.WHITE, 30, Game
@@ -116,7 +131,7 @@ public class Player extends LivingEntity {
 			.asList(new Vector2d(size.getX(), -size.getY() - 0.003), new Vector2d(-size.getX(), -size.getY() - 0.003), new Vector2d(-size.getX(),
 				size.getY() - 0.003), new Vector2d(size.getX(), size.getY() - 0.003)));
 		nametagBackground.setFillColor(Color.GRAY.darker());
-		nametagBackground.setFullTransparency(0.5F);
+		nametagBackground.setFullOpacity(0.5F);
 		setTexture(getAnimation(EnumFacingDirection.DOWN));
 	}
 
@@ -182,6 +197,40 @@ public class Player extends LivingEntity {
 		this.walking = walking;
 	}
 
+	public boolean isDead() {
+		return dead;
+	}
+
+	public void setDead(boolean dead) {
+		this.dead = dead;
+		sendDeathPacket();
+		if (localPlayer || (Game.getPlayer() != null && Game.getPlayer().isDead())) setFullOpacity(dead ? 0.5F : 1);
+		else setVisible(dead);
+		if (localPlayer) Game.getEntityManager().getEntities().stream().filter(entity -> entity instanceof Player && !entity.equals(this))
+			.forEach(entity -> ((Player) entity).refreshDeathStatus());
+	}
+
+	public void refreshDeathStatus() {
+		setDead(dead);
+	}
+
+	public boolean isLocalPlayer() {
+		return localPlayer;
+	}
+
+	public int getLives() {
+		return lives;
+	}
+
+	public void setLives(int lives) {
+		this.lives = Math.max(0, lives);
+		sendDeathPacket();
+	}
+
+	public void sendDeathPacket() {
+		if (Game.isServer()) Game.getGameServer().sendPacket(new PacketOutLivingPlayerDeath(getEntityId(), dead, lives));
+	}
+
 	public void shootAuraSphere(boolean up, boolean down, boolean left, boolean right) {
 		if (left && right) left = right = false;
 		if (up && down) up = down = false;
@@ -191,6 +240,17 @@ public class Player extends LivingEntity {
 		Vector2d direction = shootDirection.getNormalVector().mul(shootDirection.isDiagonal() ? Math.cos(45) : 1);
 		AuraSphere auraSphere = new AuraSphere(position.add(!shootDirection.isDiagonal() ? direction.mul(0.5) : direction), null, 1, direction, getEntityId());
 		auraSphere.sendSpawnPacket();
+	}
+
+
+	@Override
+	public void setHealth(double health) {
+		if (health <= 0) {
+			super.setHealth(getMaxHealth());
+			setLives(lives - 1);
+			if (lives <= 0) setDead(true);
+			else teleportToSpawn();
+		} else super.setHealth(health);
 	}
 
 	@Override
@@ -214,6 +274,13 @@ public class Player extends LivingEntity {
 		Vector2d velocity = facingDirection.getNormalVector().mul(vel);
 		move(velocity);
 		setDirection(facingDirection, wasWalking != walking);
+	}
+
+	@Override
+	public void setVisible(boolean visible) {
+		super.setVisible(visible);
+		if (nametagBackground != null) nametagBackground.setVisible(visible);
+		if (nametag != null) nametag.setVisible(visible);
 	}
 
 	@Override
@@ -241,6 +308,8 @@ public class Player extends LivingEntity {
 	public void save(DataOutputStream stream) throws IOException {
 		super.save(stream);
 		stream.writeUTF(nick);
+		stream.writeBoolean(dead);
+		stream.writeInt(lives);
 	}
 
 	@Override

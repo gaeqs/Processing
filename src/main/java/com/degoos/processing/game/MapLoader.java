@@ -1,6 +1,7 @@
 package com.degoos.processing.game;
 
 import com.degoos.processing.engine.Engine;
+import com.degoos.processing.engine.enums.EnumTextAlign;
 import com.degoos.processing.engine.object.Point;
 import com.degoos.processing.engine.object.Text;
 import com.degoos.processing.game.listener.ScreenListener;
@@ -21,7 +22,7 @@ public class MapLoader {
 		Engine.getEventManager().registerListener(new SetupListener());
 		Engine.getEventManager().registerListener(new ScreenListener());
 
-		new Point(true, 0, 0, new Vector2d(0, 1), Color.WHITE, 60).setTransparency(0.8F);
+		new Point(true, 0, 0, new Vector2d(0, 1), Color.WHITE, 60).setOpacity(0.8F);
 		new Text(true, 0, 0, "", new Vector2d(0, 0.982), Color.BLACK, 20) {
 			@Override
 			public void onTick(long dif) {
@@ -38,6 +39,18 @@ public class MapLoader {
 				} else setVisible(false);
 			}
 		};
+
+		if (!Game.isServer()) {
+			new Point(true, 0, 0, new Vector2d(1, 1), Color.WHITE, 60).setOpacity(0.8F);
+			new Text(true, 0, 0, "", new Vector2d(0.982, 0.982)) {
+				@Override
+				public void onTick(long dif) {
+					setText(String.valueOf(Game.getServerConnection().getSocket().getPort()));
+					super.onTick(dif);
+				}
+			}.setTextAlign(EnumTextAlign.CENTER);
+		}
+
 		Game.getEntityManager().forEachEntities(entity -> entity.setPosition(entity.getPosition()));
 	}
 

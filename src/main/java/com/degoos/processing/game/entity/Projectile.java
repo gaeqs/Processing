@@ -70,8 +70,7 @@ public class Projectile extends Entity {
 
 	@Override
 	public EnumCollideAction collide(Entity entity) {
-		if (!entity.isTangible()) return EnumCollideAction.PASS_THROUGH;
-		if (entity instanceof Teleport) return EnumCollideAction.PASS_THROUGH;
+		if (!entity.isTangible() || (entity instanceof Player && ((Player) entity).isDead()) || entity instanceof Teleport) return EnumCollideAction.PASS_THROUGH;
 		if (entity instanceof LivingEntity) ((LivingEntity) entity).addHealth(-damage);
 		delete();
 		return EnumCollideAction.PASS_THROUGH;

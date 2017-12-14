@@ -26,7 +26,7 @@ public class Shape extends GObject implements Parent {
 	private Color lineColor, fillColor;
 	private Image texture;
 	private List<ShapeChild> children;
-	private float imageTransparency, fillTransparency, lineTransparency;
+	private float imageOpacity, fillOpacity, lineOpacity;
 	private float rotation;
 
 	public Shape(Vector2d origin) {
@@ -48,7 +48,7 @@ public class Shape extends GObject implements Parent {
 		setUvMaps(null);
 		setChildren(null);
 		setFullColor(null);
-		this.imageTransparency = fillTransparency = lineTransparency = 1;
+		this.imageOpacity = fillOpacity = lineOpacity = 1;
 		finishLoad();
 	}
 
@@ -143,35 +143,35 @@ public class Shape extends GObject implements Parent {
 		return this;
 	}
 
-	public float getImageTransparency() {
-		return imageTransparency;
+	public float getImageOpacity() {
+		return imageOpacity;
 	}
 
-	public Shape setImageTransparency(float imageTransparency) {
-		this.imageTransparency = imageTransparency;
+	public Shape setImageOpacity(float imageOpacity) {
+		this.imageOpacity = imageOpacity;
 		return this;
 	}
 
-	public float getFillTransparency() {
-		return fillTransparency;
+	public float getFillOpacity() {
+		return fillOpacity;
 	}
 
-	public Shape setFillTransparency(float fillTransparency) {
-		this.fillTransparency = fillTransparency;
+	public Shape setFillOpacity(float fillOpacity) {
+		this.fillOpacity = fillOpacity;
 		return this;
 	}
 
-	public float getLineTransparency() {
-		return lineTransparency;
+	public float getLineOpacity() {
+		return lineOpacity;
 	}
 
-	public Shape setLineTransparency(float lineTransparency) {
-		this.lineTransparency = lineTransparency;
+	public Shape setLineOpacity(float lineOpacity) {
+		this.lineOpacity = lineOpacity;
 		return this;
 	}
 
-	public Shape setFullTransparency(float transparency) {
-		this.lineTransparency = fillTransparency = imageTransparency = transparency;
+	public Shape setFullOpacity(float opacity) {
+		this.lineOpacity = fillOpacity = imageOpacity = opacity;
 		return this;
 	}
 
@@ -187,7 +187,7 @@ public class Shape extends GObject implements Parent {
 	public void draw(Processing core) {
 		if (vertexes.isEmpty() || (fillColor == null && lineColor == null && texture == null)) return;
 		Vector2f pOrigin = CoordinatesUtils.toProcessingCoordinates(origin);
-		core.tint(255, imageTransparency * 255);
+		core.tint(255, imageOpacity * 255);
 		core.shape(refreshShape(), pOrigin.getX(), pOrigin.getY());
 		core.tint(255, 255);
 	}
@@ -206,9 +206,9 @@ public class Shape extends GObject implements Parent {
 			handled.noFill();
 			handled.noStroke();
 			if (fillColor == null) handled.noFill();
-			else handled.fill(fillColor.getRGB(), fillTransparency * 255);
+			else handled.fill(fillColor.getRGB(), fillOpacity * 255);
 			if (lineColor == null) handled.noStroke();
-			else handled.stroke(lineColor.getRGB(), lineTransparency * 255);
+			else handled.stroke(lineColor.getRGB(), lineOpacity * 255);
 			if (texture != null) {
 				handled.textureMode(PConstants.NORMAL);
 				handled.texture(texture.getHandled());

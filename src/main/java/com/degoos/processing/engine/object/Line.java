@@ -12,7 +12,7 @@ public class Line extends GObject {
 	private Vector2d start, end;
 	private float size;
 	private Color color;
-	private float transparency;
+	private float opacity;
 
 	public Line(Vector2d start, Vector2d end) {
 		this(false, 0, 0, start, end, null);
@@ -40,7 +40,7 @@ public class Line extends GObject {
 		setEnd(end);
 		setColor(color);
 		this.size = size;
-		this.transparency = 1;
+		this.opacity = 1;
 		finishLoad();
 	}
 
@@ -82,19 +82,19 @@ public class Line extends GObject {
 		return this;
 	}
 
-	public float getTransparency() {
-		return transparency;
+	public float getOpacity() {
+		return opacity;
 	}
 
-	public Line setTransparency(float transparency) {
-		this.transparency = transparency;
+	public Line setOpacity(float opacity) {
+		this.opacity = opacity;
 		return this;
 	}
 
 	@Override
 	public void draw(Processing core) {
 		if (color == null) core.noStroke();
-		else core.stroke(color.getRGB(), transparency * 255);
+		else core.stroke(color.getRGB(), opacity * 255);
 		core.strokeWeight(size);
 		Vector2f pStart = CoordinatesUtils.toProcessingCoordinates(start);
 		Vector2f pEnd = CoordinatesUtils.toProcessingCoordinates(end);

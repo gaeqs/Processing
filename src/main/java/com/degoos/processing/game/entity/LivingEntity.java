@@ -31,7 +31,7 @@ public class LivingEntity extends Entity {
 		super(id, position, relativeCollisionBox, relativeDisplayArea, tangible, velocity, canMove, controller);
 		this.health = health;
 		this.maxHealth = maxHealth;
-		healthBar = new Arc(false, Integer.MAX_VALUE, 0, new Vector2d(), new Vector2d(), 0, 0).setLineColor(Color.BLACK).setLineSize(1.5F).setFillTransparency(0.8F);
+		healthBar = new Arc(false, Integer.MAX_VALUE, 0, new Vector2d(), new Vector2d(), 0, 0).setLineColor(Color.BLACK).setLineSize(1.5F).setFillOpacity(0.8F);
 		steticArc = new Arc(false, Integer.MAX_VALUE, 0, new Vector2d(), new Vector2d(), 0, Processing.TAU).setFullColor(Color.BLACK);
 		recalculateHealthBar();
 	}
@@ -40,7 +40,7 @@ public class LivingEntity extends Entity {
 		super(inputStream);
 		this.health = inputStream.readDouble();
 		this.maxHealth = inputStream.readDouble();
-		healthBar = new Arc(false, Integer.MAX_VALUE, 0, new Vector2d(), new Vector2d(), 0, 0).setLineColor(Color.BLACK).setLineSize(1.5F).setFillTransparency(0.8F);
+		healthBar = new Arc(false, Integer.MAX_VALUE, 0, new Vector2d(), new Vector2d(), 0, 0).setLineColor(Color.BLACK).setLineSize(1.5F).setFillOpacity(0.8F);
 		steticArc = new Arc(false, Integer.MAX_VALUE, 0, new Vector2d(), new Vector2d(), 0, Processing.TAU).setFullColor(Color.BLACK);
 		recalculateHealthBar();
 	}
@@ -49,7 +49,7 @@ public class LivingEntity extends Entity {
 		super(inputStream, controller);
 		this.health = inputStream.readDouble();
 		this.maxHealth = inputStream.readDouble();
-		healthBar = new Arc(false, Integer.MAX_VALUE, 0, new Vector2d(), new Vector2d(), 0, 0).setLineColor(Color.BLACK).setLineSize(1.5F).setFillTransparency(0.8F);
+		healthBar = new Arc(false, Integer.MAX_VALUE, 0, new Vector2d(), new Vector2d(), 0, 0).setLineColor(Color.BLACK).setLineSize(1.5F).setFillOpacity(0.8F);
 		steticArc = new Arc(false, Integer.MAX_VALUE, 0, new Vector2d(), new Vector2d(), 0, Processing.TAU).setFullColor(Color.BLACK);
 		recalculateHealthBar();
 	}

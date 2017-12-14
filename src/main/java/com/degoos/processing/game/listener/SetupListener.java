@@ -7,7 +7,9 @@ import com.degoos.processing.engine.event.keyboard.KeyPressEvent;
 import com.degoos.processing.engine.event.mouse.MousePressEvent;
 import com.degoos.processing.game.Game;
 import com.degoos.processing.game.entity.CollisionBox;
+import com.degoos.processing.game.entity.Entity;
 import com.degoos.processing.game.entity.SavableEntity;
+import com.degoos.processing.game.entity.Spawn;
 import com.degoos.processing.game.entity.Teleport;
 import com.degoos.processing.game.object.Area;
 import com.degoos.processing.game.object.Camera;
@@ -87,6 +89,21 @@ public class SetupListener {
 		if (event.getPressedKey() == EnumMouseKey.TERTIARY) {
 			new ArrayList<>(Game.getLevel().getLevelEntities()).stream().filter(entity -> entity instanceof Teleport)
 				.filter(entity -> entity.getCurrentCollisionBox().isInside(pos)).forEach(SavableEntity::delete);
+			Game.getLevel().saveLevelEntities();
+		}
+	}
+
+	@Listener
+	public void spawnSetup(MousePressEvent event) {
+		if (!setup || setupMode != 2) return;
+		Camera camera = Game.getCamera();
+		Vector2d pos = event.getPosition().mul(camera.getXRadius() * 2, camera.getYRadius() * 2).add(camera.getPosition()).sub(camera.getXRadius(), camera.getYRadius());
+		if (event.getPressedKey() == EnumMouseKey.PRIMARY) {
+			new Spawn(pos, Game.getLevel());
+			Game.getLevel().saveLevelEntities();
+		}
+		if (event.getPressedKey() == EnumMouseKey.TERTIARY) {
+			Game.getEntityManager().getAllOf(Spawn.class).stream().filter(spawn -> spawn.getPosition().distance(pos) < 0.5).forEach(Entity::delete);
 			Game.getLevel().saveLevelEntities();
 		}
 	}

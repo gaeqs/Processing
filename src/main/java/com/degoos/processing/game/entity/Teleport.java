@@ -58,6 +58,7 @@ public class Teleport extends SavableEntity {
 	public Teleport(DataInputStream inputStream) throws IOException {
 		super(inputStream);
 		this.destiny = new Vector2d(inputStream.readDouble(), inputStream.readDouble());
+		entities = new HashSet<>();
 	}
 
 	public Vector2d getDestiny() {
@@ -78,10 +79,10 @@ public class Teleport extends SavableEntity {
 
 	@Override
 	public EnumCollideAction collide(Entity entity) {
-		if (entities.contains(entity)) return EnumCollideAction.PASS_THROUGH;
+		if (Game.isServer() && entities.contains(entity)) return EnumCollideAction.PASS_THROUGH;
 		if (!(entity instanceof Player) || !SetupListener.setup) {
 			entity.setPosition(destiny);
-			Game.getEntityManager().getEntities().stream().filter(target -> target instanceof Teleport).map(tp -> (Teleport) tp)
+			if (Game.isServer()) Game.getEntityManager().getEntities().stream().filter(target -> target instanceof Teleport).map(tp -> (Teleport) tp)
 				.filter(tp -> tp.getCurrentCollisionBox().collide(entity.getCurrentCollisionBox())).forEach(tp -> tp.entities.add(entity));
 			return EnumCollideAction.CANCEL;
 		}
@@ -91,7 +92,7 @@ public class Teleport extends SavableEntity {
 	@Override
 	public void onTick(long dif) {
 		super.onTick(dif);
-		entities.removeIf(entity -> !entity.getCurrentCollisionBox().collide(getCurrentCollisionBox()));
+		if (Game.isServer()) entities.removeIf(entity -> !entity.getCurrentCollisionBox().collide(getCurrentCollisionBox()));
 	}
 
 	@Override

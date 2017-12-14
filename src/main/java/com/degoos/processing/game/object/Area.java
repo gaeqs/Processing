@@ -6,6 +6,10 @@ import java.awt.geom.Rectangle2D.Double;
 
 public class Area {
 
+	public static Area empty() {
+		return new Area(new Vector2d(), new Vector2d());
+	}
+
 	private Vector2d min;
 	private Vector2d max;
 	protected Double rectangle;

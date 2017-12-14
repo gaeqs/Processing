@@ -10,6 +10,7 @@ import com.degoos.processing.game.Game;
 import com.degoos.processing.game.entity.CollisionBox;
 import com.degoos.processing.game.entity.Entity;
 import com.degoos.processing.game.entity.SavableEntity;
+import com.degoos.processing.game.entity.Spawn;
 import com.degoos.processing.game.entity.Teleport;
 import com.degoos.processing.game.listener.SetupListener;
 import com.degoos.processing.game.util.EntitiesUtils;
@@ -118,6 +119,7 @@ public class Level extends Shape {
 			Vector2f max = CoordinatesUtils.toProcessingCoordinates(GameCoordinatesUtils.toEngineCoordinates(area.getMax()));
 			if (entity instanceof CollisionBox) core.stroke(Color.RED.getRGB());
 			else if (entity instanceof Teleport) core.stroke(Color.GREEN.getRGB());
+			else if (entity instanceof Spawn) core.stroke(Color.BLUE.getRGB());
 			else core.stroke(Color.GRAY.getRGB());
 			core.noFill();
 			core.beginShape();
