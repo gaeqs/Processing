@@ -44,6 +44,7 @@ public class Arc extends GObject {
 		this.lineSize = lineSize;
 		this.arcMode = arcMode;
 		this.lineTransparency = fillTransparency = 1;
+		finishLoad();
 	}
 
 	public Vector2d getMax() {
@@ -162,5 +163,10 @@ public class Arc extends GObject {
 	@Override
 	public void onTick(long dif) {
 
+	}
+
+	@Override
+	public boolean isLoaded() {
+		return false;
 	}
 }

@@ -8,16 +8,19 @@ public abstract class GObject {
 	private int id;
 	private boolean visible;
 	private double drawPriority, tickPriority;
+	private boolean loaded, deleted;
 
 	public GObject() {
 		this(false, 0, 0);
 	}
 
 	public GObject(boolean visible, double drawPriority, double tickPriority) {
+		this.loaded = false;
 		this.id = Engine.getObjectManager().addGObject(this);
 		this.visible = visible;
 		this.drawPriority = drawPriority;
 		this.tickPriority = tickPriority;
+		if (this.getClass().equals(GObject.class)) finishLoad();
 	}
 
 	public int getId() {
@@ -50,6 +53,19 @@ public abstract class GObject {
 
 	public void delete() {
 		Engine.getObjectManager().removeObject(id);
+		deleted = true;
+	}
+
+	public boolean isDeleted() {
+		return deleted;
+	}
+
+	public boolean isLoaded() {
+		return loaded;
+	}
+
+	public void finishLoad() {
+		loaded = true;
 	}
 
 	public abstract void draw(Processing core);

@@ -70,7 +70,7 @@ public class Game {
 			isServer = true;
 			gameServer = new GameServer();
 			MapLoader.load();
-			setPlayer(new Player(new Vector2d(12, 8), new PlayerController(), nick));
+			setPlayer(new Player(new Vector2d(12, 6), new PlayerController(), nick, false));
 			setLoading(false);
 			return true;
 		} else {
@@ -114,7 +114,7 @@ public class Game {
 
 	public static void refreshCameraRadius(Vector2i size) {
 		double ref = Math.max(Math.min((double) size.getX() / (double) size.getY(), 2), 0.8);
-		camera = new Camera(new Vector2d(12, 8), ref * 4, 4);
+		camera = new Camera(new Vector2d(12, 6), ref * 4, 4);
 	}
 
 	public static void setLoading(boolean loading) {

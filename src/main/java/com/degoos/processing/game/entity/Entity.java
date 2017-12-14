@@ -193,64 +193,65 @@ public class Entity extends Shape {
 
 	public void move(double x, double y) {
 		if (!canMove || (x == 0 && y == 0)) return;
-		Vector2d newPosition = position.add(x, y);
-		Area maxArea = new Area(getCurrentCollisionBox().getMin().add(x, y), getCurrentCollisionBox().getMax().add(x, y));
+		new Thread(() -> {
+			Vector2d newPosition = position.add(x, y);
+			Area maxArea = new Area(getCurrentCollisionBox().getMin().add(x, y), getCurrentCollisionBox().getMax().add(x, y));
+			boolean finalX = x == 0;
+			boolean finalY = y == 0;
+			point3 = null;
+			calculatePoints(x, y, currentCollisionBox);
+			Vector2d f1 = point1, f2 = point2, f3 = point3, f4 = point4;
+			calculatePoints(x, y, maxArea);
+			LinealArea centerLine = finalX || finalY ? null : new LinealArea(f4, point1);
+			ParallelogramArea verticalArea = finalX ? null : new ParallelogramArea(f1, f2, point1, point2);
+			ParallelogramArea horizontalArea = finalY ? null : new ParallelogramArea(f1, x == 0 ? f2 : f3, point1, x == 0 ? point2 : point3);
 
-		boolean finalX = x == 0;
-		boolean finalY = y == 0;
-		point3 = null;
-		calculatePoints(x, y, currentCollisionBox);
-		Vector2d f1 = point1, f2 = point2, f3 = point3, f4 = point4;
-		calculatePoints(x, y, maxArea);
-		LinealArea centerLine = finalX || finalY ? null : new LinealArea(f4, point1);
-		ParallelogramArea verticalArea = finalX ? null : new ParallelogramArea(f1, f2, point1, point2);
-		ParallelogramArea horizontalArea = finalY ? null : new ParallelogramArea(f1, x == 0 ? f2 : f3, point1, x == 0 ? point2 : point3);
+			List<Entity> verticalEntities = new ArrayList<>(), horizontalEntities = new ArrayList<>();
+			Map<Entity, Collision> collisions = new HashMap<>();
 
-		List<Entity> verticalEntities = new ArrayList<>(), horizontalEntities = new ArrayList<>();
-		Map<Entity, Collision> collisions = new HashMap<>();
-
-		Game.getEntityManager().forEachEntities(entity -> {
-			if (entity.equals(this)) return;
-			boolean vertical = verticalArea != null && verticalArea.collide(entity.getCurrentCollisionBox());
-			boolean horizontal = horizontalArea != null && horizontalArea.collide(entity.getCurrentCollisionBox());
-			if (vertical && horizontal) {
-				Collision collision = centerLine.getFirstCollisionPoint(entity.getCurrentCollisionBox());
-				if (collision == null) return;
-				if (collision.getCollisionFace() == EnumCollisionFace.LEFT || collision.getCollisionFace() == EnumCollisionFace.RIGHT) verticalEntities.add(entity);
-				else if (collision.getCollisionFace() == EnumCollisionFace.UP || collision.getCollisionFace() == EnumCollisionFace.DOWN) horizontalEntities.add(entity);
-				collisions.put(entity, collision);
-			} else if (vertical) verticalEntities.add(entity);
-			else if (horizontal) horizontalEntities.add(entity);
-		});
-		if (verticalEntities.size() > 1) verticalEntities.sort(Comparator.comparingDouble(o -> Math.abs(o.getPosition().getX() - position.getX())));
-		if (horizontalEntities.size() > 1) horizontalEntities.sort(Comparator.comparingDouble(o -> Math.abs(o.getPosition().getY() - position.getY())));
-		for (Entity entity : verticalEntities) {
-			EnumCollideAction action = entity.collide(this);
-			EnumCollideAction thisAction = collide(entity);
-			if (action == EnumCollideAction.CANCEL || thisAction == EnumCollideAction.CANCEL) return;
-			if (action == EnumCollideAction.COLLIDE || thisAction == EnumCollideAction.COLLIDE) {
-				double newX = collisions.containsKey(entity) ? collisions.get(entity).getPoint().getX()
-				                                             : (x > 0 ? entity.getCurrentCollisionBox().getMin() : entity.getCurrentCollisionBox().getMax()).getX();
-				newX -= x > 0 ? relativeCollisionBox.getMax().getX() : relativeCollisionBox.getMin().getX();
-				newPosition = new Vector2d(newX, newPosition.getY());
-				break;
+			Game.getEntityManager().forEachEntities(entity -> {
+				if (entity.equals(this)) return;
+				boolean vertical = verticalArea != null && verticalArea.collide(entity.getCurrentCollisionBox());
+				boolean horizontal = horizontalArea != null && horizontalArea.collide(entity.getCurrentCollisionBox());
+				if (vertical && horizontal) {
+					Collision collision = centerLine.getFirstCollisionPoint(entity.getCurrentCollisionBox());
+					if (collision == null) return;
+					if (collision.getCollisionFace() == EnumCollisionFace.LEFT || collision.getCollisionFace() == EnumCollisionFace.RIGHT) verticalEntities.add(entity);
+					else if (collision.getCollisionFace() == EnumCollisionFace.UP || collision.getCollisionFace() == EnumCollisionFace.DOWN)
+						horizontalEntities.add(entity);
+					collisions.put(entity, collision);
+				} else if (vertical) verticalEntities.add(entity);
+				else if (horizontal) horizontalEntities.add(entity);
+			});
+			if (verticalEntities.size() > 1) verticalEntities.sort(Comparator.comparingDouble(o -> Math.abs(o.getPosition().getX() - position.getX())));
+			if (horizontalEntities.size() > 1) horizontalEntities.sort(Comparator.comparingDouble(o -> Math.abs(o.getPosition().getY() - position.getY())));
+			for (Entity entity : verticalEntities) {
+				EnumCollideAction action = entity.collide(this);
+				EnumCollideAction thisAction = collide(entity);
+				if (action == EnumCollideAction.CANCEL || thisAction == EnumCollideAction.CANCEL) return;
+				if (action == EnumCollideAction.COLLIDE || thisAction == EnumCollideAction.COLLIDE) {
+					double newX = collisions.containsKey(entity) ? collisions.get(entity).getPoint().getX()
+					                                             : (x > 0 ? entity.getCurrentCollisionBox().getMin() : entity.getCurrentCollisionBox().getMax()).getX();
+					newX -= x > 0 ? relativeCollisionBox.getMax().getX() : relativeCollisionBox.getMin().getX();
+					newPosition = new Vector2d(newX, newPosition.getY());
+					break;
+				}
 			}
-		}
-		for (Entity entity : horizontalEntities) {
-			EnumCollideAction action = entity.collide(this);
-			EnumCollideAction thisAction = collide(entity);
-			if (action == EnumCollideAction.CANCEL || thisAction == EnumCollideAction.CANCEL) return;
-			if (action == EnumCollideAction.COLLIDE || thisAction == EnumCollideAction.COLLIDE) {
-				double newY = collisions.containsKey(entity) ? collisions.get(entity).getPoint().getY()
-				                                             : (y > 0 ? entity.getCurrentCollisionBox().getMin() : entity.getCurrentCollisionBox().getMax()).getY();
-				newY -= y > 0 ? relativeCollisionBox.getMax().getY() : relativeCollisionBox.getMin().getY();
-				newPosition = new Vector2d(newPosition.getX(), newY);
-				break;
+			for (Entity entity : horizontalEntities) {
+				EnumCollideAction action = entity.collide(this);
+				EnumCollideAction thisAction = collide(entity);
+				if (action == EnumCollideAction.CANCEL || thisAction == EnumCollideAction.CANCEL) return;
+				if (action == EnumCollideAction.COLLIDE || thisAction == EnumCollideAction.COLLIDE) {
+					double newY = collisions.containsKey(entity) ? collisions.get(entity).getPoint().getY()
+					                                             : (y > 0 ? entity.getCurrentCollisionBox().getMin() : entity.getCurrentCollisionBox().getMax()).getY();
+					newY -= y > 0 ? relativeCollisionBox.getMax().getY() : relativeCollisionBox.getMin().getY();
+					newPosition = new Vector2d(newPosition.getX(), newY);
+					break;
+				}
 			}
-		}
 
-		setPosition(newPosition);
-
+			setPosition(newPosition);
+		}).start();
 	}
 
 	private void calculatePoints(double x, double y, Area area) {

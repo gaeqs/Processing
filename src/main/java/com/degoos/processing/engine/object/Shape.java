@@ -11,9 +11,10 @@ import com.flowpowered.math.vector.Vector2i;
 import java.awt.Color;
 import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 import processing.core.PConstants;
 import processing.core.PShape;
 
@@ -48,6 +49,7 @@ public class Shape extends GObject implements Parent {
 		setChildren(null);
 		setFullColor(null);
 		this.imageTransparency = fillTransparency = lineTransparency = 1;
+		finishLoad();
 	}
 
 	public Vector2d getOrigin() {
@@ -65,7 +67,7 @@ public class Shape extends GObject implements Parent {
 	}
 
 	public Shape setVertexes(List<Vector2d> vertexes) {
-		this.vertexes = vertexes == null ? new ArrayList<>() : new ArrayList<>(vertexes);
+		this.vertexes = vertexes == null ? new CopyOnWriteArrayList<>() : new CopyOnWriteArrayList<>(vertexes);
 		return this;
 	}
 
@@ -79,7 +81,7 @@ public class Shape extends GObject implements Parent {
 	}
 
 	public Shape setUvMaps(Map<Vector2d, Vector2i> uvMaps) {
-		this.uvMaps = uvMaps == null ? new HashMap<>() : uvMaps;
+		this.uvMaps = uvMaps == null ? new ConcurrentHashMap<>() : new ConcurrentHashMap<>(uvMaps);
 		return this;
 	}
 
@@ -100,7 +102,7 @@ public class Shape extends GObject implements Parent {
 	}
 
 	public void setChildren(List<ShapeChild> children) {
-		this.children = children == null ? new ArrayList<>() : children;
+		this.children = children == null ? new CopyOnWriteArrayList<>() : new CopyOnWriteArrayList<>(children);
 	}
 
 	public void addChild(ShapeChild child) {
@@ -183,6 +185,7 @@ public class Shape extends GObject implements Parent {
 
 	@Override
 	public void draw(Processing core) {
+		if (vertexes.isEmpty() || (fillColor == null && lineColor == null && texture == null)) return;
 		Vector2f pOrigin = CoordinatesUtils.toProcessingCoordinates(origin);
 		core.tint(255, imageTransparency * 255);
 		core.shape(refreshShape(), pOrigin.getX(), pOrigin.getY());

@@ -40,6 +40,7 @@ public class Point extends GObject {
 		setColor(color);
 		this.size = size;
 		this.transparency = 1;
+		finishLoad();
 	}
 
 	public Vector2d getPosition() {

@@ -60,6 +60,7 @@ public class Text extends GObject {
 		this.font = font;
 		setTextAlign(null);
 		setTextHeight(null);
+		finishLoad();
 	}
 
 	public Text(boolean visible, double drawPriority, double tickPriority, String text, Vector2d position, Color color, float size, Font font, EnumTextAlign textAlign,
@@ -72,6 +73,7 @@ public class Text extends GObject {
 		this.font = font;
 		setTextAlign(textAlign);
 		setTextHeight(textHeight);
+		finishLoad();
 	}
 
 

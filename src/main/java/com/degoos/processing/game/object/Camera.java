@@ -47,6 +47,7 @@ public class Camera {
 	}
 
 	public boolean isVisible(Entity entity) {
+		if (entity == null) return false;
 		Vector2d min = entity.getCurrentDisplayArea().getMin();
 		Vector2d max = entity.getCurrentDisplayArea().getMax();
 		return isPointVisible(min) || isPointVisible(new Vector2d(min.getX(), max.getY())) || isPointVisible(max) || isPointVisible(new Vector2d(max.getX(), min.getY

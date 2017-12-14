@@ -16,7 +16,7 @@ public class AuraSphere extends Projectile {
 	private int launcher;
 
 	public AuraSphere(Vector2d position, Controller controller, double damage, Vector2d direction, int launcher) {
-		super(position, new Area(new Vector2d(-0.3, -0.3), new Vector2d(0.3, 0.3)), new Area(new Vector2d(-0.3, -0.3), new Vector2d(0.3, 0.3)), false, 0.005, true,
+		super(position, new Area(new Vector2d(-0.1, -0.1), new Vector2d(0.1, 0.1)), new Area(new Vector2d(-0.1, -0.1), new Vector2d(0.1, 0.1)), false, 0.0075, true,
 			controller, damage, direction);
 		setTexture(animation);
 		this.launcher = launcher;

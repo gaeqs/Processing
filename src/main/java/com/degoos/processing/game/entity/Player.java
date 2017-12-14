@@ -28,35 +28,76 @@ import java.util.Map;
 public class Player extends LivingEntity {
 
 	private EnumFacingDirection direction;
-	private Map<EnumFacingDirection, Image> standAnimations;
-	private Map<EnumFacingDirection, Image> walkingAnimations;
+	private static Map<EnumFacingDirection, Image> standAnimations, walkingAnimations, enemyStandAnimations, enemyWalkingAnimations;
 	private String nick;
 	private Text nametag;
 	private Shape nametagBackground;
-	private boolean walking;
+	private boolean walking, enemy;
 
-	public Player(Vector2d position, Controller controller, String nick) {
-		this(-1, position, controller, nick);
+	static {
+		standAnimations = new HashMap<>();
+		enemyStandAnimations = new HashMap<>();
+		walkingAnimations = new HashMap<>();
+		enemyWalkingAnimations = new HashMap<>();
+		standAnimations.put(EnumFacingDirection.DOWN, new Animation("riolu/stand/down", "png"));
+		standAnimations.put(EnumFacingDirection.UP, new Animation("riolu/stand/up", "png"));
+		standAnimations.put(EnumFacingDirection.RIGHT, new Animation("riolu/stand/right", "png"));
+		standAnimations.put(EnumFacingDirection.LEFT, new Animation("riolu/stand/left", "png"));
+		standAnimations.put(EnumFacingDirection.DOWN_LEFT, standAnimations.get(EnumFacingDirection.DOWN));
+		standAnimations.put(EnumFacingDirection.DOWN_RIGHT, standAnimations.get(EnumFacingDirection.DOWN));
+		standAnimations.put(EnumFacingDirection.UP_LEFT, standAnimations.get(EnumFacingDirection.UP));
+		standAnimations.put(EnumFacingDirection.UP_RIGHT, standAnimations.get(EnumFacingDirection.UP));
+		enemyStandAnimations.put(EnumFacingDirection.DOWN, new Animation("enemyriolu/stand/down", "png"));
+		enemyStandAnimations.put(EnumFacingDirection.UP, new Animation("enemyriolu/stand/up", "png"));
+		enemyStandAnimations.put(EnumFacingDirection.RIGHT, new Animation("enemyriolu/stand/right", "png"));
+		enemyStandAnimations.put(EnumFacingDirection.LEFT, new Animation("enemyriolu/stand/left", "png"));
+		enemyStandAnimations.put(EnumFacingDirection.DOWN_LEFT, enemyStandAnimations.get(EnumFacingDirection.DOWN));
+		enemyStandAnimations.put(EnumFacingDirection.DOWN_RIGHT, enemyStandAnimations.get(EnumFacingDirection.DOWN));
+		enemyStandAnimations.put(EnumFacingDirection.UP_LEFT, enemyStandAnimations.get(EnumFacingDirection.UP));
+		enemyStandAnimations.put(EnumFacingDirection.UP_RIGHT, enemyStandAnimations.get(EnumFacingDirection.UP));
+		walkingAnimations.put(EnumFacingDirection.DOWN, new Animation("riolu/walk/down", "png"));
+		walkingAnimations.put(EnumFacingDirection.UP, new Animation("riolu/walk/up", "png"));
+		walkingAnimations.put(EnumFacingDirection.RIGHT, new Animation("riolu/walk/right", "png"));
+		walkingAnimations.put(EnumFacingDirection.LEFT, new Animation("riolu/walk/left", "png"));
+		walkingAnimations.put(EnumFacingDirection.DOWN_LEFT, walkingAnimations.get(EnumFacingDirection.DOWN));
+		walkingAnimations.put(EnumFacingDirection.DOWN_RIGHT, walkingAnimations.get(EnumFacingDirection.DOWN));
+		walkingAnimations.put(EnumFacingDirection.UP_LEFT, walkingAnimations.get(EnumFacingDirection.UP));
+		walkingAnimations.put(EnumFacingDirection.UP_RIGHT, walkingAnimations.get(EnumFacingDirection.UP));
+		enemyWalkingAnimations.put(EnumFacingDirection.DOWN, new Animation("enemyriolu/walk/down", "png"));
+		enemyWalkingAnimations.put(EnumFacingDirection.UP, new Animation("enemyriolu/walk/up", "png"));
+		enemyWalkingAnimations.put(EnumFacingDirection.RIGHT, new Animation("enemyriolu/walk/right", "png"));
+		enemyWalkingAnimations.put(EnumFacingDirection.LEFT, new Animation("enemyriolu/walk/left", "png"));
+		enemyWalkingAnimations.put(EnumFacingDirection.DOWN_LEFT, enemyWalkingAnimations.get(EnumFacingDirection.DOWN));
+		enemyWalkingAnimations.put(EnumFacingDirection.DOWN_RIGHT, enemyWalkingAnimations.get(EnumFacingDirection.DOWN));
+		enemyWalkingAnimations.put(EnumFacingDirection.UP_LEFT, enemyWalkingAnimations.get(EnumFacingDirection.UP));
+		enemyWalkingAnimations.put(EnumFacingDirection.UP_RIGHT, enemyWalkingAnimations.get(EnumFacingDirection.UP));
+	}
+
+	public Player(Vector2d position, Controller controller, String nick, boolean enemy) {
+		this(-1, position, controller, nick, enemy);
 	}
 
 
-	public Player(int id, Vector2d position, Controller controller, String nick) {
+	public Player(int id, Vector2d position, Controller controller, String nick, boolean enemy) {
 		super(id, position, new Area(new Vector2d(-0.6, 0), new Vector2d(0.6, 0.5)), new Area(new Vector2d(-0.7, 0), new Vector2d(0.7, 1.3)), true, 0.004D, true,
 			controller, 100, 100);
 		Validate.notNull(nick, "Nick cannot be null!");
 		this.nick = nick;
+		this.enemy = enemy;
 		loadInstance();
 	}
 
 	public Player(DataInputStream inputStream) throws IOException {
 		super(inputStream);
 		nick = inputStream.readUTF();
+		enemy = true;
 		loadInstance();
 	}
 
 	public Player(DataInputStream inputStream, Controller controller) throws IOException {
 		super(inputStream, controller);
 		nick = inputStream.readUTF();
+		enemy = true;
 		loadInstance();
 	}
 
@@ -76,25 +117,6 @@ public class Player extends LivingEntity {
 				size.getY() - 0.003), new Vector2d(size.getX(), size.getY() - 0.003)));
 		nametagBackground.setFillColor(Color.GRAY.darker());
 		nametagBackground.setFullTransparency(0.5F);
-		standAnimations = new HashMap<>();
-		walkingAnimations = new HashMap<>();
-		standAnimations.put(EnumFacingDirection.DOWN, new Animation("riolu/stand/down", "png"));
-		standAnimations.put(EnumFacingDirection.UP, new Animation("riolu/stand/up", "png"));
-		standAnimations.put(EnumFacingDirection.RIGHT, new Animation("riolu/stand/right", "png"));
-		standAnimations.put(EnumFacingDirection.LEFT, new Animation("riolu/stand/left", "png"));
-		standAnimations.put(EnumFacingDirection.DOWN_LEFT, standAnimations.get(EnumFacingDirection.DOWN));
-		standAnimations.put(EnumFacingDirection.DOWN_RIGHT, standAnimations.get(EnumFacingDirection.DOWN));
-		standAnimations.put(EnumFacingDirection.UP_LEFT, standAnimations.get(EnumFacingDirection.UP));
-		standAnimations.put(EnumFacingDirection.UP_RIGHT, standAnimations.get(EnumFacingDirection.UP));
-
-		walkingAnimations.put(EnumFacingDirection.DOWN, new Animation("riolu/walk/down", "png"));
-		walkingAnimations.put(EnumFacingDirection.UP, new Animation("riolu/walk/up", "png"));
-		walkingAnimations.put(EnumFacingDirection.RIGHT, new Animation("riolu/walk/right", "png"));
-		walkingAnimations.put(EnumFacingDirection.LEFT, new Animation("riolu/walk/left", "png"));
-		walkingAnimations.put(EnumFacingDirection.DOWN_LEFT, walkingAnimations.get(EnumFacingDirection.DOWN));
-		walkingAnimations.put(EnumFacingDirection.DOWN_RIGHT, walkingAnimations.get(EnumFacingDirection.DOWN));
-		walkingAnimations.put(EnumFacingDirection.UP_LEFT, walkingAnimations.get(EnumFacingDirection.UP));
-		walkingAnimations.put(EnumFacingDirection.UP_RIGHT, walkingAnimations.get(EnumFacingDirection.UP));
 		setTexture(getAnimation(EnumFacingDirection.DOWN));
 	}
 
@@ -141,8 +163,14 @@ public class Player extends LivingEntity {
 
 	public Image getAnimation(EnumFacingDirection direction) {
 		if (walking) {
-			if (walkingAnimations.containsKey(direction)) return walkingAnimations.get(direction);
-		} else if (standAnimations.containsKey(direction)) return standAnimations.get(direction);
+			if (enemy) {
+				if (enemyWalkingAnimations.containsKey(direction)) return enemyWalkingAnimations.get(direction);
+			} else if (walkingAnimations.containsKey(direction)) return walkingAnimations.get(direction);
+		} else {
+			if (enemy) {
+				if (enemyStandAnimations.containsKey(direction)) return enemyStandAnimations.get(direction);
+			} else if (standAnimations.containsKey(direction)) return standAnimations.get(direction);
+		}
 		return getTexture();
 	}
 

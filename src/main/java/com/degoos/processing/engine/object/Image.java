@@ -17,11 +17,13 @@ public class Image extends GObject {
 	public Image(String path) {
 		Validate.notNull(path, "Path cannot be null!");
 		handled = Engine.getCore().loadImage(path);
+		finishLoad();
 	}
 
 	public Image(InputStream inputStream, String extension) {
 		try {
 			handled = ImageUtils.loadImage(inputStream, extension);
+			finishLoad();
 		} catch (Exception ex) {
 			ex.printStackTrace();
 		}

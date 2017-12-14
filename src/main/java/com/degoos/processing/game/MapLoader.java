@@ -1,6 +1,7 @@
 package com.degoos.processing.game;
 
 import com.degoos.processing.engine.Engine;
+import com.degoos.processing.engine.object.Point;
 import com.degoos.processing.engine.object.Text;
 import com.degoos.processing.game.listener.ScreenListener;
 import com.degoos.processing.game.listener.SetupListener;
@@ -15,15 +16,16 @@ public class MapLoader {
 		double ref = (double) Engine.getCore().width / (double) Engine.getCore().height;
 
 		Game.camera = new Camera(new Vector2d(), ref * 4, 4);
-		Game.level = new Level("map");
+		Game.level = new Level("map2");
 
 		Engine.getEventManager().registerListener(new SetupListener());
 		Engine.getEventManager().registerListener(new ScreenListener());
 
-		new Text(true, 0, 0, "", new Vector2d(0, 0.98), Color.BLACK, 20) {
+		new Point(true, 0, 0, new Vector2d(0, 1), Color.WHITE, 60).setTransparency(0.8F);
+		new Text(true, 0, 0, "", new Vector2d(0, 0.982), Color.BLACK, 20) {
 			@Override
 			public void onTick(long dif) {
-				setText(String.valueOf(dif) + (SetupListener.setup ? Game.player.getPosition() : ""));
+				setText(dif == 0 ? "> 9000" : String.valueOf(1000 / dif) + (SetupListener.setup ? Game.player.getPosition() : ""));
 			}
 		};
 

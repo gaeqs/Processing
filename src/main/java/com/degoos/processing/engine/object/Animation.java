@@ -15,7 +15,6 @@ public class Animation extends Image {
 	private int currentFrame;
 	private int currentMillis;
 	private int millisToChange;
-	private boolean ready;
 
 	public Animation(String folder, String extension) {
 		super();
@@ -39,7 +38,7 @@ public class Animation extends Image {
 				imageMillis.add(millis);
 			}
 		}
-		ready = true;
+		finishLoad();
 	}
 
 	public List<Image> getImageList() {
@@ -81,12 +80,8 @@ public class Animation extends Image {
 		return this;
 	}
 
-	public boolean isReady() {
-		return ready;
-	}
-
-	public Animation reset () {
-		if(imageSequence.isEmpty() || imageMillis.isEmpty()) return this;
+	public Animation reset() {
+		if (imageSequence.isEmpty() || imageMillis.isEmpty()) return this;
 		currentFrame = 0;
 		currentMillis = 0;
 		millisToChange = imageMillis.get(currentFrame);
@@ -94,13 +89,12 @@ public class Animation extends Image {
 	}
 
 	public PImage getHandled() {
-		if (!ready) return null;
+		if (!isLoaded()) return null;
 		return imageList.isEmpty() ? null : imageList.get(imageSequence.get(currentFrame)).getHandled();
 	}
 
 	@Override
 	public void onTick(long dif) {
-		if (!ready) return;
 		currentMillis += dif;
 		while (currentMillis >= millisToChange) {
 			currentMillis -= millisToChange;
@@ -121,7 +115,6 @@ public class Animation extends Image {
 		if (currentFrame != animation.currentFrame) return false;
 		if (currentMillis != animation.currentMillis) return false;
 		if (millisToChange != animation.millisToChange) return false;
-		if (ready != animation.ready) return false;
 		if (!imageList.equals(animation.imageList)) return false;
 		if (!imageSequence.equals(animation.imageSequence)) return false;
 		return imageMillis.equals(animation.imageMillis);
@@ -136,7 +129,6 @@ public class Animation extends Image {
 		result = 31 * result + currentFrame;
 		result = 31 * result + currentMillis;
 		result = 31 * result + millisToChange;
-		result = 31 * result + (ready ? 1 : 0);
 		return result;
 	}
 }
