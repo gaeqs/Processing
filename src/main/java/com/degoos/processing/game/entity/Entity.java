@@ -63,6 +63,12 @@ public class Entity extends Shape {
 		this.velocity = velocity;
 		this.controller = controller;
 		this.canMove = canMove;
+		Vector2d cameraMin = GameCoordinatesUtils.toEngineCoordinates(relativeDisplayArea.getMin(), false);
+		Vector2d cameraMax = GameCoordinatesUtils.toEngineCoordinates(relativeDisplayArea.getMax(), false);
+		addVertexWithUv(cameraMin, new Vector2i(0, 0));
+		addVertexWithUv(new Vector2d(cameraMax.getX(), cameraMin.getY()), new Vector2i(1, 0));
+		addVertexWithUv(cameraMax, new Vector2i(1, 1));
+		addVertexWithUv(new Vector2d(cameraMin.getX(), cameraMax.getY()), new Vector2i(0, 1));
 		recalculateAreas();
 	}
 
@@ -340,14 +346,7 @@ public class Entity extends Shape {
 			setVisible(false);
 			return;
 		} else setVisible(true);
-		getVertexes().clear();
 		setOrigin(GameCoordinatesUtils.toEngineCoordinates(position));
-		Vector2d cameraMin = GameCoordinatesUtils.toEngineCoordinates(relativeDisplayArea.getMin(), false);
-		Vector2d cameraMax = GameCoordinatesUtils.toEngineCoordinates(relativeDisplayArea.getMax(), false);
-		addVertexWithUv(cameraMin, new Vector2i(0, 0));
-		addVertexWithUv(new Vector2d(cameraMax.getX(), cameraMin.getY()), new Vector2i(1, 0));
-		addVertexWithUv(cameraMax, new Vector2i(1, 1));
-		addVertexWithUv(new Vector2d(cameraMin.getX(), cameraMax.getY()), new Vector2i(0, 1));
 	}
 
 	@Override

@@ -1,19 +1,20 @@
 package com.degoos.processing.engine.object;
 
-import com.degoos.processing.engine.Engine;
 import com.degoos.processing.engine.Processing;
 import com.degoos.processing.engine.object.inheritance.Parent;
 import com.degoos.processing.engine.util.CoordinatesUtils;
 import com.degoos.processing.engine.util.Validate;
+import com.degoos.processing.game.entity.Player;
 import com.flowpowered.math.vector.Vector2d;
 import com.flowpowered.math.vector.Vector2f;
 import com.flowpowered.math.vector.Vector2i;
 import java.awt.Color;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import processing.core.PConstants;
 import processing.core.PShape;
@@ -21,13 +22,13 @@ import processing.core.PShape;
 public class Shape extends GObject implements Parent {
 
 	private Vector2d origin;
-	private List<Vector2d> vertexes;
 	private Map<Vector2d, Vector2i> uvMaps;
 	private Color lineColor, fillColor;
 	private Image texture;
 	private List<ShapeChild> children;
 	private float imageOpacity, fillOpacity, lineOpacity;
 	private float rotation;
+	private PShape shape;
 
 	public Shape(Vector2d origin) {
 		this(origin, new ArrayList<>());
@@ -43,9 +44,12 @@ public class Shape extends GObject implements Parent {
 
 	public Shape(boolean visible, double drawPriority, double tickPriority, Vector2d origin, List<Vector2d> vertexes) {
 		super(visible, drawPriority, tickPriority);
+		uvMaps = new HashMap<>();
+		shape = Processing.getInstance().createShape();
+		shape.beginShape();
+		shape.textureMode(PConstants.NORMAL);
+		if (vertexes != null) vertexes.forEach(this::addVertex);
 		setOrigin(origin);
-		setVertexes(vertexes);
-		setUvMaps(null);
 		setChildren(null);
 		setFullColor(null);
 		this.imageOpacity = fillOpacity = lineOpacity = 1;
@@ -62,17 +66,11 @@ public class Shape extends GObject implements Parent {
 		return this;
 	}
 
-	public List<Vector2d> getVertexes() {
-		return vertexes;
-	}
-
-	public Shape setVertexes(List<Vector2d> vertexes) {
-		this.vertexes = vertexes == null ? new CopyOnWriteArrayList<>() : new CopyOnWriteArrayList<>(vertexes);
-		return this;
-	}
-
 	public Shape addVertex(Vector2d vertex) {
-		vertexes.add(vertex);
+		Vector2i uv = uvMaps.get(vertex);
+		Vector2f pVector = CoordinatesUtils.toProcessingCoordinates(vertex, false);
+		if (uv != null) shape.vertex(pVector.getX(), pVector.getY(), uv.getX(), uv.getY() == 0 ? 1 : 0);
+		else shape.vertex(pVector.getX(), pVector.getY());
 		return this;
 	}
 
@@ -80,19 +78,11 @@ public class Shape extends GObject implements Parent {
 		return uvMaps;
 	}
 
-	public Shape setUvMaps(Map<Vector2d, Vector2i> uvMaps) {
-		this.uvMaps = uvMaps == null ? new ConcurrentHashMap<>() : new ConcurrentHashMap<>(uvMaps);
-		return this;
-	}
-
-	public Shape addUvMap(Vector2d vertex, Vector2i uv) {
-		uvMaps.put(vertex, uv);
-		return this;
-	}
-
 	public Shape addVertexWithUv(Vector2d vertex, Vector2i uv) {
-		vertexes.add(vertex);
 		uvMaps.put(vertex, uv);
+		Vector2f pVector = CoordinatesUtils.toProcessingCoordinates(vertex, false);
+		if (uv != null) shape.vertex(pVector.getX(), pVector.getY(), uv.getX(), uv.getY() == 0 ? 1 : 0);
+		else shape.vertex(pVector.getX(), pVector.getY());
 		return this;
 	}
 
@@ -103,10 +93,16 @@ public class Shape extends GObject implements Parent {
 
 	public void setChildren(List<ShapeChild> children) {
 		this.children = children == null ? new CopyOnWriteArrayList<>() : new CopyOnWriteArrayList<>(children);
+		for (int i = 0; i < shape.getVertexCount(); i++)
+			shape.removeChild(i);
+		this.children.stream().filter(GObject::isVisible).sorted(Comparator.comparingDouble(GObject::getDrawPriority)).forEach(child -> {
+			if (shape != null) shape.addChild(child.getShape());
+		});
 	}
 
 	public void addChild(ShapeChild child) {
 		children.add(child);
+		shape.addChild(child.getShape());
 	}
 
 	public Color getLineColor() {
@@ -115,7 +111,8 @@ public class Shape extends GObject implements Parent {
 
 	public Shape setLineColor(Color lineColor) {
 		this.lineColor = lineColor;
-		refreshShape();
+		if (lineColor == null) shape.noStroke();
+		else shape.stroke(lineColor.getRGB(), lineOpacity * 255);
 		return this;
 	}
 
@@ -125,12 +122,18 @@ public class Shape extends GObject implements Parent {
 
 	public Shape setFillColor(Color fillColor) {
 		this.fillColor = fillColor;
+		if (fillColor == null) shape.noFill();
+		else shape.fill(fillColor.getRGB(), fillOpacity * 255);
 		return this;
 	}
 
 	public Shape setFullColor(Color color) {
 		this.fillColor = color;
 		this.lineColor = color;
+		if (fillColor == null) shape.noFill();
+		else shape.fill(fillColor.getRGB(), fillOpacity * 255);
+		if (lineColor == null) shape.noStroke();
+		else shape.stroke(lineColor.getRGB(), lineOpacity * 255);
 		return this;
 	}
 
@@ -140,6 +143,12 @@ public class Shape extends GObject implements Parent {
 
 	public Shape setTexture(Image texture) {
 		this.texture = texture;
+		boolean b = isOpenShape();
+		if (!isOpenShape()) shape.beginShape();
+		if (texture != null) {
+			shape.texture(texture.getHandled());
+		} else shape.noTexture();
+		shape.endShape(PConstants.CLOSE);
 		return this;
 	}
 
@@ -158,6 +167,8 @@ public class Shape extends GObject implements Parent {
 
 	public Shape setFillOpacity(float fillOpacity) {
 		this.fillOpacity = fillOpacity;
+		if (fillColor == null) shape.noFill();
+		else shape.fill(fillColor.getRGB(), fillOpacity * 255);
 		return this;
 	}
 
@@ -167,11 +178,17 @@ public class Shape extends GObject implements Parent {
 
 	public Shape setLineOpacity(float lineOpacity) {
 		this.lineOpacity = lineOpacity;
+		if (lineColor == null) shape.noStroke();
+		else shape.stroke(lineColor.getRGB(), lineOpacity * 255);
 		return this;
 	}
 
 	public Shape setFullOpacity(float opacity) {
 		this.lineOpacity = fillOpacity = imageOpacity = opacity;
+		if (fillColor == null) shape.noFill();
+		else shape.fill(fillColor.getRGB(), fillOpacity * 255);
+		if (lineColor == null) shape.noStroke();
+		else shape.stroke(lineColor.getRGB(), lineOpacity * 255);
 		return this;
 	}
 
@@ -180,58 +197,42 @@ public class Shape extends GObject implements Parent {
 	}
 
 	public void setRotation(float rotation) {
+		shape.rotate(-this.rotation);
 		this.rotation = rotation;
+		shape.rotate(rotation);
+	}
+
+	public boolean isOpenShape() {
+		try {
+			Field field = PShape.class.getField("openShape");
+			field.setAccessible(true);
+			return field.getBoolean(shape);
+		} catch (Exception ex) {
+			ex.printStackTrace();
+			return false;
+		}
+	}
+
+	public PShape getShape() {
+		return shape;
 	}
 
 	@Override
 	public void draw(Processing core) {
-		if (vertexes.isEmpty() || (fillColor == null && lineColor == null && texture == null)) return;
+		if (shape.getVertexCount() == 0 || (fillColor == null && lineColor == null && texture == null)) return;
 		Vector2f pOrigin = CoordinatesUtils.toProcessingCoordinates(origin);
 		core.tint(255, imageOpacity * 255);
-		core.shape(refreshShape(), pOrigin.getX(), pOrigin.getY());
+		if (texture != null) {
+			shape.beginShape();
+			shape.texture(texture.getHandled());
+		} else if (this instanceof Player) System.out.println(this);
+		if (!shape.isClosed()) shape.endShape(Processing.CLOSE);
+		core.shape(shape, pOrigin.getX(), pOrigin.getY());
 		core.tint(255, 255);
 	}
 
 	@Override
 	public void onTick(long dif) {
 
-	}
-
-	protected PShape refreshShape() {
-		try {
-			Processing core = Engine.getCore();
-			PShape parent = children.isEmpty() ? null : core.createShape(Processing.GROUP);
-			PShape handled = core.createShape();
-			handled.beginShape();
-			handled.noFill();
-			handled.noStroke();
-			if (fillColor == null) handled.noFill();
-			else handled.fill(fillColor.getRGB(), fillOpacity * 255);
-			if (lineColor == null) handled.noStroke();
-			else handled.stroke(lineColor.getRGB(), lineOpacity * 255);
-			if (texture != null) {
-				handled.textureMode(PConstants.NORMAL);
-				handled.texture(texture.getHandled());
-			} else handled.noTexture();
-			vertexes.forEach(vector2d -> {
-				Vector2f pVector = CoordinatesUtils.toProcessingCoordinates(vector2d, false);
-				Vector2i uv = uvMaps.get(vector2d);
-				if (uv != null) handled.vertex(pVector.getX(), pVector.getY(), uv.getX(), uv.getY() == 0 ? 1 : 0);
-				else handled.vertex(pVector.getX(), pVector.getY());
-			});
-			children.stream().filter(GObject::isVisible).sorted(Comparator.comparingDouble(GObject::getDrawPriority)).forEach(child -> {
-				if (parent != null) parent.addChild(child.refreshShape());
-			});
-			handled.endShape(PConstants.CLOSE);
-			handled.rotate(rotation);
-			if (parent != null) {
-				parent.addChild(handled);
-				return parent;
-			}
-			return handled;
-		} catch (Exception ex) {
-			ex.printStackTrace();
-			return null;
-		}
 	}
 }

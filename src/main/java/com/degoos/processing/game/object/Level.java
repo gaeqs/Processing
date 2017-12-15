@@ -58,6 +58,14 @@ public class Level extends Shape {
 		}
 
 		Validate.notNull(image, "Image cannot be null!");
+
+		Camera camera = Game.getCamera();
+		if (size == null) return;
+		setOrigin(GameCoordinatesUtils.toEngineCoordinates(new Vector2d()));
+		addVertexWithUv(new Vector2d(0, 0), new Vector2i(0, 0));
+		addVertexWithUv(new Vector2d(size.getX() / (camera.getXRadius() * 2), 0), new Vector2i(1, 0));
+		addVertexWithUv(new Vector2d(size.getX() / (camera.getXRadius() * 2), size.getY() / (camera.getYRadius() * 2)), new Vector2i(1, 1));
+		addVertexWithUv(new Vector2d(0, size.getY() / (camera.getYRadius() * 2)), new Vector2i(0, 1));
 	}
 
 	public Vector2d getSize() {
@@ -96,14 +104,8 @@ public class Level extends Shape {
 
 	@Override
 	public void onTick(long dif) {
-		getVertexes().clear();
-		Camera camera = Game.getCamera();
-		if (size == null) return;
 		setOrigin(GameCoordinatesUtils.toEngineCoordinates(new Vector2d()));
-		addVertexWithUv(new Vector2d(0, 0), new Vector2i(0, 0));
-		addVertexWithUv(new Vector2d(size.getX() / (camera.getXRadius() * 2), 0), new Vector2i(1, 0));
-		addVertexWithUv(new Vector2d(size.getX() / (camera.getXRadius() * 2), size.getY() / (camera.getYRadius() * 2)), new Vector2i(1, 1));
-		addVertexWithUv(new Vector2d(0, size.getY() / (camera.getYRadius() * 2)), new Vector2i(0, 1));
+		super.onTick(dif);
 	}
 
 	@Override
