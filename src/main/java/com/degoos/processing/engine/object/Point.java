@@ -82,11 +82,13 @@ public class Point extends GObject {
 
 	@Override
 	public void draw(Processing core) {
+		core.pushStyle();
 		if (color == null) core.noStroke();
 		else core.stroke(color.getRGB(), opacity * 255);
 		core.strokeWeight(size);
 		Vector2f pPosition = CoordinatesUtils.toProcessingCoordinates(position);
 		core.point(pPosition.getX(), pPosition.getY());
+		core.popStyle();
 	}
 
 	@Override

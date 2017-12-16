@@ -31,6 +31,7 @@ public class Level extends Shape {
 	private Vector2d size;
 	private Set<SavableEntity> levelEntities;
 	private String folder;
+	private Vector2d lastCameraSize = null;
 
 	public Level(String folder) {
 		super(true, 0, 1, new Vector2d(0, 0));
@@ -96,14 +97,19 @@ public class Level extends Shape {
 
 	@Override
 	public void onTick(long dif) {
-		getVertexes().clear();
 		Camera camera = Game.getCamera();
 		if (size == null) return;
 		setOrigin(GameCoordinatesUtils.toEngineCoordinates(new Vector2d()));
-		addVertexWithUv(new Vector2d(0, 0), new Vector2i(0, 0));
-		addVertexWithUv(new Vector2d(size.getX() / (camera.getXRadius() * 2), 0), new Vector2i(1, 0));
-		addVertexWithUv(new Vector2d(size.getX() / (camera.getXRadius() * 2), size.getY() / (camera.getYRadius() * 2)), new Vector2i(1, 1));
-		addVertexWithUv(new Vector2d(0, size.getY() / (camera.getYRadius() * 2)), new Vector2i(0, 1));
+		if (lastCameraSize == null || !lastCameraSize.equals(new Vector2d(camera.getXRadius(), camera.getYRadius()))) {
+			getVertexes().clear();
+			getUvMaps().clear();
+			addVertexWithUv(new Vector2d(0, 0), new Vector2i(0, 0));
+			addVertexWithUv(new Vector2d(size.getX() / (camera.getXRadius() * 2), 0), new Vector2i(1, 0));
+			addVertexWithUv(new Vector2d(size.getX() / (camera.getXRadius() * 2), size.getY() / (camera.getYRadius() * 2)), new Vector2i(1, 1));
+			addVertexWithUv(new Vector2d(0, size.getY() / (camera.getYRadius() * 2)), new Vector2i(0, 1));
+			lastCameraSize = new Vector2d(camera.getXRadius(), camera.getYRadius());
+		}
+		super.onTick(dif);
 	}
 
 	@Override

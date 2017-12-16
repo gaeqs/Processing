@@ -28,6 +28,8 @@ public class Shape extends GObject implements Parent {
 	private List<ShapeChild> children;
 	private float imageOpacity, fillOpacity, lineOpacity;
 	private float rotation;
+	private PShape lastShape;
+	private boolean hasChanged;
 
 	public Shape(Vector2d origin) {
 		this(origin, new ArrayList<>());
@@ -49,6 +51,7 @@ public class Shape extends GObject implements Parent {
 		setChildren(null);
 		setFullColor(null);
 		this.imageOpacity = fillOpacity = lineOpacity = 1;
+		hasChanged = true;
 		finishLoad();
 	}
 
@@ -63,50 +66,60 @@ public class Shape extends GObject implements Parent {
 	}
 
 	public List<Vector2d> getVertexes() {
+		hasChanged = true;
 		return vertexes;
 	}
 
 	public Shape setVertexes(List<Vector2d> vertexes) {
 		this.vertexes = vertexes == null ? new CopyOnWriteArrayList<>() : new CopyOnWriteArrayList<>(vertexes);
+		hasChanged = true;
 		return this;
 	}
 
 	public Shape addVertex(Vector2d vertex) {
 		vertexes.add(vertex);
+		hasChanged = true;
 		return this;
 	}
 
 	public Map<Vector2d, Vector2i> getUvMaps() {
+		hasChanged = true;
 		return uvMaps;
 	}
 
 	public Shape setUvMaps(Map<Vector2d, Vector2i> uvMaps) {
 		this.uvMaps = uvMaps == null ? new ConcurrentHashMap<>() : new ConcurrentHashMap<>(uvMaps);
+		hasChanged = true;
 		return this;
 	}
 
 	public Shape addUvMap(Vector2d vertex, Vector2i uv) {
 		uvMaps.put(vertex, uv);
+		hasChanged = true;
 		return this;
 	}
 
 	public Shape addVertexWithUv(Vector2d vertex, Vector2i uv) {
 		vertexes.add(vertex);
 		uvMaps.put(vertex, uv);
+		hasChanged = true;
 		return this;
 	}
 
 	@Override
 	public List<ShapeChild> getChildren() {
+		hasChanged = true;
 		return children;
 	}
 
 	public void setChildren(List<ShapeChild> children) {
 		this.children = children == null ? new CopyOnWriteArrayList<>() : new CopyOnWriteArrayList<>(children);
+		hasChanged = true;
 	}
 
 	public void addChild(ShapeChild child) {
 		children.add(child);
+		hasChanged = true;
 	}
 
 	public Color getLineColor() {
@@ -115,7 +128,7 @@ public class Shape extends GObject implements Parent {
 
 	public Shape setLineColor(Color lineColor) {
 		this.lineColor = lineColor;
-		refreshShape();
+		hasChanged = true;
 		return this;
 	}
 
@@ -125,12 +138,14 @@ public class Shape extends GObject implements Parent {
 
 	public Shape setFillColor(Color fillColor) {
 		this.fillColor = fillColor;
+		hasChanged = true;
 		return this;
 	}
 
 	public Shape setFullColor(Color color) {
 		this.fillColor = color;
 		this.lineColor = color;
+		hasChanged = true;
 		return this;
 	}
 
@@ -140,6 +155,7 @@ public class Shape extends GObject implements Parent {
 
 	public Shape setTexture(Image texture) {
 		this.texture = texture;
+		hasChanged = true;
 		return this;
 	}
 
@@ -149,6 +165,7 @@ public class Shape extends GObject implements Parent {
 
 	public Shape setImageOpacity(float imageOpacity) {
 		this.imageOpacity = imageOpacity;
+		hasChanged = true;
 		return this;
 	}
 
@@ -158,6 +175,7 @@ public class Shape extends GObject implements Parent {
 
 	public Shape setFillOpacity(float fillOpacity) {
 		this.fillOpacity = fillOpacity;
+		hasChanged = true;
 		return this;
 	}
 
@@ -167,11 +185,13 @@ public class Shape extends GObject implements Parent {
 
 	public Shape setLineOpacity(float lineOpacity) {
 		this.lineOpacity = lineOpacity;
+		hasChanged = true;
 		return this;
 	}
 
 	public Shape setFullOpacity(float opacity) {
 		this.lineOpacity = fillOpacity = imageOpacity = opacity;
+		hasChanged = true;
 		return this;
 	}
 
@@ -181,15 +201,22 @@ public class Shape extends GObject implements Parent {
 
 	public void setRotation(float rotation) {
 		this.rotation = rotation;
+		hasChanged = true;
 	}
 
 	@Override
 	public void draw(Processing core) {
+		core.pushStyle();
 		if (vertexes.isEmpty() || (fillColor == null && lineColor == null && texture == null)) return;
 		Vector2f pOrigin = CoordinatesUtils.toProcessingCoordinates(origin);
 		core.tint(255, imageOpacity * 255);
-		core.shape(refreshShape(), pOrigin.getX(), pOrigin.getY());
-		core.tint(255, 255);
+		if (hasChanged || texture instanceof Animation) {
+			lastShape = refreshShape();
+			hasChanged = false;
+		}
+		core.shape(lastShape, pOrigin.getX(), pOrigin.getY());
+		core.noTint();
+		core.popStyle();
 	}
 
 	@Override

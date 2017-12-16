@@ -148,6 +148,7 @@ public class Text extends GObject {
 
 	@Override
 	public void draw(Processing core) {
+		core.pushStyle();
 		if (color == null) core.noFill();
 		else core.fill(color.getRGB(), opacity * 255);
 		Vector2f pStart = CoordinatesUtils.toProcessingCoordinates(position);
@@ -155,6 +156,7 @@ public class Text extends GObject {
 		core.textSize(size);
 		core.textAlign(textAlign.getId(), textHeight.getId());
 		core.text(text, pStart.getX(), pStart.getY());
+		core.popStyle();
 	}
 
 	@Override

@@ -93,12 +93,14 @@ public class Line extends GObject {
 
 	@Override
 	public void draw(Processing core) {
+		core.pushStyle();
 		if (color == null) core.noStroke();
 		else core.stroke(color.getRGB(), opacity * 255);
 		core.strokeWeight(size);
 		Vector2f pStart = CoordinatesUtils.toProcessingCoordinates(start);
 		Vector2f pEnd = CoordinatesUtils.toProcessingCoordinates(end);
 		core.line(pStart.getX(), pStart.getY(), pEnd.getX(), pEnd.getY());
+		core.popStyle();
 	}
 
 	@Override

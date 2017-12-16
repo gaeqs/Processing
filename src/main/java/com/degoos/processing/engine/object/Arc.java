@@ -150,6 +150,7 @@ public class Arc extends GObject {
 
 	@Override
 	public void draw(Processing core) {
+		core.pushStyle();
 		core.strokeWeight(lineSize);
 		if (lineColor == null) core.noStroke();
 		else core.stroke(lineColor.getRGB(), fillOpacity * 255);
@@ -158,6 +159,7 @@ public class Arc extends GObject {
 		Vector2f pMin = CoordinatesUtils.toProcessingCoordinates(min);
 		Vector2f pMax = CoordinatesUtils.toProcessingCoordinates(max);
 		core.arc(pMin.getX(), pMin.getY(), pMax.getX(), pMax.getY(), startAngle, stopAngle, arcMode.getId());
+		core.popStyle();
 	}
 
 	@Override

@@ -44,9 +44,15 @@ public class ServerConnection {
 					try {
 						while (!socket.isClosed()) {
 							if (inputStream.available() == 0) continue;
-							String s = inputStream.readUTF();
-							Class<?> clazz = Class.forName(s);
-							Packet packet = (Packet) clazz.getConstructor(DataInputStream.class).newInstance(inputStream);
+							short s = inputStream.readShort();
+							Class<? extends Packet> clazz = Game.getPacketMap().get(s);
+							if (clazz == null) {
+								System.out.println("CLASS" + s + " NULL!");
+								disconnect();
+								System.exit(0);
+								return;
+							}
+							Packet packet = clazz.getConstructor(DataInputStream.class).newInstance(inputStream);
 							Engine.getEventManager().callEvent(new ClientPacketReceiveEvent(packet));
 						}
 					} catch (Exception ex) {
@@ -78,7 +84,7 @@ public class ServerConnection {
 	private void sendPacket(Packet packet, boolean secondTry) {
 		if (!secondTry) Engine.getEventManager().callEvent(new ClientPacketSendEvent(packet));
 		try {
-			outputStream.writeUTF(packet.getClass().getName());
+			outputStream.writeShort(Game.getPacketMap().getPacketId(packet));
 			packet.write(outputStream);
 		} catch (Exception ex) {
 			ex.printStackTrace();

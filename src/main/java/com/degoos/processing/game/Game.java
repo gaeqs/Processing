@@ -10,6 +10,7 @@ import com.degoos.processing.game.entity.Player;
 import com.degoos.processing.game.manager.EntityManager;
 import com.degoos.processing.game.network.GameServer;
 import com.degoos.processing.game.network.ServerConnection;
+import com.degoos.processing.game.network.packet.PacketMap;
 import com.degoos.processing.game.object.Camera;
 import com.degoos.processing.game.object.Level;
 import com.degoos.processing.game.object.MenuText;
@@ -24,6 +25,7 @@ public class Game {
 	protected static Level level;
 	protected static Player player;
 	protected static EntityManager entityManager;
+	private static PacketMap packetMap;
 	private static GameServer gameServer;
 	private static ServerConnection serverConnection;
 	private static Font font;
@@ -32,7 +34,8 @@ public class Game {
 	private static MenuText menu;
 
 	public static void main(String[] args) {
-		Game.entityManager = new EntityManager();
+		entityManager = new EntityManager();
+		packetMap = new PacketMap();
 		Engine.startEngine(new Vector2i(1280, 720));
 		Engine.setTextureSampling(EnumTextureSampling.NEAREST);
 
@@ -100,6 +103,11 @@ public class Game {
 
 	public static EntityManager getEntityManager() {
 		return entityManager;
+	}
+
+
+	public static PacketMap getPacketMap() {
+		return packetMap;
 	}
 
 	public static boolean isServer() {
