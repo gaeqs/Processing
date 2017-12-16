@@ -78,4 +78,9 @@ public class Area {
 		max = new Vector2d(Math.max(oMin.getX(), oMax.getX()), Math.max(oMin.getY(), oMax.getY()));
 		rectangle = new Double(min.getX(), min.getY(), max.getX() - min.getX(), max.getY() - min.getY());
 	}
+
+	@Override
+	public String toString() {
+		return min+", "+max;
+	}
 }

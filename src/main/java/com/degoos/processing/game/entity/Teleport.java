@@ -51,8 +51,8 @@ public class Teleport extends SavableEntity {
 
 	public Teleport(DataInputStream inputStream, Level level) throws IOException {
 		super(inputStream, level);
-		this.destiny = new Vector2d(inputStream.readDouble(), inputStream.readDouble());
 		entities = new HashSet<>();
+		this.destiny = new Vector2d(inputStream.readDouble(), inputStream.readDouble());
 	}
 
 	public Teleport(DataInputStream inputStream) throws IOException {
