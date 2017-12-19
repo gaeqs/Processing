@@ -21,6 +21,7 @@ public class GameServer {
 		shuttingDown = false;
 		try {
 			serverSocket = new ServerSocket(22222);
+			serverSocket.setSoTimeout(0);
 			startAcceptThread();
 		} catch (IOException e) {
 			e.printStackTrace();
