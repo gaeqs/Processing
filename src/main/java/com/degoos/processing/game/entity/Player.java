@@ -10,6 +10,7 @@ import com.degoos.processing.engine.object.Text;
 import com.degoos.processing.engine.util.Validate;
 import com.degoos.processing.game.Game;
 import com.degoos.processing.game.controller.Controller;
+import com.degoos.processing.game.entity.special.PlayerShadowSpecial;
 import com.degoos.processing.game.enums.EnumCollideAction;
 import com.degoos.processing.game.enums.EnumFacingDirection;
 import com.degoos.processing.game.network.packet.Packet;
@@ -35,6 +36,7 @@ public class Player extends LivingEntity {
 	private Shape nametagBackground;
 	private boolean walking, enemy, dead, localPlayer;
 	private int lives;
+	private PlayerShadowSpecial shadowSpecial;
 
 	static {
 		standAnimations = new HashMap<>();
@@ -121,6 +123,7 @@ public class Player extends LivingEntity {
 		this.walking = false;
 		setDead(dead);
 		this.direction = EnumFacingDirection.DOWN;
+		this.shadowSpecial = new PlayerShadowSpecial(this);
 
 		nametag = new Text(true, Integer.MAX_VALUE - 1, 0, nick, GameCoordinatesUtils.toEngineCoordinates(getPosition().add(0, 1.3)), Color.WHITE, 30, Game
 			.getFont(), EnumTextAlign.CENTER, EnumTextHeight.CENTER);
@@ -242,9 +245,18 @@ public class Player extends LivingEntity {
 		auraSphere.sendSpawnPacket();
 	}
 
+	public PlayerShadowSpecial getShadowSpecial() {
+		return shadowSpecial;
+	}
+
+	public void activateShadowSpecial() {
+		shadowSpecial.execute();
+	}
+
 
 	@Override
 	public void setHealth(double health) {
+		if (shadowSpecial.isActive() && getHealth() > health) return;
 		if (health <= 0) {
 			super.setHealth(getMaxHealth());
 			setLives(lives - 1);
@@ -277,6 +289,11 @@ public class Player extends LivingEntity {
 	}
 
 	@Override
+	public double getVelocity() {
+		return shadowSpecial.isActive() ? super.getVelocity() * 3 : super.getVelocity();
+	}
+
+	@Override
 	public void setVisible(boolean visible) {
 		super.setVisible(visible);
 		if (nametagBackground != null) nametagBackground.setVisible(visible);
@@ -296,12 +313,18 @@ public class Player extends LivingEntity {
 			nametag.setPosition(GameCoordinatesUtils.toEngineCoordinates(getPosition().add(0, 1.3)));
 			nametagBackground.setOrigin(nametag.getPosition());
 		}
+		shadowSpecial.onTick(dif);
 	}
 
 
 	@Override
 	public void draw(Processing core) {
 		super.draw(core);
+		if (shadowSpecial.getActiveCooldown() > 0) {
+			core.strokeWeight(10);
+			core.stroke(Color.RED.getRGB());
+			core.line(100, 50, 100 + shadowSpecial.getActiveCooldown() / 5, 50);
+		}
 	}
 
 	@Override

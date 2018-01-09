@@ -20,7 +20,7 @@ public class Test {
 		Shape shape = new Shape(true, 0, 0, new Vector2d(0.5, 0.8)) {
 			@Override
 			public void onTick(long dif) {
-				setRotation(getRotation() + 0.1F);
+				setRotation(getRotation() - 0.1F);
 				super.onTick(dif);
 			}
 		};

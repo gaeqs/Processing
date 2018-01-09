@@ -10,7 +10,7 @@ import com.degoos.processing.game.entity.Player;
 
 public class PlayerController implements Controller {
 
-	private boolean up, down, left, right, control, w, a, s, d;
+	private boolean up, down, left, right, control, w, a, s, d, q;
 	private long lastShoot = System.currentTimeMillis();
 
 	public PlayerController() {
@@ -46,6 +46,9 @@ public class PlayerController implements Controller {
 				break;
 			case D:
 				d = true;
+				break;
+			case Q:
+				q = true;
 				break;
 		}
 	}
@@ -90,9 +93,15 @@ public class PlayerController implements Controller {
 		entity.triggerMove(up, down, left, right, dif);
 		Game.getCamera().setPosition(entity.getPosition());
 
-		if (Game.isServer() && (w || a || s || d) && entity instanceof Player && lastShoot + 200 < System.currentTimeMillis()) {
+		if (!Game.isServer()  || !(entity instanceof Player)) return;
+
+		if ((w || a || s || d) && lastShoot + 200 < System.currentTimeMillis()) {
 			((Player) entity).shootAuraSphere(w, s, a, d);
 			lastShoot = System.currentTimeMillis();
+		}
+		if (q) {
+			q = false;
+			((Player) entity).activateShadowSpecial();
 		}
 	}
 }
