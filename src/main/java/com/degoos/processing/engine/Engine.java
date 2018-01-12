@@ -3,9 +3,11 @@ package com.degoos.processing.engine;
 import com.degoos.processing.engine.core.GObjectManager;
 import com.degoos.processing.engine.enums.EnumTextureSampling;
 import com.degoos.processing.engine.event.EventManager;
+import com.degoos.processing.engine.sound.SoundManager;
 import com.degoos.processing.engine.util.Validate;
 import com.flowpowered.math.vector.Vector2d;
 import com.flowpowered.math.vector.Vector2i;
+import com.sun.javafx.application.PlatformImpl;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -19,12 +21,15 @@ public class Engine {
 	private static Processing core;
 	private static GObjectManager objectManager;
 	private static EventManager eventManager;
+	private static SoundManager soundManager;
 	private static boolean started = false;
 
 	public static void startEngine(Vector2i size) {
 		Processing.startEngine(size);
+		PlatformImpl.startup(() -> {});
 		objectManager = new GObjectManager();
 		eventManager = EventManager.getInstance();
+		soundManager = new SoundManager();
 		core = Processing.getInstance();
 		started = true;
 	}
@@ -39,6 +44,10 @@ public class Engine {
 
 	public static EventManager getEventManager() {
 		return eventManager;
+	}
+
+	public static SoundManager getSoundManager() {
+		return soundManager;
 	}
 
 	public static Vector2d getMousePosition() {
@@ -71,12 +80,20 @@ public class Engine {
 		return started;
 	}
 
+	public static URL getResourceURL(String filename) {
+		if (filename == null) {
+			throw new IllegalArgumentException("Filename cannot be null");
+		} else {
+			return Engine.class.getClassLoader().getResource(filename);
+		}
+	}
+
 	public static URLConnection getResourceURLConnection(String filename) {
 		if (filename == null) {
 			throw new IllegalArgumentException("Filename cannot be null");
 		} else {
 			try {
-				URL url = Engine.class.getClassLoader().getResource(filename);
+				URL url = getResourceURL(filename);
 				if (url == null) {
 					return null;
 				} else {
@@ -89,6 +106,7 @@ public class Engine {
 			}
 		}
 	}
+
 
 	public static InputStream getResourceInputStream(String filename) {
 		try {

@@ -1,5 +1,6 @@
 package com.degoos.processing.game.entity;
 
+import com.degoos.processing.engine.Engine;
 import com.degoos.processing.engine.Processing;
 import com.degoos.processing.engine.enums.EnumTextAlign;
 import com.degoos.processing.engine.enums.EnumTextHeight;
@@ -243,6 +244,7 @@ public class Player extends LivingEntity {
 		Vector2d direction = shootDirection.getNormalVector().mul(shootDirection.isDiagonal() ? Math.cos(45) : 1);
 		AuraSphere auraSphere = new AuraSphere(position.add(!shootDirection.isDiagonal() ? direction.mul(0.5) : direction), null, 1, direction, getEntityId());
 		auraSphere.sendSpawnPacket();
+		Engine.getSoundManager().play("sound/laser.mp3", 0);
 	}
 
 	public PlayerShadowSpecial getShadowSpecial() {
