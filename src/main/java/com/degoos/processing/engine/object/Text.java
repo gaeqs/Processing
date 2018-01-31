@@ -84,66 +84,74 @@ public class Text extends GObject {
 		return text;
 	}
 
-	public void setText(String text) {
+	public Text setText(String text) {
 		Validate.notNull(text, "Text cannot be null!");
 		this.text = text;
+		return this;
 	}
 
 	public Vector2d getPosition() {
 		return position;
 	}
 
-	public void setPosition(Vector2d position) {
+	public Text setPosition(Vector2d position) {
 		Validate.notNull(position, "Start cannot be null!");
 		this.position = position;
+		return this;
 	}
 
 	public Color getColor() {
 		return color;
 	}
 
-	public void setColor(Color color) {
+	public Text setColor(Color color) {
 		this.color = color;
+		return this;
 	}
 
 	public Font getFont() {
 		return font;
 	}
 
-	public void setFont(Font font) {
+	public Text setFont(Font font) {
 		this.font = font;
+		return this;
 	}
 
 	public float getSize() {
 		return size;
 	}
 
-	public void setSize(float size) {
+	public Text setSize(float size) {
 		this.size = size;
+		return this;
 	}
 
 	public EnumTextAlign getTextAlign() {
 		return textAlign;
 	}
 
-	public void setTextAlign(EnumTextAlign textAlign) {
+	public Text setTextAlign(EnumTextAlign textAlign) {
 		this.textAlign = textAlign == null ? EnumTextAlign.LEFT : textAlign;
+		return this;
 	}
 
 	public EnumTextHeight getTextHeight() {
 		return textHeight;
 	}
 
-	public void setTextHeight(EnumTextHeight textHeight) {
+	public Text setTextHeight(EnumTextHeight textHeight) {
 		this.textHeight = textHeight == null ? EnumTextHeight.BOTTOM : textHeight;
+		return this;
 	}
 
 	public float getOpacity() {
 		return opacity;
 	}
 
-	public void setOpacity(float opacity) {
+	public Text setOpacity(float opacity) {
 		this.opacity = opacity;
+		return this;
 	}
 
 	@Override

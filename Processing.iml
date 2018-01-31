@@ -45,5 +45,6 @@
     <orderEntry type="library" name="Maven: junit:junit:3.8.2" level="project" />
     <orderEntry type="library" name="Maven: com.googlecode.soundlibs:vorbisspi:1.0.3-1" level="project" />
     <orderEntry type="library" name="Maven: com.googlecode.soundlibs:jorbis:0.0.17-2" level="project" />
+    <orderEntry type="library" name="Maven: org.scream3r:jssc:2.8.0" level="project" />
   </component>
 </module>

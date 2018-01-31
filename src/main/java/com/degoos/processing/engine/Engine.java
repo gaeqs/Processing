@@ -25,13 +25,13 @@ public class Engine {
 	private static boolean started = false;
 
 	public static void startEngine(Vector2i size) {
-		Processing.startEngine(size);
-		PlatformImpl.startup(() -> {});
-		objectManager = new GObjectManager();
 		eventManager = EventManager.getInstance();
+		objectManager = new GObjectManager();
 		soundManager = new SoundManager();
-		core = Processing.getInstance();
 		started = true;
+		Processing.startEngine(size);
+		core = Processing.getInstance();
+		PlatformImpl.startup(() -> {});
 	}
 
 	public static Processing getCore() {

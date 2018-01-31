@@ -4,10 +4,12 @@ package com.degoos.processing.engine.event;
 import com.degoos.processing.engine.util.Validate;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 public class EventManager {
@@ -17,7 +19,7 @@ public class EventManager {
 
 
 	private EventManager() {
-		listeners = new HashSet<>();
+		listeners = Collections.newSetFromMap(new ConcurrentHashMap<>());
 	}
 
 
