@@ -3,8 +3,8 @@ package com.degoos.processing.game.network.packet.out;
 import com.degoos.processing.game.entity.Entity;
 import com.degoos.processing.game.network.packet.Packet;
 import com.degoos.processing.game.util.EntitiesUtils;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
+import java.io.DataInput;
+import java.io.DataOutput;
 
 public class PacketOutEntitySpawn extends Packet {
 
@@ -14,7 +14,7 @@ public class PacketOutEntitySpawn extends Packet {
 		this.entity = entity;
 	}
 
-	public PacketOutEntitySpawn(DataInputStream stream) {
+	public PacketOutEntitySpawn(DataInput stream) {
 		try {
 			entity = EntitiesUtils.loadEntity(stream, null);
 		} catch (Exception e) {
@@ -27,7 +27,7 @@ public class PacketOutEntitySpawn extends Packet {
 	}
 
 	@Override
-	public void write(DataOutputStream outputStream) {
+	public void write(DataOutput outputStream) {
 		try {
 			EntitiesUtils.saveEntity(outputStream, entity);
 		} catch (Exception ex) {

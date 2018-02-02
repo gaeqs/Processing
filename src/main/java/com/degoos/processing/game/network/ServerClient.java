@@ -6,28 +6,32 @@ import com.degoos.processing.game.Game;
 import com.degoos.processing.game.controller.ClientController;
 import com.degoos.processing.game.controller.Controller;
 import com.degoos.processing.game.entity.Player;
-import com.degoos.processing.game.event.packet.PacketReceiveEvent;
-import com.degoos.processing.game.event.packet.PacketSendEvent;
+import com.degoos.processing.game.event.packet.ClientPacketReceiveEvent;
+import com.degoos.processing.game.event.packet.ClientPacketSendEvent;
 import com.degoos.processing.game.network.packet.Packet;
 import com.degoos.processing.game.network.packet.out.PacketOutEntityDelete;
 import com.degoos.processing.game.network.packet.out.PacketOutEntitySpawn;
 import com.degoos.processing.game.network.packet.out.PacketOutOwnClientData;
 import com.flowpowered.math.vector.Vector2d;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
+import com.google.common.io.ByteArrayDataInput;
+import com.google.common.io.ByteArrayDataOutput;
+import com.google.common.io.ByteStreams;
+import java.io.DataInput;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.Socket;
 
 public class ServerClient {
 
 	private Socket socket;
-	private DataInputStream inputStream;
-	private DataOutputStream outputStream;
+	private InputStream inputStream;
+	private OutputStream outputStream;
 	private Controller controller;
 	private Player player;
 	private String nick;
 
-	public ServerClient(Vector2d position, Socket socket, DataInputStream inputStream, DataOutputStream outputStream, String nick) {
+	public ServerClient(Vector2d position, Socket socket, InputStream inputStream, OutputStream outputStream, String nick) {
 		Validate.notNull(nick, "Nick cannot be null!");
 		this.socket = socket;
 		this.inputStream = inputStream;
@@ -40,22 +44,30 @@ public class ServerClient {
 		this.player = new Player(position, controller, nick, true, false);
 		this.player.teleportToSpawn();
 		player.sendSpawnPacket();
-		System.out.println("New player with id " + player.getEntityId());
-		sendPacket(new PacketOutOwnClientData(player.getEntityId(), player.getPosition(), nick));
+		System.out.println("New player (" + nick + ") with id " + player.getEntityId());
 
 		new Thread(() -> {
 			try {
 				while (!socket.isClosed()) {
 					if (inputStream.available() == 0) continue;
-					short s = (short) inputStream.readInt();
+
+					byte[] bytes = new byte[inputStream.available()];
+
+					int i = inputStream.read(bytes);
+					if (i != bytes.length) System.out.println("WARNING! " + i + " != " + bytes.length);
+
+					ByteArrayDataInput in = ByteStreams.newDataInput(bytes);
+
+					short s = (short) in.readInt();
 					Class<? extends Packet> clazz = Game.getPacketMap().get(s);
 					if (clazz == null) {
 						System.out.println("CLASS" + s + " NULL!");
 						disconnect();
+						System.exit(0);
 						return;
 					}
-					Packet packet = clazz.getConstructor(DataInputStream.class).newInstance(inputStream);
-					Engine.getEventManager().callEvent(new PacketReceiveEvent(packet, this));
+					Packet packet = clazz.getConstructor(DataInput.class).newInstance(in);
+					Engine.getEventManager().callEvent(new ClientPacketReceiveEvent(packet));
 				}
 			} catch (Exception ex) {
 				ex.printStackTrace();
@@ -63,17 +75,24 @@ public class ServerClient {
 				disconnect();
 			}
 		}).start();
+
+		try {
+			Thread.sleep(1000);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		sendPacket(new PacketOutOwnClientData(player.getEntityId(), player.getPosition(), nick));
 	}
 
 	public Socket getSocket() {
 		return socket;
 	}
 
-	public DataInputStream getInputStream() {
+	public InputStream getInputStream() {
 		return inputStream;
 	}
 
-	public DataOutputStream getOutputStream() {
+	public OutputStream getOutputStream() {
 		return outputStream;
 	}
 
@@ -94,10 +113,12 @@ public class ServerClient {
 	}
 
 	private void sendPacket(Packet packet, boolean secondTry) {
-		if (!secondTry) Engine.getEventManager().callEvent(new PacketSendEvent(packet, this));
+		if (!secondTry) Engine.getEventManager().callEvent(new ClientPacketSendEvent(packet));
 		try {
-			outputStream.writeInt(Game.getPacketMap().getPacketId(packet));
-			packet.write(outputStream);
+			ByteArrayDataOutput output = ByteStreams.newDataOutput();
+			output.writeInt(Game.getPacketMap().getPacketId(packet));
+			packet.write(output);
+			outputStream.write(output.toByteArray());
 		} catch (Exception ex) {
 			ex.printStackTrace();
 			if (secondTry) disconnect();

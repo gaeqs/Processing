@@ -2,8 +2,8 @@ package com.degoos.processing.game.network.packet.out;
 
 import com.degoos.processing.game.enums.EnumFacingDirection;
 import com.degoos.processing.game.network.packet.Packet;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
+import java.io.DataInput;
+import java.io.DataOutput;
 import java.io.IOException;
 
 public class PacketOutPlayerChangeAnimation extends Packet {
@@ -18,7 +18,7 @@ public class PacketOutPlayerChangeAnimation extends Packet {
 		this.walking = walking;
 	}
 
-	public PacketOutPlayerChangeAnimation(DataInputStream stream) {
+	public PacketOutPlayerChangeAnimation(DataInput stream) {
 		try {
 			entityId = stream.readInt();
 			facingDirection = EnumFacingDirection.values()[stream.readInt()];
@@ -41,7 +41,7 @@ public class PacketOutPlayerChangeAnimation extends Packet {
 	}
 
 	@Override
-	public void write(DataOutputStream outputStream) {
+	public void write(DataOutput outputStream) {
 		try {
 			outputStream.writeInt(entityId);
 			outputStream.writeInt(facingDirection.ordinal());

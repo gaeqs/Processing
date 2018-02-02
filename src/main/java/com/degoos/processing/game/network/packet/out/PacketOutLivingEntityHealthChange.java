@@ -1,8 +1,8 @@
 package com.degoos.processing.game.network.packet.out;
 
 import com.degoos.processing.game.network.packet.Packet;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
+import java.io.DataInput;
+import java.io.DataOutput;
 
 public class PacketOutLivingEntityHealthChange extends Packet {
 
@@ -15,7 +15,7 @@ public class PacketOutLivingEntityHealthChange extends Packet {
 		this.newHealth = newHealth;
 	}
 
-	public PacketOutLivingEntityHealthChange(DataInputStream stream) {
+	public PacketOutLivingEntityHealthChange(DataInput stream) {
 		try {
 			entityId = stream.readInt();
 			oldHealth = stream.readDouble();
@@ -38,7 +38,7 @@ public class PacketOutLivingEntityHealthChange extends Packet {
 	}
 
 	@Override
-	public void write(DataOutputStream outputStream) {
+	public void write(DataOutput outputStream) {
 		try {
 			outputStream.writeInt(entityId);
 			outputStream.writeDouble(oldHealth);

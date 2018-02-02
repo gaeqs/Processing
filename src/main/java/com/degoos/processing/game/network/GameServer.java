@@ -2,9 +2,10 @@ package com.degoos.processing.game.network;
 
 import com.degoos.processing.game.network.packet.Packet;
 import com.flowpowered.math.vector.Vector2d;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
+import com.google.common.io.ByteArrayDataInput;
+import com.google.common.io.ByteStreams;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.HashSet;
@@ -36,14 +37,24 @@ public class GameServer {
 					Socket socket = serverSocket.accept();
 					new Thread(() -> {
 						try {
-							DataInputStream dataInputStream = new DataInputStream(socket.getInputStream());
-							String nick = dataInputStream.readUTF();
-							if (serverClients.stream().anyMatch(c -> c.getNick().equalsIgnoreCase(nick))) {
-								socket.close();
-								return;
+							InputStream inputStream = socket.getInputStream();
+							while (!socket.isClosed()) {
+								if (inputStream.available() == 0) continue;
+
+								byte[] bytes = new byte[inputStream.available()];
+
+								int i = inputStream.read(bytes);
+								if (i != bytes.length) System.out.println("WARNING! " + i + " != " + bytes.length);
+
+								ByteArrayDataInput in = ByteStreams.newDataInput(bytes);
+								String nick = in.readUTF();
+								if (serverClients.stream().anyMatch(c -> c.getNick().equalsIgnoreCase(nick))) {
+									socket.close();
+									return;
+								}
+								serverClients.add(new ServerClient(new Vector2d(12, 6), socket, inputStream, socket.getOutputStream(), nick));
+								break;
 							}
-							DataOutputStream outputStream = new DataOutputStream(socket.getOutputStream());
-							serverClients.add(new ServerClient(new Vector2d(12, 6), socket, dataInputStream, outputStream, nick));
 						} catch (Exception ex) {
 							ex.printStackTrace();
 						}

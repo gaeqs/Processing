@@ -5,7 +5,7 @@ import com.degoos.processing.game.controller.Controller;
 import com.degoos.processing.game.object.Area;
 import com.degoos.processing.game.object.Level;
 import com.flowpowered.math.vector.Vector2d;
-import java.io.DataInputStream;
+import java.io.DataInput;
 import java.io.IOException;
 
 public class SavableEntity extends Entity {
@@ -25,13 +25,13 @@ public class SavableEntity extends Entity {
 		level.addEntity(this);
 	}
 
-	public SavableEntity(DataInputStream inputStream, Level level) throws IOException {
+	public SavableEntity(DataInput inputStream, Level level) throws IOException {
 		super(inputStream);
 		this.level = level;
 		level.addEntity(this);
 	}
 
-	public SavableEntity(DataInputStream inputStream) throws IOException {
+	public SavableEntity(DataInput inputStream) throws IOException {
 		super(inputStream);
 		this.level = Game.getLevel();
 		level.addEntity(this);

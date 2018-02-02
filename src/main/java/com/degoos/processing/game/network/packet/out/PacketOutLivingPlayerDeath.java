@@ -1,8 +1,8 @@
 package com.degoos.processing.game.network.packet.out;
 
 import com.degoos.processing.game.network.packet.Packet;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
+import java.io.DataInput;
+import java.io.DataOutput;
 
 public class PacketOutLivingPlayerDeath extends Packet {
 
@@ -15,7 +15,7 @@ public class PacketOutLivingPlayerDeath extends Packet {
 		this.lives = lives;
 	}
 
-	public PacketOutLivingPlayerDeath(DataInputStream stream) {
+	public PacketOutLivingPlayerDeath(DataInput stream) {
 		try {
 			entityId = stream.readInt();
 			dead = stream.readBoolean();
@@ -38,7 +38,7 @@ public class PacketOutLivingPlayerDeath extends Packet {
 	}
 
 	@Override
-	public void write(DataOutputStream outputStream) {
+	public void write(DataOutput outputStream) {
 		try {
 			outputStream.writeInt(entityId);
 			outputStream.writeBoolean(dead);

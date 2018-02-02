@@ -23,8 +23,8 @@ import com.degoos.processing.game.util.StreamUtils;
 import com.flowpowered.math.vector.Vector2d;
 import com.flowpowered.math.vector.Vector2f;
 import com.flowpowered.math.vector.Vector2i;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
+import java.io.DataInput;
+import java.io.DataOutput;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -72,14 +72,14 @@ public class Entity extends Shape {
 		recalculateAreas();
 	}
 
-	public Entity(DataInputStream inputStream) throws IOException {
+	public Entity(DataInput inputStream) throws IOException {
 		this(inputStream.readInt(), new Vector2d(inputStream.readDouble(), inputStream.readDouble()), new Area(new Vector2d(inputStream.readDouble(), inputStream
 			.readDouble()), new Vector2d(inputStream.readDouble(), inputStream.readDouble())), new Area(new Vector2d(inputStream.readDouble(), inputStream
 			.readDouble()), new Vector2d(inputStream.readDouble(), inputStream.readDouble())), inputStream.readBoolean(), inputStream.readDouble(), false, null);
 		setPosition(getPosition());
 	}
 
-	public Entity(DataInputStream inputStream, Controller controller) throws IOException {
+	public Entity(DataInput inputStream, Controller controller) throws IOException {
 		this(inputStream.readInt(), new Vector2d(inputStream.readDouble(), inputStream.readDouble()), new Area(new Vector2d(inputStream.readDouble(), inputStream
 			.readDouble()), new Vector2d(inputStream.readDouble(), inputStream.readDouble())), new Area(new Vector2d(inputStream.readDouble(), inputStream
 			.readDouble()), new Vector2d(inputStream.readDouble(), inputStream.readDouble())), inputStream.readBoolean(), inputStream.readDouble(), false, controller);
@@ -329,7 +329,7 @@ public class Entity extends Shape {
 	}
 
 
-	public void save(DataOutputStream stream) throws IOException {
+	public void save(DataOutput stream) throws IOException {
 		stream.writeInt(getEntityId());
 		StreamUtils.writeVector(stream, getPosition());
 		StreamUtils.writeArea(stream, getRelativeCollisionBox());

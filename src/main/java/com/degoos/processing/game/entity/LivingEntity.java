@@ -10,8 +10,8 @@ import com.degoos.processing.game.object.Area;
 import com.degoos.processing.game.util.GameCoordinatesUtils;
 import com.flowpowered.math.vector.Vector2d;
 import java.awt.Color;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
+import java.io.DataInput;
+import java.io.DataOutput;
 import java.io.IOException;
 
 public class LivingEntity extends Entity {
@@ -36,7 +36,7 @@ public class LivingEntity extends Entity {
 		recalculateHealthBar();
 	}
 
-	public LivingEntity(DataInputStream inputStream) throws IOException {
+	public LivingEntity(DataInput inputStream) throws IOException {
 		super(inputStream);
 		this.health = inputStream.readDouble();
 		this.maxHealth = inputStream.readDouble();
@@ -45,7 +45,7 @@ public class LivingEntity extends Entity {
 		recalculateHealthBar();
 	}
 
-	public LivingEntity(DataInputStream inputStream, Controller controller) throws IOException {
+	public LivingEntity(DataInput inputStream, Controller controller) throws IOException {
 		super(inputStream, controller);
 		this.health = inputStream.readDouble();
 		this.maxHealth = inputStream.readDouble();
@@ -98,7 +98,7 @@ public class LivingEntity extends Entity {
 	}
 
 	@Override
-	public void save(DataOutputStream stream) throws IOException {
+	public void save(DataOutput stream) throws IOException {
 		super.save(stream);
 		stream.writeDouble(health);
 		stream.writeDouble(maxHealth);

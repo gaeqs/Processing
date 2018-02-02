@@ -22,6 +22,7 @@ public class ClientListener {
 
 	@Listener
 	public void onPacketReceive(ClientPacketReceiveEvent event) {
+		System.out.println("NEW PACKET " + event.getPacket());
 		if (event.getPacket() instanceof PacketOutOwnClientData) {
 			Game.setPlayer(new Player(((PacketOutOwnClientData) event.getPacket()).getEntityId(), ((PacketOutOwnClientData) event.getPacket())
 				.getPosition(), new PlayerController(), ((PacketOutOwnClientData) event.getPacket()).getNick(), false, true));
