@@ -8,6 +8,7 @@ import com.degoos.processing.engine.event.draw.AfterDrawEvent;
 import com.degoos.processing.engine.util.Serial;
 import com.flowpowered.math.vector.Vector2i;
 import java.awt.Color;
+import java.util.Arrays;
 
 public class Arduino {
 
@@ -17,7 +18,8 @@ public class Arduino {
 	public static void main(String[] args) {
 		Engine.startEngine(new Vector2i(1280, 720));
 		Engine.setTextureSampling(EnumTextureSampling.NEAREST);
-		serial = new Serial(Processing.getInstance());
+		System.out.println(Arrays.toString(Serial.list()));
+		serial = new Serial(Processing.getInstance(), Serial.list()[0]);
 
 		Engine.getCore().setBackground(new Color(color, 0, 0));
 		Engine.getEventManager().registerListener(new Arduino());
@@ -26,8 +28,9 @@ public class Arduino {
 	@Listener
 	public void onTick(AfterDrawEvent event) {
 		while (serial.available() > 0) {
-			color = serial.read();
+			color = Math.min(255, Math.max(0, serial.read()));
 		}
+		System.out.println(color);
 		Engine.getCore().setBackground(new Color(color, 0, 0));
 	}
 }
