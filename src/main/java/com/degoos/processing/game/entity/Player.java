@@ -21,8 +21,8 @@ import com.degoos.processing.game.object.Area;
 import com.degoos.processing.game.util.GameCoordinatesUtils;
 import com.flowpowered.math.vector.Vector2d;
 import java.awt.Color;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
+import java.io.DataInput;
+import java.io.DataOutput;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -98,7 +98,7 @@ public class Player extends LivingEntity {
 		loadInstance();
 	}
 
-	public Player(DataInputStream inputStream) throws IOException {
+	public Player(DataInput inputStream) throws IOException {
 		super(inputStream);
 		nick = inputStream.readUTF();
 		dead = inputStream.readBoolean();
@@ -108,7 +108,7 @@ public class Player extends LivingEntity {
 		loadInstance();
 	}
 
-	public Player(DataInputStream inputStream, Controller controller) throws IOException {
+	public Player(DataInput inputStream, Controller controller) throws IOException {
 		super(inputStream, controller);
 		nick = inputStream.readUTF();
 		dead = inputStream.readBoolean();
@@ -315,14 +315,14 @@ public class Player extends LivingEntity {
 			nametag.setPosition(GameCoordinatesUtils.toEngineCoordinates(getPosition().add(0, 1.3)));
 			nametagBackground.setOrigin(nametag.getPosition());
 		}
-		shadowSpecial.onTick(dif);
+		if (shadowSpecial != null) shadowSpecial.onTick(dif);
 	}
 
 
 	@Override
 	public void draw(Processing core) {
 		super.draw(core);
-		if (shadowSpecial.getActiveCooldown() > 0) {
+		if (shadowSpecial != null && shadowSpecial.getActiveCooldown() > 0) {
 			core.strokeWeight(10);
 			core.stroke(Color.RED.getRGB());
 			core.line(100, 50, 100 + shadowSpecial.getActiveCooldown() / 5, 50);
@@ -330,7 +330,7 @@ public class Player extends LivingEntity {
 	}
 
 	@Override
-	public void save(DataOutputStream stream) throws IOException {
+	public void save(DataOutput stream) throws IOException {
 		super.save(stream);
 		stream.writeUTF(nick);
 		stream.writeBoolean(dead);

@@ -3,7 +3,9 @@ package com.degoos.processing.game.util;
 import com.degoos.processing.game.entity.Entity;
 import com.degoos.processing.game.entity.SavableEntity;
 import com.degoos.processing.game.object.Level;
+import java.io.DataInput;
 import java.io.DataInputStream;
+import java.io.DataOutput;
 import java.io.DataOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -28,11 +30,11 @@ public class EntitiesUtils {
 		}
 	}
 
-	public static Entity loadEntity(DataInputStream stream, Level level) {
+	public static Entity loadEntity(DataInput stream, Level level) {
 		try {
 			Class<?> clazz = Class.forName(stream.readUTF());
-			if (level == null) return (Entity) clazz.getConstructor(DataInputStream.class).newInstance(stream);
-			else return (Entity) clazz.getConstructor(DataInputStream.class, Level.class).newInstance(stream, level);
+			if (level == null) return (Entity) clazz.getConstructor(DataInput.class).newInstance(stream);
+			else return (Entity) clazz.getConstructor(DataInput.class, Level.class).newInstance(stream, level);
 		} catch (Exception e) {
 			e.printStackTrace();
 			return null;
@@ -57,7 +59,8 @@ public class EntitiesUtils {
 		}
 	}
 
-	public static void saveEntity(DataOutputStream stream, Entity entity) {
+
+	public static void saveEntity(DataOutput stream, Entity entity) {
 		try {
 			stream.writeUTF(entity.getClass().getName());
 			entity.save(stream);

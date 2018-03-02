@@ -7,9 +7,13 @@ import com.degoos.processing.game.event.packet.ClientPacketReceiveEvent;
 import com.degoos.processing.game.event.packet.ClientPacketSendEvent;
 import com.degoos.processing.game.listener.ClientListener;
 import com.degoos.processing.game.network.packet.Packet;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
+import com.google.common.io.ByteArrayDataInput;
+import com.google.common.io.ByteArrayDataOutput;
+import com.google.common.io.ByteStreams;
+import java.io.DataInput;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.Socket;
 
 public class ServerConnection {
@@ -17,8 +21,8 @@ public class ServerConnection {
 	private Socket socket;
 	private String nick;
 	private boolean loaded;
-	private DataOutputStream outputStream;
-	private DataInputStream inputStream;
+	private OutputStream outputStream;
+	private InputStream inputStream;
 	private boolean shuttingDown;
 
 	public ServerConnection(String nick, String ip) {
@@ -30,13 +34,18 @@ public class ServerConnection {
 				Engine.getEventManager().registerListener(new ClientListener());
 				String[] sl = ip.split(":");
 				socket = new Socket(sl[0], sl.length == 1 || !isInteger(sl[1]) ? 22222 : Integer.parseInt(sl[1]));
-				outputStream = new DataOutputStream(socket.getOutputStream());
-				inputStream = new DataInputStream(socket.getInputStream());
-				outputStream.writeUTF(nick);
+				outputStream = socket.getOutputStream();
+				inputStream = socket.getInputStream();
+
 				if (!socket.isConnected()) {
 					System.exit(0);
 					return;
 				}
+
+				ByteArrayDataOutput output = ByteStreams.newDataOutput();
+				output.writeUTF(nick);
+				outputStream.write(output.toByteArray());
+
 				MapLoader.load();
 				loaded = true;
 				Game.getMenu().deleteAll();
@@ -44,7 +53,15 @@ public class ServerConnection {
 					try {
 						while (!socket.isClosed()) {
 							if (inputStream.available() == 0) continue;
-							short s = (short) inputStream.readInt();
+
+							byte[] bytes = new byte[inputStream.available()];
+
+							int i = inputStream.read(bytes);
+							if (i != bytes.length) System.out.println("WARNING! " + i + " != " + bytes.length);
+
+							ByteArrayDataInput in = ByteStreams.newDataInput(bytes);
+
+							short s = (short) in.readInt();
 							Class<? extends Packet> clazz = Game.getPacketMap().get(s);
 							if (clazz == null) {
 								System.out.println("CLASS" + s + " NULL!");
@@ -52,7 +69,7 @@ public class ServerConnection {
 								System.exit(0);
 								return;
 							}
-							Packet packet = clazz.getConstructor(DataInputStream.class).newInstance(inputStream);
+							Packet packet = clazz.getConstructor(DataInput.class).newInstance(in);
 							Engine.getEventManager().callEvent(new ClientPacketReceiveEvent(packet));
 						}
 					} catch (Exception ex) {
@@ -84,8 +101,10 @@ public class ServerConnection {
 	private void sendPacket(Packet packet, boolean secondTry) {
 		if (!secondTry) Engine.getEventManager().callEvent(new ClientPacketSendEvent(packet));
 		try {
-			outputStream.writeInt(Game.getPacketMap().getPacketId(packet));
-			packet.write(outputStream);
+			ByteArrayDataOutput output = ByteStreams.newDataOutput();
+			output.writeInt(Game.getPacketMap().getPacketId(packet));
+			packet.write(output);
+			outputStream.write(output.toByteArray());
 		} catch (Exception ex) {
 			ex.printStackTrace();
 			if (secondTry) disconnect();

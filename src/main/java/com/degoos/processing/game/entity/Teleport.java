@@ -9,8 +9,8 @@ import com.degoos.processing.game.object.Area;
 import com.degoos.processing.game.object.Level;
 import com.degoos.processing.game.util.StreamUtils;
 import com.flowpowered.math.vector.Vector2d;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
+import java.io.DataInput;
+import java.io.DataOutput;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
@@ -49,13 +49,13 @@ public class Teleport extends SavableEntity {
 		entities = new HashSet<>();
 	}
 
-	public Teleport(DataInputStream inputStream, Level level) throws IOException {
+	public Teleport(DataInput inputStream, Level level) throws IOException {
 		super(inputStream, level);
 		entities = new HashSet<>();
 		this.destiny = new Vector2d(inputStream.readDouble(), inputStream.readDouble());
 	}
 
-	public Teleport(DataInputStream inputStream) throws IOException {
+	public Teleport(DataInput inputStream) throws IOException {
 		super(inputStream);
 		this.destiny = new Vector2d(inputStream.readDouble(), inputStream.readDouble());
 		entities = new HashSet<>();
@@ -72,7 +72,7 @@ public class Teleport extends SavableEntity {
 	}
 
 	@Override
-	public void save(DataOutputStream stream) throws IOException {
+	public void save(DataOutput stream) throws IOException {
 		super.save(stream);
 		StreamUtils.writeVector(stream, destiny);
 	}

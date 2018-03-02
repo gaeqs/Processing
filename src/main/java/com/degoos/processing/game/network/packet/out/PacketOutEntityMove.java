@@ -3,8 +3,8 @@ package com.degoos.processing.game.network.packet.out;
 import com.degoos.processing.game.network.packet.Packet;
 import com.degoos.processing.game.util.StreamUtils;
 import com.flowpowered.math.vector.Vector2d;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
+import java.io.DataInput;
+import java.io.DataOutput;
 import java.io.IOException;
 
 public class PacketOutEntityMove extends Packet {
@@ -17,7 +17,7 @@ public class PacketOutEntityMove extends Packet {
 		this.position = position;
 	}
 
-	public PacketOutEntityMove(DataInputStream stream) {
+	public PacketOutEntityMove(DataInput stream) {
 		try {
 			entityId = stream.readInt();
 			position = new Vector2d(stream.readDouble(), stream.readDouble());
@@ -35,7 +35,7 @@ public class PacketOutEntityMove extends Packet {
 	}
 
 	@Override
-	public void write(DataOutputStream outputStream) {
+	public void write(DataOutput outputStream) {
 		try {
 			outputStream.writeInt(entityId);
 			StreamUtils.writeVector(outputStream, position);

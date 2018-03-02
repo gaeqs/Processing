@@ -6,8 +6,8 @@ import com.degoos.processing.game.controller.Controller;
 import com.degoos.processing.game.enums.EnumCollideAction;
 import com.degoos.processing.game.object.Area;
 import com.flowpowered.math.vector.Vector2d;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
+import java.io.DataInput;
+import java.io.DataOutput;
 import java.io.IOException;
 
 public class AuraSphere extends Projectile {
@@ -28,13 +28,13 @@ public class AuraSphere extends Projectile {
 		this.launcher = launcher;
 	}
 
-	public AuraSphere(DataInputStream inputStream) throws IOException {
+	public AuraSphere(DataInput inputStream) throws IOException {
 		super(inputStream);
 		setTexture(animation);
 		launcher = inputStream.readInt();
 	}
 
-	public AuraSphere(DataInputStream inputStream, Controller controller) throws IOException {
+	public AuraSphere(DataInput inputStream, Controller controller) throws IOException {
 		super(inputStream, controller);
 		setTexture(animation);
 		launcher = inputStream.readInt();
@@ -67,7 +67,7 @@ public class AuraSphere extends Projectile {
 	}
 
 	@Override
-	public void save(DataOutputStream stream) throws IOException {
+	public void save(DataOutput stream) throws IOException {
 		super.save(stream);
 		stream.writeInt(launcher);
 	}

@@ -3,7 +3,7 @@ package com.degoos.processing.game.entity;
 import com.degoos.processing.game.object.Area;
 import com.degoos.processing.game.object.Level;
 import com.flowpowered.math.vector.Vector2d;
-import java.io.DataInputStream;
+import java.io.DataInput;
 import java.io.IOException;
 
 public class CollisionBox extends SavableEntity {
@@ -26,12 +26,12 @@ public class CollisionBox extends SavableEntity {
 	}
 
 
-	public CollisionBox(DataInputStream inputStream, Level level) throws IOException {
+	public CollisionBox(DataInput inputStream, Level level) throws IOException {
 		super(inputStream, level);
 	}
 
 
-	public CollisionBox(DataInputStream inputStream) throws IOException {
+	public CollisionBox(DataInput inputStream) throws IOException {
 		super(inputStream);
 	}
 

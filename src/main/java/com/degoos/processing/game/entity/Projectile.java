@@ -6,8 +6,8 @@ import com.degoos.processing.game.enums.EnumCollideAction;
 import com.degoos.processing.game.object.Area;
 import com.degoos.processing.game.util.StreamUtils;
 import com.flowpowered.math.vector.Vector2d;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
+import java.io.DataInput;
+import java.io.DataOutput;
 import java.io.IOException;
 
 public class Projectile extends Entity {
@@ -31,14 +31,14 @@ public class Projectile extends Entity {
 		setDirection(direction);
 	}
 
-	public Projectile(DataInputStream inputStream) throws IOException {
+	public Projectile(DataInput inputStream) throws IOException {
 		super(inputStream);
 		setTickPriority(0);
 		this.damage = inputStream.readDouble();
 		setDirection(new Vector2d(inputStream.readDouble(), inputStream.readDouble()));
 	}
 
-	public Projectile(DataInputStream inputStream, Controller controller) throws IOException {
+	public Projectile(DataInput inputStream, Controller controller) throws IOException {
 		super(inputStream, controller);
 		setTickPriority(0);
 		this.damage = inputStream.readDouble();
@@ -62,7 +62,7 @@ public class Projectile extends Entity {
 	}
 
 	@Override
-	public void save(DataOutputStream stream) throws IOException {
+	public void save(DataOutput stream) throws IOException {
 		super.save(stream);
 		stream.writeDouble(damage);
 		StreamUtils.writeVector(stream, direction);
